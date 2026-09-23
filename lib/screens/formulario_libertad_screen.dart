@@ -1,11 +1,12 @@
 // RUTA DE ARCHIVO: lib/screens/formulario_libertad_screen.dart
 
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
 import '../models/caso_ingreso.dart';
 import '../models/caso_libertad.dart';
+import '../services/docx_builder.dart';
 import '../services/storage_service.dart';
 import '../services/entidad_financiera_service.dart';
 import 'buscar_placa_screen.dart' show EstadoVehiculoIcon;
@@ -66,6 +67,26 @@ class _FormularioLibertadScreenState extends State<FormularioLibertadScreen> {
   ];
   String? _tipoServicioGaraje;
 
+  /// Traduce el valor corto de "Tipo de cobro" del Ingreso (LIVIANO,
+  /// PESADO, MOTOCICLETA, EXTRAPESADO) al texto largo exacto que usa
+  /// el dropdown de "Tipo de servicio de garaje" de esta pantalla.
+  /// Si el valor heredado no calza con ninguno conocido, devuelve null
+  /// en vez de un texto inválido (evita el crash del DropdownButtonFormField).
+  static String? _mapearTipoCobroAServicioGaraje(String tipoCobro) {
+    switch (tipoCobro) {
+      case 'LIVIANO':
+        return 'SERVICIO DE GARAJE LIVIANOS';
+      case 'PESADO':
+        return 'SERVICIO DE GARAJE PESADOS';
+      case 'MOTOCICLETA':
+        return 'SERVICIO DE GARAJE MOTOCICLETA';
+      case 'EXTRAPESADO':
+        return 'SERVICIO DE GARAJE EXTRA PESADOS';
+      default:
+        return null;
+    }
+  }
+
   bool _guardando = false;
 
   @override
@@ -115,7 +136,9 @@ class _FormularioLibertadScreenState extends State<FormularioLibertadScreen> {
         : 'Mayor';
     _tipoServicioGaraje = _caso.tipoServicioGaraje.isNotEmpty
         ? _caso.tipoServicioGaraje
-        : (ing.tipoCobroParqueo.isNotEmpty ? ing.tipoCobroParqueo : null);
+        : (ing.tipoCobroParqueo.isNotEmpty
+            ? _mapearTipoCobroAServicioGaraje(ing.tipoCobroParqueo)
+            : null);
 
     if (e == null) {
       _recalcularDias();
@@ -323,6 +346,21 @@ class _FormularioLibertadScreenState extends State<FormularioLibertadScreen> {
       appBar: AppBar(
         title: Text('Libertad — ${ing.placa.toUpperCase()}'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.copy_all_outlined),
+            tooltip: 'Copiar texto para Parte Web / Acta',
+            onPressed: () {
+              _aplicarCambiosACaso();
+              final texto = DocxBuilder.generarTextoNarrativoLibertad(_caso);
+              Clipboard.setData(ClipboardData(text: texto));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Texto de Libertad copiado al portapapeles'),
+                  backgroundColor: Color(0xFF17356E),
+                ),
+              );
+            },
+          ),
           if (!_guardando)
             IconButton(
               icon: const Icon(Icons.share_outlined),
@@ -768,8 +806,27 @@ class _VistaPreviaLibertadScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textoNarrativo = DocxBuilder.generarTextoNarrativoLibertad(caso);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Vista Previa — Libertad')),
+      appBar: AppBar(
+        title: const Text('Vista Previa — Libertad'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.copy_outlined),
+            tooltip: 'Copiar texto para Parte Web / Acta',
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: textoNarrativo));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Texto de Libertad copiado al portapapeles'),
+                  backgroundColor: Color(0xFF17356E),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -777,7 +834,67 @@ class _VistaPreviaLibertadScreen extends StatelessWidget {
             '${ingreso.placa.toUpperCase()} — ${ingreso.marca} ${ingreso.color}',
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
+          Card(
+            color: const Color(0xFFF0F5FD),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: Color(0xFF17356E), width: 1.5),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: const [
+                      Icon(Icons.assignment_outlined, color: Color(0xFF17356E)),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Texto Oficial para Parte Web / Acta de Salida',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: Color(0xFF17356E),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Divider(color: Color(0xFFC7D7EE)),
+                  const SizedBox(height: 6),
+                  SelectableText(
+                    textoNarrativo,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      height: 1.45,
+                      color: Color(0xFF1C2D42),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  FilledButton.icon(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: const Color(0xFF17356E),
+                      foregroundColor: Colors.white,
+                    ),
+                    icon: const Icon(Icons.copy, size: 18),
+                    label: const Text('Copiar texto para Parte Web / Acta'),
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: textoNarrativo));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('¡Texto narrativo copiado! Listo para pegar en Parte Web.'),
+                          backgroundColor: Color(0xFF17356E),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
           _tarjeta('Documento de devolución', [
             _fila('N° de Memorando', caso.memorandoNro),
             _fila('Fecha del Memorando', caso.memorandoFecha),

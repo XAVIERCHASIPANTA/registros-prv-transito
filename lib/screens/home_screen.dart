@@ -172,7 +172,7 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     const SizedBox(height: 8),
-                    Image.asset('assets/logo.png', height: 98),
+                    Image.asset('assets/logo.png', height: 170),
                     const SizedBox(height: 14),
                     const Text(
                       'CONTROL Y GESTIÓN DE',
