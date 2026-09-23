@@ -78,12 +78,13 @@ class DocxBuilder {
     return grado;
   }
 
-  /// Construye el documento Word específico para una Orden de Libertad /
-  /// Devolución, calcando EXACTAMENTE el texto real de LIBERTADES_2026.rtf.
-  static List<int> buildLibertad(CasoLibertad l) {
+  /// Texto narrativo oficial de la Libertad (el párrafo que va al Parte
+  /// Web / Acta de Salida). Público para que las pantallas puedan mostrarlo
+  /// y copiarlo al portapapeles sin tener que generar el .docx completo.
+  static String generarTextoNarrativoLibertad(CasoLibertad l) {
     final saludo = _saludo(l.gradoDestinatario);
 
-    final parrafoPrincipal = 'Por medio del presente me permito poner en su '
+    return 'Por medio del presente me permito poner en su '
         'conocimiento Mi $saludo. que encontrándome como custodio del CRV '
         '"Control 120", se dio cumplimiento al Memorando Nro. ${l.memorandoNro}. '
         'De fecha ${l.memorandoFecha}, el mismo que tiene referencia al Oficio '
@@ -93,6 +94,13 @@ class DocxBuilder {
         'siendo retirado por su propietario el señor/la señora ${l.retiradoPor}, '
         'con C.I./C.C. ${l.cedulaRetira}, así mismo se detalla las novedades de '
         'ingreso del vehículo y datos de pagos por concepto de garaje';
+  }
+
+  /// Construye el documento Word específico para una Orden de Libertad /
+  /// Devolución, calcando EXACTAMENTE el texto real de LIBERTADES_2026.rtf.
+  static List<int> buildLibertad(CasoLibertad l) {
+    final saludo = _saludo(l.gradoDestinatario);
+    final parrafoPrincipal = generarTextoNarrativoLibertad(l);
 
     final lineas = <String>[
       'HOJA DE INGRESO N° ${l.hojaIngresoNro}',

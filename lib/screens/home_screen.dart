@@ -172,39 +172,12 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     const SizedBox(height: 8),
-                    Image.asset('assets/logo.png', height: 170),
+                    // 23/sep: se quitó el bloque de texto "CONTROL Y GESTIÓN
+                    // DE / PATIOS DE RETENCIÓN VEHICULAR ECUADOR / En un
+                    // solo lugar" — Xavier lo pidió eliminar por quedar
+                    // repetido con el texto que ya trae el propio logo.
+                    Image.asset('assets/logo.png', height: 190),
                     const SizedBox(height: 14),
-                    const Text(
-                      'CONTROL Y GESTIÓN DE',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                        letterSpacing: 0.6,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    // 01/sep: Xavier pidió explícitamente "no cambies" este
-                    // color en futuras iteraciones de diseño.
-                    const Text(
-                      'PATIOS DE RETENCIÓN\nVEHICULAR ECUADOR',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Color(0xFF5BA3F5),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 17,
-                        letterSpacing: 0.3,
-                        height: 1.3,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'En un solo lugar',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12),
-                    ),
-                    const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
