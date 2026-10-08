@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:share_plus/share_plus.dart';
 import '../services/pdf_respaldo_service.dart';
+import 'captura_screen.dart';
+import 'home_screen.dart';
 
 /// Ronda 21: pantalla pedida por Xavier para ver, dentro de la misma
 /// app, los PDF de partes policiales que se han ido guardando de forma
@@ -102,6 +104,18 @@ class _PdfsGuardadosScreenState extends State<PdfsGuardadosScreen> {
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            IconButton(
+                              icon: const Icon(Icons.upload_file, color: Colors.blue),
+                              tooltip: 'Leer de nuevo para Ingreso',
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => CapturaScreen(tipo: TipoParte.ingreso, pdfInicial: archivo),
+                                  ),
+                                );
+                              },
+                            ),
                             IconButton(
                               icon: const Icon(Icons.share_outlined),
                               tooltip: 'Compartir',

@@ -486,71 +486,173 @@ class PdfParserService {
   /// real donde el 2º vehículo de la narrativa aparecía PRIMERO en
   /// este bloque, y por eso el chasis les salía cruzado entre los 2
   /// vehículos).
+  /// Datos técnicos (placa, chasis, motor, color, país, año) sacados del bloque
+  /// "Objetos registrados como indicios", uno por cada vehículo listado ahí.
   List<Map<String, String>> _extraerIndicios(String texto) {
     final resultado = <Map<String, String>>[];
     final inicio = RegExp(r'Objetos registrados como indicios', caseSensitive: false).firstMatch(texto);
     if (inicio == null) return resultado;
 
     var bloque = texto.substring(inicio.end);
-    final fin = RegExp(r'Garantias b[áa]sicas|Personal polic[íi]al que particip|El agente aprehensor',
-            caseSensitive: false)
-        .firstMatch(bloque);
+    final fin = RegExp(
+      r'Garantias b[áa]sicas|Personal polic[íi]al que particip|El agente aprehensor|Presuntos victimarios',
+      caseSensitive: false,
+    ).firstMatch(bloque);
     if (fin != null) bloque = bloque.substring(0, fin.start);
 
-    final separador = RegExp(r'Objeto en calidad', caseSensitive: false);
+    final separador = RegExp(
+      r'(\b[A-Z0-9-]{5,10}\s*Placas?:|\|\s*Objeto en calidad\s*\||\bObjeto en calidad\s+RETENIDO)',
+      caseSensitive: false,
+    );
     final cortes = separador.allMatches(bloque).toList();
+    if (cortes.isEmpty) return resultado;
+
     for (var i = 0; i < cortes.length; i++) {
       try {
-        final trozo = bloque.substring(cortes[i].end, i + 1 < cortes.length ? cortes[i + 1].start : bloque.length);
+        final start = cortes[i].start;
+        final end = i + 1 < cortes.length ? cortes[i + 1].start : bloque.length;
+        final chunk = bloque.substring(start, end);
 
-        // Pista de marca: viene en el pedazo ANTES de este corte,
-        // pegada a "Placa:" (ver nota arriba).
-        final anterior = bloque.substring(i == 0 ? 0 : cortes[i - 1].end, cortes[i].start);
-        final marcaHint = _buscar(anterior, RegExp(r'Placas?:?\s*([A-Za-zÁÉÍÓÚñÑ]{3,20})\s*$'));
+        // 1. Placa
+        var placaCruda = RegExp(r'([A-Z0-9-]{5,10})\s*Placas?:', caseSensitive: false).firstMatch(chunk)?.group(1) ??
+            RegExp(r'Placas?:?\s*\|?\s*([A-Z0-9-]{5,10})', caseSensitive: false).firstMatch(chunk)?.group(1) ??
+            '';
+        final placa = _normalizarPlaca(placaCruda);
 
-        final chasis = _buscar(trozo, RegExp(r'\b([A-HJ-NPR-Z0-9]{17})\b'));
-        final pais = _buscar(
-            trozo,
-            RegExp(
-                r'\b(ECUADOR|JAPON|COLOMBIA|PERU|CHINA|COREA(?:\s*DEL\s*SUR)?|ESTADOS UNIDOS|ALEMANIA|BRASIL|MEXICO|INDIA)\b'));
-        final anios = RegExp(r'\b(19[7-9]\d|20[0-2]\d)\b').allMatches(trozo).map((m) => m.group(1)!).toList();
-        final anio = anios.isEmpty ? null : anios.last;
+        // 2. Chasis directo o etiquetado
+        var chasis = RegExp(r'Chasis:?\s*\|?\s*([A-HJ-NPR-Z0-9]{10,20})', caseSensitive: false)
+            .firstMatch(chunk)?.group(1);
+        if (chasis != null && chasis.toUpperCase().contains('RETENIDO')) chasis = null;
 
-        // Modelo: justo después del separador "Objeto en calidad"
-        // vienen primero las ETIQUETAS que quedaron pegadas (ej.
-        // "Objeto: Marca: Modelo: Color principal: Motor: Chasis:") y
-        // SOLO DESPUÉS los valores reales — hay que saltar esas
-        // etiquetas antes de aplicar la regla de "2 palabras (estado
-        // del objeto + tipo) y el resto es el Modelo". Confirmado en
-        // ronda 14: sin este salto, "Modelo" salía con el texto de las
-        // etiquetas en vez del dato real.
-        final valores = trozo.replaceFirst(
-          RegExp(
-            r'^\s*(Objeto:\s*)?(Marca:\s*)?(Modelo:\s*)?(Color\s*principal:\s*)?(Motor:\s*)?(Chasis:\s*)?',
-            caseSensitive: false,
-          ),
-          '',
-        );
-        String? modelo;
-        final tokens = valores.trim().split(RegExp(r'\s+'));
-        if (tokens.length > 2) {
-          final resto = tokens.sublist(2).join(' ');
-          final finModelo = RegExp(
-            r'Color secundario:|\b(BLANCO|NEGRO|ROJO|AZUL|PLATA|PLATEADO|GRIS|AMARILLO|VERDE|CAFE|MARR[OÓ]N|NARANJA|VINO|BEIGE)\b|[A-HJ-NPR-Z0-9]{17}',
-            caseSensitive: false,
-          ).firstMatch(resto);
-          final crudo = finModelo == null ? resto : resto.substring(0, finModelo.start);
-          final recortado = crudo.trim();
-          if (recortado.isNotEmpty) modelo = recortado;
+        // 3. Motor directo o etiquetado
+        var motor = RegExp(r'Motor:?\s*\|?\s*([A-Za-z0-9]{5,20})', caseSensitive: false)
+            .firstMatch(chunk)?.group(1);
+
+        // 4. Si faltan motor o chasis (caso tabla desalineada de Syncfusion)
+        if (chasis == null || motor == null) {
+          final idxPais = chunk.toUpperCase().indexOf('PAÍS') != -1
+              ? chunk.toUpperCase().indexOf('PAÍS')
+              : chunk.toUpperCase().indexOf('PAIS');
+          final zonaSeriales = idxPais != -1 ? chunk.substring(0, idxPais) : chunk;
+
+          final lineas = zonaSeriales
+              .split('\n')
+              .map((l) => l.trim())
+              .where((l) => l.isNotEmpty && !l.startsWith('`') && !l.startsWith('|'))
+              .toList();
+
+          final tokensSeriales = <String>[];
+          for (final l in lineas.reversed) {
+            final limpio = l.replaceAll(RegExp(r'[^A-Za-z0-9]'), '');
+            final u = limpio.toUpperCase();
+            if (u.isEmpty ||
+                u.contains('COLOR') ||
+                u.contains('BLANCO') ||
+                u.contains('NEGRO') ||
+                u.contains('AZUL') ||
+                u.contains('ROJO') ||
+                u.contains('PLATA') ||
+                u.contains('PLOMO') ||
+                u.contains('VERDE') ||
+                u.contains('NARANJA') ||
+                u.contains('RETENIDO') ||
+                u.contains('CHASIS') ||
+                u.contains('MOTOR') ||
+                u.contains('MODELO') ||
+                u.contains('OBJETO') ||
+                u.contains('MARCA') ||
+                u.contains('CAMION') ||
+                u.contains('AUTOMOVIL') ||
+                u.contains('JEEP') ||
+                u.contains('BUS') ||
+                u == placa) {
+              continue;
+            }
+            if (limpio.length >= 5 && limpio.length <= 19 && RegExp(r'\d').hasMatch(limpio)) {
+              tokensSeriales.add(limpio);
+              if (tokensSeriales.length >= 2) break;
+            }
+          }
+
+          if (tokensSeriales.isNotEmpty) {
+            if (tokensSeriales.length >= 2) {
+              final t1 = tokensSeriales[0];
+              final t2 = tokensSeriales[1];
+              if (t1.length >= 17) {
+                chasis ??= t1;
+                motor ??= t2;
+              } else if (t2.length >= 17) {
+                chasis ??= t2;
+                motor ??= t1;
+              } else {
+                chasis ??= t1;
+                motor ??= t2;
+              }
+            } else if (tokensSeriales.length == 1) {
+              if (tokensSeriales[0].length >= 17) {
+                chasis ??= tokensSeriales[0];
+              } else {
+                motor ??= tokensSeriales[0];
+              }
+            }
+          }
         }
 
-        if (chasis == null && pais == null && anio == null && modelo == null && marcaHint == null) continue;
+        // 5. Color
+        var color = RegExp(r'Color(?:\s*principal)?:?\s*\|?\s*([A-Za-zÁÉÍÓÚñÑ]+)', caseSensitive: false)
+            .firstMatch(chunk)?.group(1);
+        if (color == null ||
+            color.toUpperCase() == 'PRINCIPAL' ||
+            color.toUpperCase() == 'SECUNDARIO' ||
+            color.toUpperCase() == 'COLOR') {
+          color = RegExp(
+            r'\b(BLANCO|NEGRO|ROJO|AZUL|PLATA|PLATEADO|GRIS|AMARILLO|VERDE|CAFE|MARR[OÓ]N|NARANJA|VINO|BEIGE|PLOMO)\b',
+            caseSensitive: false,
+          ).firstMatch(chunk)?.group(1);
+        }
+
+        // 6. País
+        final pais = _buscar(
+          chunk,
+          RegExp(
+            r'\b(ECUADOR|JAPON|JAPÓN|COLOMBIA|PERU|PERÚ|CHINA(?:\s*\(REPUBLICA\s*POPULAR\s*DE\))?|COREA(?:\s*DEL\s*SUR)?|ESTADOS UNIDOS|ALEMANIA|BRASIL|MEXICO|MÉXICO|INDIA)\b',
+            caseSensitive: false,
+          ),
+        );
+
+        // 7. Año
+        var anio = RegExp(r'A[ñn]o:?\s*\|?\s*(\d{4})', caseSensitive: false).firstMatch(chunk)?.group(1);
+        if (anio == null) {
+          final anios = RegExp(r'\b(19[7-9]\d|20[0-2]\d)\b').allMatches(chunk).map((m) => m.group(1)!).toList();
+          if (anios.isNotEmpty) anio = anios.last;
+        }
+
+        // 8. Marca hint
+        var marcaHint = _buscar(chunk, RegExp(r'(?:[A-Z0-9-]{5,10}\s*Placas?:|Placas?:[^\n]*)\s*\n\s*([A-Za-zÁÉÍÓÚñÑ]{3,20})'));
+        if (marcaHint == null) {
+          marcaHint = _buscar(chunk, RegExp(r'Marca:?\s*\|?\s*([A-Za-zÁÉÍÓÚñÑ]{3,20})', caseSensitive: false));
+        }
+
+        // 9. Modelo
+        var modelo = _buscar(chunk, RegExp(r'Modelo:?\s*\|?\s*([A-Za-z0-9ÁÉÍÓÚñÑ .\-]+?)(?:\s*\||Color|\n|$)', caseSensitive: false));
+        if (modelo != null) {
+          modelo = modelo
+              .replaceAll(RegExp(r'^(?:Objeto:|Marca:|Modelo:|Color\s*principal:|Motor:|Chasis:|RETENIDO|\s)+', caseSensitive: false), '')
+              .replaceAll(RegExp(r'[`|]'), '')
+              .trim();
+        }
+
+        if (placa.isEmpty && chasis == null && motor == null && anio == null) continue;
+
         resultado.add({
-          if (marcaHint != null) 'marcaHint': marcaHint,
+          if (placa.isNotEmpty) 'placa': placa,
           if (chasis != null) 'chasis': chasis,
+          if (motor != null) 'motor': motor,
+          if (color != null) 'color': color,
           if (pais != null) 'pais': pais,
           if (anio != null) 'anio': anio,
-          if (modelo != null) 'modelo': modelo,
+          if (marcaHint != null) 'marcaHint': marcaHint,
+          if (modelo != null && modelo.isNotEmpty) 'modelo': modelo,
         });
       } catch (_) {
         continue;
@@ -566,17 +668,23 @@ class PdfParserService {
   /// corresponde a UN vehículo. Tolera etiquetas con o sin dos puntos,
   /// "Placa"/"Placas", "Color"/"Color principal", etc.
   Map<String, String> _camposDeBloque(String bloque) {
-    final tipo = _buscar(bloque, RegExp(r'Tipo:?\s*([A-Za-zÁÉÍÓÚáéíóúñÑ ]+?)(?:\n|Marca)'));
-    final marca = _buscar(bloque, RegExp(r'Marca:?\s*([A-Za-zÁÉÍÓÚáéíóúñÑ ]+?)(?:\n|Modelo|Placas?|Color)'));
-    // Modelo directo del bloque narrativo (algunos partes lo traen
-    // ahí, ej. "Modelo: FRTR32M CHASIS TORPEDO..."); admite letras,
-    // números y guiones porque un modelo suele traer cifras (motor,
-    // cilindraje). Si este parte no lo trae aquí, se completa después
-    // con el de "Objetos registrados como indicios" (ver _extraerIndicios).
+    final tipo = _buscar(
+      bloque,
+      RegExp(r'Tipo:?\s*([A-Za-zÁÉÍÓÚáéíóúñÑ ]+?)(?:\n|;|,|Marca)', caseSensitive: false),
+    );
+    final marca = _buscar(
+      bloque,
+      RegExp(r'Marca:?\s*([A-Za-zÁÉÍÓÚáéíóúñÑ ]+?)(?:\n|;|,|Modelo|Placas?|Color)', caseSensitive: false),
+    );
+    // Modelo directo del bloque narrativo
     final modelo = _buscar(
-        bloque, RegExp(r'Modelo:?\s*([A-Za-z0-9ÁÉÍÓÚáéíóúñÑ .\-]+?)(?:\n|Color|Placas?)'));
+      bloque,
+      RegExp(r'Modelo:?\s*([A-Za-z0-9ÁÉÍÓÚáéíóúñÑ .\-]+?)(?:\n|;|,|Color|Placas?)', caseSensitive: false),
+    );
     final color = _buscar(
-        bloque, RegExp(r'Color(?:\s*principal)?:?\s*([A-Za-zÁÉÍÓÚáéíóúñÑ ]+?)(?:\n|Placas?|Propietari|Conductor)'));
+      bloque,
+      RegExp(r'Color(?:\s*principal)?:?\s*([A-Za-zÁÉÍÓÚáéíóúñÑ ]+?)(?:\n|;|,|de\s+Placas?|Placas?|Propietari|Conductor)', caseSensitive: false),
+    );
 
     final combinado = _buscar(
         bloque, RegExp(r'Conductor\s*/?\s*y\s*Propietari[oa]\s*([A-Za-zÁÉÍÓÚáéíóúñÑ .]+?)(?:\n|C\.?C)'));
@@ -594,14 +702,22 @@ class PdfParserService {
     final propietarioCedula =
         propietario.isNotEmpty && propietario != conductor && todasLasCedulas.length > 1 ? todasLasCedulas[1] : '';
 
+    String limpiarCampo(String? s) {
+      if (s == null) return '';
+      return s
+          .replaceAll(RegExp(r'\s+de$', caseSensitive: false), '')
+          .replaceAll(RegExp(r'[,;.-]+$'), '')
+          .trim();
+    }
+
     return {
-      'tipo': tipo ?? '',
-      'marca': marca ?? '',
-      'modelo': modelo ?? '',
-      'color': color ?? '',
-      'conductor': conductor,
+      'tipo': limpiarCampo(tipo),
+      'marca': limpiarCampo(marca),
+      'modelo': limpiarCampo(modelo),
+      'color': limpiarCampo(color),
+      'conductor': limpiarCampo(conductor),
       'conductorCedula': conductorCedula ?? '',
-      'propietario': propietario,
+      'propietario': limpiarCampo(propietario),
       'propietarioCedula': propietarioCedula,
     };
   }
@@ -733,40 +849,72 @@ class PdfParserService {
     var lista = _intentar(() => _extraerPorBloquesParticipante(limpio)) ?? [];
     if (lista.isEmpty) lista = _intentar(() => _extraerPorBloquesVehiculo(limpio)) ?? [];
     if (lista.isEmpty) lista = _intentar(() => _extraerFlexible(limpio)) ?? [];
+
+    final indicios = _intentar(() => _extraerIndicios(limpio)) ?? [];
+
+    // Si la narrativa no trajo bloques pero indicios sí, inicializar participantes desde indicios
+    if (lista.isEmpty && indicios.isNotEmpty) {
+      lista = indicios
+          .where((ind) => ind['placa'] != null && ind['placa']!.isNotEmpty)
+          .map((ind) => ParticipanteVehiculo(
+                placa: ind['placa']!,
+                marca: ind['marcaHint'] ?? '',
+                modelo: ind['modelo'] ?? '',
+                color: ind['color'] ?? '',
+                chasis: ind['chasis'] ?? '',
+                motor: ind['motor'] ?? '',
+                pais: ind['pais'] ?? '',
+                anio: ind['anio'] ?? '',
+              ))
+          .toList();
+    }
     if (lista.isEmpty) return lista;
 
-    // Enriquecer con chasis/país/año/modelo desde "Objetos registrados
-    // como indicios", cuando ese bloque existe. Se empareja por
-    // POSICIÓN (el N-ésimo vehículo del bloque de indicios con el
-    // N-ésimo vehículo detectado en el bloque narrativo), no por placa
-    // — ver nota en _extraerIndicios sobre por qué la placa de este
-    // bloque específico no es confiable. El Modelo solo se toma de acá
-    // si la narrativa no trajo uno ya (ver _camposDeBloque).
-    final indicios = _intentar(() => _extraerIndicios(limpio)) ?? [];
-    // Emparejar cada vehículo con SU entrada de indicios: primero por
-    // Marca (comparando la 'marcaHint' del bloque de indicios contra
-    // la Marca ya extraída de la narrativa) — el orden de este bloque
-    // NO siempre coincide con el de la narrativa (confirmado en ronda
-    // 14, ver nota en _extraerIndicios). Si dos vehículos comparten
-    // marca o no hay pista, se usa la posición como respaldo.
+    // Emparejar cada vehículo con SU indicio por PLACA (evita cruces)
+    final indiciosPorPlaca = <String, Map<String, String>>{};
+    for (final ind in indicios) {
+      if (ind['placa'] != null && ind['placa']!.isNotEmpty) {
+        indiciosPorPlaca[ind['placa']!] = ind;
+      }
+    }
+
     final usados = <int>{};
     lista = lista.asMap().entries.map((entry) {
       final i = entry.key;
       final p = entry.value;
-      var idxIndicio = -1;
-      if (p.marca.isNotEmpty) {
-        idxIndicio = indicios.indexWhere((ind) =>
-            !usados.contains(indicios.indexOf(ind)) &&
-            ind['marcaHint'] != null &&
-            ind['marcaHint']!.toUpperCase() == p.marca.toUpperCase());
+
+      // 1. Por coincidencia exacta de placa
+      Map<String, String>? ind = indiciosPorPlaca[p.placa];
+      if (ind != null) {
+        final idx = indicios.indexOf(ind);
+        if (idx != -1) usados.add(idx);
       }
-      if (idxIndicio == -1 && i < indicios.length && !usados.contains(i)) idxIndicio = i;
-      if (idxIndicio == -1) return p;
-      usados.add(idxIndicio);
-      final ind = indicios[idxIndicio];
+
+      // 2. Por marca si no hubo coincidencia de placa
+      if (ind == null && p.marca.isNotEmpty) {
+        final idx = indicios.indexWhere((indItem) =>
+            !usados.contains(indicios.indexOf(indItem)) &&
+            indItem['marcaHint'] != null &&
+            indItem['marcaHint']!.toUpperCase() == p.marca.toUpperCase());
+        if (idx != -1) {
+          usados.add(idx);
+          ind = indicios[idx];
+        }
+      }
+
+      // 3. Respaldo posicional
+      if (ind == null && i < indicios.length && !usados.contains(i)) {
+        usados.add(i);
+        ind = indicios[i];
+      }
+
+      if (ind == null) return p;
+
       return p.copyWith(
         modelo: p.modelo.isNotEmpty ? null : ind['modelo'],
+        color: p.color.isNotEmpty ? null : ind['color'],
         chasis: ind['chasis'],
+        motor: ind['motor'],
         pais: ind['pais'],
         anio: ind['anio'],
       );

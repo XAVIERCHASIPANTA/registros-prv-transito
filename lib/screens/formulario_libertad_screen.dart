@@ -56,8 +56,16 @@ class _FormularioLibertadScreenState extends State<FormularioLibertadScreen> {
   final _valorAlcohocheckCtrl = TextEditingController();
   final _horaFechaAlcohocheckCtrl = TextEditingController();
 
-  static const _gradosDestinatario = ['Mayor', 'Tcrnl.', 'Coronel'];
-  String _gradoDestinatario = 'Mayor';
+  // Controles para campos de vehículo (heredados de Ingreso que deben ser obligatorios)
+  final _chasisCtrl = TextEditingController();
+  final _motorCtrl = TextEditingController();
+  final _marcaCtrl = TextEditingController();
+  final _modeloCtrl = TextEditingController();
+  final _colorCtrl = TextEditingController();
+  final _anioCtrl = TextEditingController();
+
+  static const _calidadesRetira = ['propietario', 'apoderado', 'procurador síndico'];
+  String _calidadRetira = 'propietario';
 
   static const _tiposServicioGaraje = [
     'SERVICIO DE GARAJE LIVIANOS',
@@ -131,9 +139,16 @@ class _FormularioLibertadScreenState extends State<FormularioLibertadScreen> {
     _comprobanteAlcohocheckCtrl.text = _caso.comprobantePagoAlcohocheckNro;
     _valorAlcohocheckCtrl.text = _caso.valorAlcohocheck;
     _horaFechaAlcohocheckCtrl.text = _caso.horaFechaPagoAlcohocheck;
-    _gradoDestinatario = _gradosDestinatario.contains(_caso.gradoDestinatario)
-        ? _caso.gradoDestinatario
-        : 'Mayor';
+    _chasisCtrl.text = ing.chasis;
+    _motorCtrl.text = ing.motor;
+    _marcaCtrl.text = ing.marca;
+    _modeloCtrl.text = ing.modelo;
+    _colorCtrl.text = ing.color;
+    _anioCtrl.text = ing.anioFabricacion;
+    
+    _calidadRetira = _calidadesRetira.contains(_caso.calidadRetira)
+        ? _caso.calidadRetira
+        : 'propietario';
     _tipoServicioGaraje = _caso.tipoServicioGaraje.isNotEmpty
         ? _caso.tipoServicioGaraje
         : (ing.tipoCobroParqueo.isNotEmpty
@@ -167,6 +182,13 @@ class _FormularioLibertadScreenState extends State<FormularioLibertadScreen> {
     _comprobanteAlcohocheckCtrl.dispose();
     _valorAlcohocheckCtrl.dispose();
     _horaFechaAlcohocheckCtrl.dispose();
+    
+    _chasisCtrl.dispose();
+    _motorCtrl.dispose();
+    _marcaCtrl.dispose();
+    _modeloCtrl.dispose();
+    _colorCtrl.dispose();
+    _anioCtrl.dispose();
     super.dispose();
   }
 
@@ -218,18 +240,28 @@ class _FormularioLibertadScreenState extends State<FormularioLibertadScreen> {
   }
 
   void _aplicarCambiosACaso() {
+    widget.ingreso
+      ..chasis = _chasisCtrl.text.trim()
+      ..motor = _motorCtrl.text.trim()
+      ..marca = _marcaCtrl.text.trim()
+      ..modelo = _modeloCtrl.text.trim()
+      ..color = _colorCtrl.text.trim()
+      ..anioFabricacion = _anioCtrl.text.trim();
+      
     _caso
+      ..marca = widget.ingreso.marca
+      ..color = widget.ingreso.color
       ..memorandoNro = _memorandoNroCtrl.text.trim()
       ..memorandoFecha = _memorandoFechaCtrl.text.trim()
       ..oficioDevolucionNro = _oficioNroCtrl.text.trim()
       ..oficioDevolucionFecha = _oficioFechaCtrl.text.trim()
       ..firmadoPor = _firmadoPorCtrl.text.trim()
       ..retiradoPor = _retiradoPorCtrl.text.trim()
+      ..calidadRetira = _calidadRetira
       ..cedulaRetira = _cedulaRetiraCtrl.text.trim()
       ..fechaSalida = _fechaSalidaCtrl.text.trim()
       ..diasPermanencia = _diasCtrl.text.trim()
       ..causa = _causaCtrl.text.trim()
-      ..gradoDestinatario = _gradoDestinatario
       ..custodioEntregaNombre = _custodioEntregaCtrl.text.trim()
       ..placaGrua = _placaGruaCtrl.text.trim()
       ..numeroParteWebSalida = _numeroParteWebSalidaCtrl.text.trim()
@@ -243,28 +275,23 @@ class _FormularioLibertadScreenState extends State<FormularioLibertadScreen> {
       ..tipoServicioGaraje = _tipoServicioGaraje ?? '';
   }
 
-  /// Mismo criterio que en formulario_screen.dart (ronda 19): ya no
-  /// bloquea en silencio, avisa y deja decidir completar ahora o
-  /// guardar el avance y completar después.
   Future<bool> _puedeContinuar() async {
     final valido = _formKey.currentState!.validate();
     if (valido) return true;
     if (!mounted) return false;
-    final continuar = await showDialog<bool>(
+    await showDialog<void>(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Faltan campos obligatorios'),
         content: const Text(
-          'Hay campos obligatorios vacíos (marcados en rojo en el formulario). '
-          'Puedes bajar a completarlos ahora, o guardar el avance y llenarlos más tarde.',
+          'Es indispensable llenar todos los campos obligatorios para dar la libertad del vehículo y completar la Matriz Excel. Por favor, revisa los campos marcados en rojo.',
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Completar campos')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Guardar de todas formas')),
+          FilledButton(onPressed: () => Navigator.pop(context), child: const Text('Entendido')),
         ],
       ),
     );
-    return continuar ?? false;
+    return false;
   }
 
   Future<void> _guardar({bool compartirDespues = false}) async {
@@ -273,6 +300,7 @@ class _FormularioLibertadScreenState extends State<FormularioLibertadScreen> {
 
     _aplicarCambiosACaso();
 
+    await StorageService.guardarCasoIngreso(widget.ingreso);
     await StorageService.guardarCasoLibertad(_caso);
 
     if (!mounted) return;
@@ -299,6 +327,7 @@ class _FormularioLibertadScreenState extends State<FormularioLibertadScreen> {
   // el dispositivo sin pasar por la bandeja, hay que agregar path_provider.
   Future<void> _verVistaPrevia() async {
     if (!await _puedeContinuar()) return;
+    if (!mounted) return;
     _aplicarCambiosACaso();
 
     final accion = await Navigator.push<String>(
@@ -310,6 +339,7 @@ class _FormularioLibertadScreenState extends State<FormularioLibertadScreen> {
     if (accion == null || !mounted) return;
 
     setState(() => _guardando = true);
+    await StorageService.guardarCasoIngreso(widget.ingreso);
     await StorageService.guardarCasoLibertad(_caso);
     if (!mounted) return;
     setState(() => _guardando = false);
@@ -385,20 +415,20 @@ class _FormularioLibertadScreenState extends State<FormularioLibertadScreen> {
               _campo(_oficioNroCtrl, 'N° de Oficio de Devolución'),
               _campoFecha(_oficioFechaCtrl, 'Fecha del Oficio'),
               _campo(_firmadoPorCtrl, 'Firmado por (fiscal/juez/autoridad)'),
-              DropdownButtonFormField<String>(
-                initialValue: _gradoDestinatario,
-                isExpanded: true,
-                decoration: const InputDecoration(labelText: 'Parte elevado al Sr/a (grado)'),
-                items: _gradosDestinatario
-                    .map((g) => DropdownMenuItem(value: g, child: Text(g, overflow: TextOverflow.ellipsis)))
-                    .toList(),
-                onChanged: (v) => setState(() => _gradoDestinatario = v ?? 'Mayor'),
-              ),
             ]),
             const SizedBox(height: 12),
             _seccion('Persona que retira', [
+              DropdownButtonFormField<String>(
+                initialValue: _calidadRetira,
+                isExpanded: true,
+                decoration: const InputDecoration(labelText: 'Calidad en la que retira'),
+                items: _calidadesRetira
+                    .map((g) => DropdownMenuItem(value: g, child: Text(g.toUpperCase(), overflow: TextOverflow.ellipsis)))
+                    .toList(),
+                onChanged: (v) => setState(() => _calidadRetira = v ?? 'propietario'),
+              ),
               _campo(_retiradoPorCtrl, 'Nombre completo de quien retira'),
-              _campo(_cedulaRetiraCtrl, 'C.I. / C.C.'),
+              _campo(_cedulaRetiraCtrl, 'C.C.'),
             ]),
             const SizedBox(height: 12),
             _seccion('Salida y garaje', [
@@ -485,24 +515,56 @@ class _FormularioLibertadScreenState extends State<FormularioLibertadScreen> {
 
   Widget _tarjetaDatosHeredados(CasoIngreso ing) {
     return Card(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Padding(
         padding: const EdgeInsets.all(12),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const EstadoVehiculoIcon(liberado: true, size: 26),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('${ing.placa.toUpperCase()} — ${ing.marca} ${ing.color}',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  Text('${ing.tipoVehiculo} · Hoja ${ing.hojaIngresoNro} · Parte ${ing.parteIngresoNro}'),
-                  Text('Ingresó: ${ing.fechaIngreso}'),
-                ],
-              ),
+            Row(
+              children: [
+                const EstadoVehiculoIcon(liberado: true, size: 26),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${ing.placa.toUpperCase()} — ${ing.tipoVehiculo}',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      Text('Hoja ${ing.hojaIngresoNro} · Parte ${ing.parteIngresoNro}'),
+                      Text('Ingresó: ${ing.fechaIngreso}'),
+                    ],
+                  ),
+                ),
+              ],
             ),
+            const Divider(height: 24),
+            const Text(
+              'Datos del Vehículo (Obligatorios)',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Complete los datos faltantes para la Matriz Excel.',
+              style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(child: Padding(padding: const EdgeInsets.only(bottom: 10), child: _campo(_marcaCtrl, 'Marca', requerido: true))),
+                const SizedBox(width: 8),
+                Expanded(child: Padding(padding: const EdgeInsets.only(bottom: 10), child: _campo(_modeloCtrl, 'Modelo', requerido: true))),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(child: Padding(padding: const EdgeInsets.only(bottom: 10), child: _campo(_colorCtrl, 'Color', requerido: true))),
+                const SizedBox(width: 8),
+                Expanded(child: Padding(padding: const EdgeInsets.only(bottom: 10), child: _campo(_anioCtrl, 'Año', requerido: true, tipo: TextInputType.number))),
+              ],
+            ),
+            if (ing.tipoVehiculo != 'MOTOCICLETA')
+              Padding(padding: const EdgeInsets.only(bottom: 10), child: _campo(_chasisCtrl, 'Chasis', requerido: true)),
+            Padding(padding: const EdgeInsets.only(bottom: 10), child: _campo(_motorCtrl, 'Motor', requerido: true)),
           ],
         ),
       ),
@@ -525,12 +587,13 @@ class _FormularioLibertadScreenState extends State<FormularioLibertadScreen> {
     );
   }
 
-  Widget _campo(TextEditingController ctrl, String label, {int lineas = 1, TextInputType? tipo}) {
+  Widget _campo(TextEditingController ctrl, String label, {int lineas = 1, TextInputType? tipo, bool requerido = false}) {
     return TextFormField(
       controller: ctrl,
       maxLines: lineas,
       keyboardType: tipo,
       decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
+      validator: requerido ? (v) => (v == null || v.trim().isEmpty) ? 'Requerido' : null : null,
     );
   }
 

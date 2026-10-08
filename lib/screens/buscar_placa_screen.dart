@@ -67,7 +67,9 @@ class _BuscarPlacaScreenState extends State<BuscarPlacaScreen> {
 
   /// True si ya existe un caso de Libertad para la misma hoja de ingreso.
   bool _yaTieneLibertad(CasoIngreso ingreso) {
-    return _libertades.any((l) => l.hojaIngresoNro == ingreso.hojaIngresoNro);
+    return _libertades.any((l) =>
+        l.placa == ingreso.placa &&
+        (ingreso.hojaIngresoNro.isEmpty || l.hojaIngresoNro == ingreso.hojaIngresoNro));
   }
 
   void _liberarVehiculo(CasoIngreso ingreso) {
@@ -174,7 +176,8 @@ class _BuscarPlacaScreenState extends State<BuscarPlacaScreen> {
                 ..._libertades.map((c) {
                   CasoIngreso? ingresoDeEsta;
                   for (final ing in _ingresos) {
-                    if (ing.hojaIngresoNro == c.hojaIngresoNro) {
+                    if (ing.placa == c.placa &&
+                        (c.hojaIngresoNro.isEmpty || ing.hojaIngresoNro == c.hojaIngresoNro)) {
                       ingresoDeEsta = ing;
                       break;
                     }

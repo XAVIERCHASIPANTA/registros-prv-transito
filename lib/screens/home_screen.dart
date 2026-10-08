@@ -14,6 +14,7 @@ import 'informe_semanal_screen.dart';
 import 'pdfs_guardados_screen.dart';
 import '../services/storage_service.dart';
 import '../services/auth_service.dart';
+import '../version.dart';
 
 enum TipoParte { ingreso, libertad }
 
@@ -305,6 +306,14 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 24),
+                    const Center(
+                      child: Text(
+                        'Versión $appVersion',
+                        style: TextStyle(color: Colors.white54, fontSize: 12),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                   ],
                 ),
               ),

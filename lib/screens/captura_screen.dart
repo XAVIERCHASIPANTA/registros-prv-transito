@@ -29,8 +29,9 @@ class CapturaScreen extends StatefulWidget {
   /// causa y combinar esos datos con lo que Gemini extraiga de las
   /// fotos nuevas (memorando, oficio, orden de pago, comprobante).
   final CasoIngreso? ingresoBase;
+  final File? pdfInicial;
 
-  const CapturaScreen({super.key, required this.tipo, this.ingresoBase});
+  const CapturaScreen({super.key, required this.tipo, this.ingresoBase, this.pdfInicial});
 
   @override
   State<CapturaScreen> createState() => _CapturaScreenState();
@@ -40,10 +41,21 @@ class _CapturaScreenState extends State<CapturaScreen> {
   final List<File> _imagenes = [];
   final ImagePicker _picker = ImagePicker();
   bool _procesando = false;
+  String? _ultimoErrorIA;
 
   String get _titulo => widget.tipo == TipoParte.ingreso
       ? 'Nuevo Ingreso'
       : (widget.ingresoBase != null ? 'Liberar vehículo — ${widget.ingresoBase!.placa}' : 'Nueva Libertad');
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.pdfInicial != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _procesarBytesPdf(widget.pdfInicial!.readAsBytesSync());
+      });
+    }
+  }
 
   Future<void> _tomarFoto() async {
     final foto = await _picker.pickImage(source: ImageSource.camera, imageQuality: 90);
@@ -66,32 +78,33 @@ class _CapturaScreenState extends State<CapturaScreen> {
     if (resultado == null || resultado.files.single.bytes == null) return;
     final bytes = resultado.files.single.bytes!;
 
-    // Ronda 21: respaldo local del PDF tal como llegó, ANTES de leerlo
-    // con IA o sin conexión — así queda guardado en el celular (carpeta
-    // propia de la app, visible en "PDFs guardados") pase lo que pase
-    // con la lectura automática. Xavier pidió que sea local en vez de
-    // subirlo a Firebase Storage, para no necesitar el plan de pago
-    // "Blaze". Es "mejor esfuerzo": si falla, no interrumpe la captura.
     unawaited(_respaldarPdfLocal(bytes, resultado.files.single.name));
+    await _procesarBytesPdf(bytes);
+  }
 
-    // Camino principal: leer el PDF con IA (igual que las fotos) —
-    // convierte cada página en imagen y deja que Gemini "lea" el
-    // parte como lo haría una persona, sin depender de en qué orden
-    // haya quedado el texto interno del PDF (eso varía de un patio a
-    // otro). Si no hay API key configurada, o la IA falla o no
-    // encuentra ningún vehículo, se cae automáticamente al método
-    // sin conexión (texto + expresiones regulares) como respaldo —
-    // nunca se deja al usuario sin ninguna salida.
+  Future<void> _procesarBytesPdf(Uint8List bytes) async {
+    setState(() => _procesando = true);
     final apiKey = await ApiKeyService().obtenerApiKey();
     if (apiKey != null) {
       final huboExito = await _leerPdfConIA(bytes, apiKey);
-      if (huboExito) return;
-      if (!mounted) return;
+      if (huboExito) {
+        if (mounted) setState(() => _procesando = false);
+        return;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('La IA no pudo leer este PDF, probando con el método sin conexión...')),
+        SnackBar(content: Text('La IA no pudo leer este PDF (caerá a método sin conexión). Error: $_ultimoErrorIA'), duration: const Duration(seconds: 5)),
       );
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No has configurado la API Key de Gemini. Se usará el extractor antiguo (menos preciso).')),
+        );
+      }
     }
-    if (mounted) await _leerPdfSinConexion(bytes);
+    if (mounted) {
+      await _leerPdfSinConexion(bytes);
+      setState(() => _procesando = false);
+    }
   }
 
   /// Guarda una copia del PDF original en el almacenamiento propio de
@@ -121,7 +134,7 @@ class _CapturaScreenState extends State<CapturaScreen> {
       // Máximo 8 páginas: los partes reales tienen 4-5, este límite
       // solo evita un PDF anormalmente largo demore de más o pese de
       // más para la conexión del celular.
-      await for (final pagina in Printing.raster(bytes, dpi: 200)) {
+      await for (final pagina in Printing.raster(bytes, dpi: 130)) {
         paginas.add(await pagina.toPng());
         if (paginas.length >= 8) break;
       }
@@ -171,7 +184,9 @@ class _CapturaScreenState extends State<CapturaScreen> {
         ),
       );
       return true;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('Error en _leerPdfConIA: $e');
+      _ultimoErrorIA = e.toString();
       return false;
     } finally {
       if (mounted) setState(() => _procesando = false);

@@ -76,6 +76,7 @@ class CasoLibertad {
   String color;
   String placa;
   String retiradoPor; // propietario / apoderado / procurador síndico
+  String calidadRetira; // 'propietario', 'apoderado', 'procurador síndico'
   String cedulaRetira;
   String hojaIngresoNro;
   String parteIngresoNro;
@@ -119,6 +120,7 @@ class CasoLibertad {
     this.color = '',
     this.placa = '',
     this.retiradoPor = '',
+    this.calidadRetira = 'propietario',
     this.cedulaRetira = '',
     this.hojaIngresoNro = '',
     this.parteIngresoNro = '',
@@ -157,8 +159,8 @@ class CasoLibertad {
       final banco = p.entidadFinancieraOficial.isNotEmpty ? p.entidadFinancieraOficial : p.entidadFinanciera;
       lineas.add('${i + 1}-Orden de pago Garaje: N.- ${p.ordenPagoNro}');
       lineas.add('Comprobante de pago: N.- ${p.comprobantePagoNro}');
+      lineas.add('Hora de pago: ${p.horaFechaPago}');
       lineas.add('Valor: \$${p.valor}');
-      lineas.add('Hora y fecha de pago: ${p.horaFechaPago}');
       lineas.add('Entidad financiera: $banco');
       if (i != pagos.length - 1) lineas.add('');
     }
@@ -177,6 +179,7 @@ class CasoLibertad {
         'color': color,
         'placa': placa,
         'retiradoPor': retiradoPor,
+        'calidadRetira': calidadRetira,
         'cedulaRetira': cedulaRetira,
         'hojaIngresoNro': hojaIngresoNro,
         'parteIngresoNro': parteIngresoNro,
@@ -213,6 +216,7 @@ class CasoLibertad {
         color: j['color'] ?? '',
         placa: j['placa'] ?? '',
         retiradoPor: j['retiradoPor'] ?? '',
+        calidadRetira: j['calidadRetira'] ?? 'propietario',
         cedulaRetira: j['cedulaRetira'] ?? '',
         hojaIngresoNro: j['hojaIngresoNro'] ?? '',
         parteIngresoNro: j['parteIngresoNro'] ?? '',

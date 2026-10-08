@@ -128,7 +128,9 @@ class _DocumentoScreenState extends State<DocumentoScreen> {
   }
 
   bool _yaTieneLibertad(CasoIngreso ingreso) {
-    return _libertades.any((l) => l.hojaIngresoNro == ingreso.hojaIngresoNro);
+    return _libertades.any((l) =>
+        l.placa == ingreso.placa &&
+        (ingreso.hojaIngresoNro.isEmpty || l.hojaIngresoNro == ingreso.hojaIngresoNro));
   }
 
   /// 13/sep (ronda 21): para poder editar una Libertad ya guardada hace
@@ -138,7 +140,10 @@ class _DocumentoScreenState extends State<DocumentoScreen> {
   /// botón de editar para esa tarjeta.
   CasoIngreso? _ingresoDe(CasoLibertad libertad) {
     for (final ingreso in _ingresos) {
-      if (ingreso.hojaIngresoNro == libertad.hojaIngresoNro) return ingreso;
+      if (ingreso.placa == libertad.placa &&
+          (libertad.hojaIngresoNro.isEmpty || ingreso.hojaIngresoNro == libertad.hojaIngresoNro)) {
+        return ingreso;
+      }
     }
     return null;
   }

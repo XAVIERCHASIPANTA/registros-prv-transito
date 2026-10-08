@@ -88,11 +88,11 @@ class OcrService {
       color: color ?? '',
       placa: placa ?? '',
       propietario: propietario ?? '',
-      causa: causa ?? '',
+      causaLegal: causa ?? '',
       hojaIngresoNro: hoja ?? '',
       fechaIngreso: fecha ?? '',
-      comoLlego: entregadoPor ?? '',
-      tomaProcedimiento: elaboraParte ?? '',
+      traslado: entregadoPor ?? '',
+      policiaNombre: elaboraParte ?? '',
     );
   }
 
@@ -126,6 +126,7 @@ class OcrService {
       placa: placa ?? '',
       hojaIngresoNro: hoja ?? '',
       fechaIngreso: fechaIngreso ?? '',
+      fechaSalida: fechaSalida ?? '',
       retiradoPor: retiradoPor ?? '',
       cedulaRetira: cedula ?? '',
       pagos: [PagoGaraje()], // esta hoja no trae datos de pago; se llenan a mano si aplica

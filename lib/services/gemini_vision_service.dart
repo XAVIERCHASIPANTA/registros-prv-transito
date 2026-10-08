@@ -22,9 +22,10 @@ class ParteDigitalExtraido {
 }
 
 class GeminiVisionService {
-  static const _modelo = 'gemini-3.6-flash';
-  static const _endpoint =
-      'https://generativelanguage.googleapis.com/v1beta/models/$_modelo:generateContent';
+  static const _modelo = 'gemini-3.8-flash';
+  static const _modeloFallback = 'gemini-3.6-flash';
+  static const _endpointBase =
+      'https://generativelanguage.googleapis.com/v1beta/models';
 
   static const _camposIngreso = [
     'hojaIngresoNro',
@@ -122,17 +123,7 @@ class GeminiVisionService {
       'generationConfig': {'response_mime_type': 'application/json'},
     });
 
-    final respuesta = await http
-        .post(
-          Uri.parse('$_endpoint?key=$apiKey'),
-          headers: {'Content-Type': 'application/json'},
-          body: body,
-        )
-        .timeout(const Duration(seconds: 60));
-
-    if (respuesta.statusCode != 200) {
-      throw Exception('Gemini respondió ${respuesta.statusCode}: ${respuesta.body}');
-    }
+    final respuesta = await _llamarGemini(body, apiKey, const Duration(seconds: 60));
 
     final data = jsonDecode(respuesta.body);
     final texto = data['candidates']?[0]?['content']?['parts']?[0]?['text'];
@@ -140,7 +131,11 @@ class GeminiVisionService {
       throw Exception('Respuesta inesperada de Gemini: ${respuesta.body}');
     }
 
-    final json = jsonDecode(texto) as Map<String, dynamic>;
+    var jsonLimpio = texto.trim();
+    if (jsonLimpio.startsWith('```')) {
+      jsonLimpio = jsonLimpio.replaceAll(RegExp(r'^```(json)?\s*|\s*```$'), '').trim();
+    }
+    final json = jsonDecode(jsonLimpio) as Map<String, dynamic>;
     const metaCampos = [
       'parteNo', 'fechaHecho', 'horaHecho', 'policiaNombre', 'policiaCedula', 'causaLegal', 'circunstancias',
     ];
@@ -293,17 +288,7 @@ Responde ÚNICAMENTE el objeto JSON descrito arriba.''';
       'generationConfig': {'response_mime_type': 'application/json'},
     });
 
-    final respuesta = await http
-        .post(
-          Uri.parse('$_endpoint?key=$apiKey'),
-          headers: {'Content-Type': 'application/json'},
-          body: body,
-        )
-        .timeout(const Duration(seconds: 45));
-
-    if (respuesta.statusCode != 200) {
-      throw Exception('Gemini respondió ${respuesta.statusCode}: ${respuesta.body}');
-    }
+    final respuesta = await _llamarGemini(body, apiKey, const Duration(seconds: 45));
 
     final data = jsonDecode(respuesta.body);
     final texto = data['candidates']?[0]?['content']?['parts']?[0]?['text'];
@@ -311,7 +296,52 @@ Responde ÚNICAMENTE el objeto JSON descrito arriba.''';
       throw Exception('Respuesta inesperada de Gemini: ${respuesta.body}');
     }
 
-    final json = jsonDecode(texto) as Map<String, dynamic>;
+    var jsonLimpio = texto.trim();
+    if (jsonLimpio.startsWith('```')) {
+      jsonLimpio = jsonLimpio.replaceAll(RegExp(r'^```(json)?\s*|\s*```$'), '').trim();
+    }
+    final json = jsonDecode(jsonLimpio) as Map<String, dynamic>;
     return {for (final campo in campos) campo: (json[campo] ?? '').toString()};
+  }
+
+  Future<http.Response> _llamarGemini(String body, String apiKey, Duration timeout) async {
+    final modelosATestar = [
+      'gemini-3.8-flash',
+      'gemini-4.0-flash',
+      'gemini-3.6-flash',
+      'gemini-3.5-flash',
+      'gemini-2.5-flash',
+    ];
+
+    final errores = <String>[];
+
+    for (final modelo in modelosATestar) {
+      final uri = Uri.parse('$_endpointBase/$modelo:generateContent?key=$apiKey');
+      final respuesta = await http
+          .post(uri, headers: {'Content-Type': 'application/json'}, body: body)
+          .timeout(timeout);
+
+      if (respuesta.statusCode == 200) {
+        return respuesta;
+      }
+      
+      final err = 'Modelo $modelo falló con ${respuesta.statusCode}: ${respuesta.body}';
+      errores.add(err);
+      
+      if (respuesta.statusCode == 503 || respuesta.statusCode == 500) {
+        continue; // El servidor está saturado o falló internamente para este modelo, probamos el siguiente
+      }
+      
+      if (respuesta.statusCode != 404) {
+        final bodyLower = respuesta.body.toLowerCase();
+        final esErrorDeModelo = bodyLower.contains('not found') || bodyLower.contains('not supported');
+        if (respuesta.statusCode != 400 || !esErrorDeModelo) {
+          // Es un error grave (ej. payload muy grande o key inválida), no tiene sentido probar más modelos
+          throw Exception(errores.join(' | '));
+        }
+      }
+    }
+
+    throw Exception('Ningún modelo funcionó. Historial: ${errores.join(' | ')}');
   }
 }

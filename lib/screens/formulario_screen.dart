@@ -1,13 +1,14 @@
 // RUTA DE ARCHIVO: lib/screens/formulario_screen.dart
 
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../data/causa_legal_catalogo.dart';
 import '../models/caso_ingreso.dart';
+import '../services/docx_builder.dart';
 import '../services/storage_service.dart';
 import '../widgets/campo_autocompletable.dart';
 import 'documento_screen.dart';
@@ -28,6 +29,19 @@ void _verTextoOcr(BuildContext context, String? texto) {
         ),
       ),
       actions: [
+        TextButton(
+          onPressed: () async {
+            if (texto != null && texto.isNotEmpty) {
+              await Clipboard.setData(ClipboardData(text: texto));
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Texto copiado al portapapeles')),
+                );
+              }
+            }
+          },
+          child: const Text('Copiar'),
+        ),
         TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cerrar')),
       ],
     ),
@@ -504,9 +518,10 @@ class _FormularioIngresoScreenState extends State<FormularioIngresoScreen> {
     setState(() => _guardando = true);
 
     if (!await _puedeContinuar()) {
-      setState(() => _guardando = false);
+      if (mounted) setState(() => _guardando = false);
       return;
     }
+    if (!mounted) return;
     _aplicarCambiosACaso();
 
     final accion = await Navigator.push<String>(
@@ -528,11 +543,21 @@ class _FormularioIngresoScreenState extends State<FormularioIngresoScreen> {
     }
     if (!mounted) return;
     setState(() => _guardando = false);
-
-    if (accion == 'whatsapp') {
+    
+    if (accion == 'descargar_enviar') {
       await _compartir(mensajeWhatsapp: true);
-    } else if (accion == 'descargar') {
-      await _compartir();
+    } else if (accion == 'grabar') {
+      if (mounted) {
+        if (widget.esEdicion) {
+          Navigator.pop(context, true);
+        } else {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const DocumentoScreen(tipo: TipoParte.ingreso)),
+            (route) => route.isFirst,
+          );
+        }
+      }
     }
   }
 
@@ -618,6 +643,21 @@ class _FormularioIngresoScreenState extends State<FormularioIngresoScreen> {
       appBar: AppBar(
         title: Text(widget.esEdicion ? 'Editar Ingreso' : 'Confirmar datos de Ingreso'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.copy_all_outlined),
+            tooltip: 'Copiar texto para Parte Web',
+            onPressed: () {
+              _aplicarCambiosACaso();
+              final texto = DocxBuilder.generarTextoNarrativoIngreso(_caso);
+              Clipboard.setData(ClipboardData(text: texto));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Texto para Parte Web copiado al portapapeles'),
+                  backgroundColor: Color(0xFF17356E),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.text_snippet_outlined),
             tooltip: 'Ver texto reconocido',
@@ -918,8 +958,27 @@ class _VistaPreviaIngresoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textoParteWeb = DocxBuilder.generarTextoNarrativoIngreso(caso);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Vista Previa — Ingreso')),
+      appBar: AppBar(
+        title: const Text('Vista Previa — Ingreso'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.copy_outlined),
+            tooltip: 'Copiar texto para Parte Web',
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: textoParteWeb));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Texto para Parte Web copiado al portapapeles'),
+                  backgroundColor: Color(0xFF17356E),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -927,7 +986,67 @@ class _VistaPreviaIngresoScreen extends StatelessWidget {
             '${caso.placa.toUpperCase()} — ${caso.marca} ${caso.color}',
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
+          Card(
+            color: const Color(0xFFF0F5FD),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: Color(0xFF17356E), width: 1.5),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: const [
+                      Icon(Icons.assignment_outlined, color: Color(0xFF17356E)),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Texto Oficial para Parte Web (Circunstancias)',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: Color(0xFF17356E),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Divider(color: Color(0xFFC7D7EE)),
+                  const SizedBox(height: 6),
+                  SelectableText(
+                    textoParteWeb,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      height: 1.45,
+                      color: Color(0xFF1C2D42),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  FilledButton.icon(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: const Color(0xFF17356E),
+                      foregroundColor: Colors.white,
+                    ),
+                    icon: const Icon(Icons.copy, size: 18),
+                    label: const Text('Copiar texto para Parte Web'),
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: textoParteWeb));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('¡Texto narrativo copiado! Listo para pegar en Parte Web.'),
+                          backgroundColor: Color(0xFF17356E),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
           _tarjeta('Datos del ingreso', [
             _fila('Tipo operativo', caso.tipoOperativo),
             _fila('Fecha de retención', caso.fechaIngreso),
@@ -987,15 +1106,15 @@ class _VistaPreviaIngresoScreen extends StatelessWidget {
           ]),
           const SizedBox(height: 12),
           FilledButton.icon(
-            icon: const Icon(Icons.download_outlined),
-            label: const Text('Descargar'),
-            onPressed: () => Navigator.pop(context, 'descargar'),
+            icon: const Icon(Icons.save_outlined),
+            label: const Text('GRABAR INGRESO'),
+            onPressed: () => Navigator.pop(context, 'grabar'),
           ),
           const SizedBox(height: 10),
           OutlinedButton.icon(
             icon: const Icon(Icons.share_outlined),
-            label: const Text('Enviar por WhatsApp'),
-            onPressed: () => Navigator.pop(context, 'whatsapp'),
+            label: const Text('Descargar y enviar'),
+            onPressed: () => Navigator.pop(context, 'descargar_enviar'),
           ),
           const SizedBox(height: 10),
           TextButton.icon(

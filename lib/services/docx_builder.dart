@@ -71,6 +71,7 @@ class DocxBuilder {
   /// campo "Parte elevado al Sr/a" de los partes reales: MAYR / TCNL.).
   static String _saludo(String grado) {
     final g = grado.trim().toLowerCase();
+    if (g.contains('no aplica')) return '';
     if (g.contains('coronel') || g.contains('tcrnl') || g.contains('tnte')) {
       return 'Tcrnl.';
     }
@@ -82,18 +83,36 @@ class DocxBuilder {
   /// Web / Acta de Salida). Público para que las pantallas puedan mostrarlo
   /// y copiarlo al portapapeles sin tener que generar el .docx completo.
   static String generarTextoNarrativoLibertad(CasoLibertad l) {
-    final saludo = _saludo(l.gradoDestinatario);
+    return 'Por medio del presente me permito poner en su conocimiento que encontrándome como custodio del CRV ${l.crv}, se dio cumplimiento al Memorando Nro. ${l.memorandoNro}. '
+        'De fecha ${l.memorandoFecha}, el mismo que tiene referencia al Oficio de DEVOLUCION DE VEHICULO Nro. ${l.oficioDevolucionNro}, '
+        'de fecha ${l.oficioDevolucionFecha}, por lo que se procede a dar la libertad del Vehículo, Tipo ${l.tipoVehiculo}, '
+        'Marca ${l.marca}, Color ${l.color}, de placas ${l.placa.toUpperCase()}, siendo retirado por su ${l.calidadRetira} el Sr/a. ${l.retiradoPor}, '
+        'con C.C. ${l.cedulaRetira}, así mismo se detalla las novedades de ingreso del vehículo y datos de pagos por concepto de garaje.';
+  }
 
-    return 'Por medio del presente me permito poner en su '
-        'conocimiento Mi $saludo. que encontrándome como custodio del CRV '
-        '"Control 120", se dio cumplimiento al Memorando Nro. ${l.memorandoNro}. '
-        'De fecha ${l.memorandoFecha}, el mismo que tiene referencia al Oficio '
-        'de DEVOLUCION DE VEHICULO Nro. ${l.oficioDevolucionNro}, por lo que se '
-        'procede a dar la libertad del Vehículo, Tipo ${l.tipoVehiculo}, '
-        'Marca ${l.marca}, color ${l.color}, de placas ${l.placa.toUpperCase()}, '
-        'siendo retirado por su propietario el señor/la señora ${l.retiradoPor}, '
-        'con C.I./C.C. ${l.cedulaRetira}, así mismo se detalla las novedades de '
-        'ingreso del vehículo y datos de pagos por concepto de garaje';
+  /// Texto narrativo del Ingreso (el párrafo que va al Parte Web).
+  /// Público para que las pantallas puedan mostrarlo y copiarlo al
+  /// portapapeles sin tener que generar el .docx completo.
+  static String generarTextoNarrativoIngreso(CasoIngreso c) {
+    final causa = c.causaLegal.trim();
+    final detalle = c.detalleCausa.trim();
+    final hora = c.horaRetencion.trim();
+
+    return 'Por medio del presente me permito poner en su conocimiento '
+        'que, encontrándome como custodio del CRV "${c.crv}", se procede '
+        'al ingreso del vehículo tipo ${c.tipoVehiculo}, marca ${c.marca}, '
+        'modelo ${c.modelo}, año ${c.anioFabricacion}, color ${c.color}, '
+        'de placas ${c.placa.toUpperCase()}, chasis ${c.chasis}, '
+        'motor ${c.motor}, el día ${c.fechaIngreso}'
+        '${hora.isNotEmpty ? ' a las $hora' : ''}, '
+        'por concepto de ${causa.isNotEmpty ? causa : 'retención vehicular'}'
+        '${detalle.isNotEmpty ? ' ($detalle)' : ''}. '
+        'Conductor: ${c.conductor} (C.I. ${c.cedulaConductor}); '
+        'propietario: ${c.propietario} (C.I. ${c.cedulaPropietario}). '
+        'Traslado: ${c.traslado}. '
+        'Hoja de Ingreso Nro. ${c.hojaIngresoNro}, '
+        'Parte Nro. ${c.parteIngresoNro}. '
+        'Recibe la custodia: ${c.custodioRecibeNombre}.';
   }
 
   /// Construye el documento Word específico para una Orden de Libertad /
@@ -101,9 +120,9 @@ class DocxBuilder {
   static List<int> buildLibertad(CasoLibertad l) {
     final saludo = _saludo(l.gradoDestinatario);
     final parrafoPrincipal = generarTextoNarrativoLibertad(l);
+    final finalSaludo = saludo.isNotEmpty ? ' Mi $saludo' : '';
 
     final lineas = <String>[
-      'HOJA DE INGRESO N° ${l.hojaIngresoNro}',
       parrafoPrincipal,
       '',
       'Hoja de Ingreso Nro.: ${l.hojaIngresoNro}',
@@ -114,34 +133,8 @@ class DocxBuilder {
       '',
       'Días de permanencia en el CRV: ${l.diasPermanencia}',
       '',
-      'Vehículo tipo: ${l.tipoVehiculo},',
-      'Marca ${l.marca},',
-      'Color ${l.color}',
-      '',
       ...l.pagosParaWord(),
-      // NUEVO (31/ago, ronda 3): Investigación/Pericias y el pago de
-      // Alcohocheck se movieron de Ingreso a Libertad. Solo se
-      // imprimen si tienen algo cargado, para no ensuciar el documento
-      // en los casos que no aplican.
-      if (l.periciaRealizada.trim().isNotEmpty || l.peritoNombre.trim().isNotEmpty) ...[
-        '',
-        'Investigación / Pericias:',
-        'Pericia realizada: ${l.periciaRealizada}',
-        if (l.peritoNombre.trim().isNotEmpty) 'Perito: ${l.peritoNombre}',
-      ],
-      if (l.ordenPagoAlcohocheckNro.trim().isNotEmpty || l.valorAlcohocheck.trim().isNotEmpty) ...[
-        '',
-        'Pago Alcohocheck:',
-        'Orden de pago N°: ${l.ordenPagoAlcohocheckNro}',
-        if (l.comprobantePagoAlcohocheckNro.trim().isNotEmpty)
-          'Comprobante N°: ${l.comprobantePagoAlcohocheckNro}',
-        'Valor: \$${l.valorAlcohocheck}',
-        if (l.horaFechaPagoAlcohocheck.trim().isNotEmpty)
-          'Hora y fecha de pago: ${l.horaFechaPagoAlcohocheck}',
-      ],
-      '',
-      'Particular que me permito poner en su conocimiento Mi $saludo para los '
-          'fines pertinentes.',
+      'Particular que me permito poner en su conocimiento para los fines pertinentes.',
     ];
 
     return build(
