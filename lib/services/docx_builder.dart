@@ -100,10 +100,10 @@ class DocxBuilder {
   /// Web / Acta de Salida). Público para que las pantallas puedan mostrarlo
   /// y copiarlo al portapapeles sin tener que generar el .docx completo.
   static String generarTextoNarrativoLibertad(CasoLibertad l) {
-    return 'Por medio del presente me permito poner en su conocimiento que encontrándome como custodio del CRV ${l.crv}, se dio cumplimiento al Memorando Nro. ${l.memorandoNro}. '
-        'De fecha ${l.memorandoFecha}, el mismo que tiene referencia al Oficio de DEVOLUCION DE VEHICULO Nro. ${l.oficioDevolucionNro}, '
-        'de fecha ${l.oficioDevolucionFecha}, por lo que se procede a dar la libertad del Vehículo, Tipo ${l.tipoVehiculo}, '
-        'Marca ${l.marca}, Color ${l.color}, de placas ${l.placa.toUpperCase()}, siendo retirado por su ${l.calidadRetira} el Sr/a. ${l.retiradoPor}, '
+    return 'Por medio del presente me permito poner en su conocimiento, que encontrándome como custodio del CRV ${l.crv}, se dio cumplimiento al Memorando Nro. ${l.memorandoNro}. '
+        'De fecha ${l.memorandoFecha}, el mismo que tiene referencia al Oficio de DEVOLUCION DE VEHICULO Nro. ${l.oficioDevolucionNro} '
+        'de fecha ${l.oficioDevolucionFecha} firmado por el ${l.firmadoPor}, por lo que se procede a dar la libertad del Vehículo, '
+        'Marca ${l.marca}, de placas ${l.placa.toUpperCase()}, siendo retirando por su ${l.calidadRetira} el señor ${l.retiradoPor}, '
         'con C.C. ${l.cedulaRetira}, así mismo se detalla las novedades de ingreso del vehículo y datos de pagos por concepto de garaje.';
   }
 
@@ -162,6 +162,35 @@ class DocxBuilder {
       bloques: [lineas],
     );
   }
+
+  static List<int> buildMasterLibertades(List<CasoLibertad> libertades) {
+    final bloques = <List<String>>[];
+    for (final l in libertades) {
+      final parrafoPrincipal = generarTextoNarrativoLibertad(l);
+      final lineasTexto = parrafoPrincipal.split('\n');
+      bloques.add([
+        'HOJA N° ${l.hojaIngresoNro}',
+        ...lineasTexto,
+        '',
+        'Hoja de Ingreso Nro.: ${l.hojaIngresoNro}',
+        'Parte de ingreso Nro: ${l.parteIngresoNro}',
+        'Fecha de ingreso: ${l.fechaIngreso}',
+        '',
+        'Causa: ${l.causa}',
+        '',
+        'Días de permanencia en el CRV: ${l.diasPermanencia}',
+        'Vehículo tipo: ${l.tipoVehiculo}',
+        '',
+        ...l.pagosParaWord(),
+        'Particular que me permito poner en su conocimiento, para los fines pertinentes.',
+      ]);
+    }
+    return build(
+      titulo: 'MATRIZ MÁSTER DE HOJAS DE LIBERTAD',
+      bloques: bloques,
+    );
+  }
+
 
   /// Datos para generar el Informe Semanal de salida de vehículos/motos.
   /// Todo es editable en la pantalla — este objeto solo transporta lo que

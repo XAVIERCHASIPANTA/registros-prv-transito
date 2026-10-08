@@ -249,6 +249,12 @@ class StorageService {
     return DocxBuilder.buildMasterIngresos(ingresos);
   }
 
+  static Future<List<int>> generarWordMasterLibertades() async {
+    final libertades = await obtenerLibertades();
+    libertades.sort((a, b) => b.creado.compareTo(a.creado));
+    return DocxBuilder.buildMasterLibertades(libertades);
+  }
+
   static List<int> generarWordLibertad(CasoLibertad c) => DocxBuilder.buildLibertad(c);
 
   static String obtenerNombreArchivoWord({required String placa, required bool esIngreso, String hojaIngresoNro = ''}) {
