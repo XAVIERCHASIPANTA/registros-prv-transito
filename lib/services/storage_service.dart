@@ -245,7 +245,7 @@ class StorageService {
 
   static Future<List<int>> generarWordMasterIngresos() async {
     final ingresos = await obtenerIngresos();
-    ingresos.sort((a, b) => b.creado.compareTo(a.creado)); // Or maybe sort chronologically? Let's keep existing list order (usually sorted somewhere, or just as is, usually latest first)
+    ingresos.sort((a, b) => b.creado.compareTo(a.creado));
     return DocxBuilder.buildMasterIngresos(ingresos);
   }
 
@@ -254,7 +254,7 @@ class StorageService {
   static String obtenerNombreArchivoWord({required String placa, required bool esIngreso, String hojaIngresoNro = ''}) {
     final placaLimpia = placa.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
     if (esIngreso) {
-      return 'Ingreso $placaLimpia hoja Nro. $hojaIngresoNro.docx';
+      return 'Ingreso $placaLimpia hoja N° $hojaIngresoNro.docx';
     } else {
       return 'Libertad_$placaLimpia.docx';
     }

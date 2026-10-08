@@ -67,7 +67,6 @@ class DocxBuilder {
     );
   }
 
-  /// Construye el documento Word "Máster" de todos los ingresos juntos
   static List<int> buildMasterIngresos(List<CasoIngreso> ingresos) {
     final bloques = <List<String>>[];
     for (final c in ingresos) {
@@ -83,6 +82,7 @@ class DocxBuilder {
       bloques: bloques,
     );
   }
+
 
   /// Saludo interno según a quién se eleva el parte (coincide con el
   /// campo "Parte elevado al Sr/a" de los partes reales: MAYR / TCNL.).
@@ -120,7 +120,7 @@ class DocxBuilder {
     
     String concepto = causa.isNotEmpty ? causa : 'retención vehicular';
     if (c.detalleCausa.trim().isNotEmpty && causa != 'Accidente de Tránsito') {
-      concepto += ' (${c.detalleCausa.trim()})';
+      concepto += ' (' + c.detalleCausa.trim() + ')';
     }
 
     return 'Por medio del presente me permito poner en su conocimiento, '
@@ -266,10 +266,10 @@ class DocxBuilder {
     if (tamano != null) {
       rPr.write('<w:sz w:val="${(tamano * 2).round()}"/>');
     } else if (esIndexado) {
-      rPr.write('<w:sz w:val="26"/>'); // Ligeramente más grande (13pt) para los títulos
+      rPr.write('<w:sz w:val="26"/>');
     }
-    final rPrXml = rPr.isEmpty ? '' : '<w:rPr>$rPr</w:rPr>';
-    return '<w:p>$pPr<w:r>$rPrXml<w:t xml:space="preserve">${_escape(texto)}</w:t></w:r></w:p>';
+    final rPrXml = rPr.isEmpty ? '' : '<w:rPr>${rPr}</w:rPr>';
+    return '<w:p>${pPr}<w:r>${rPrXml}<w:t xml:space="preserve">${_escape(texto)}</w:t></w:r></w:p>';
   }
 
   static String _documentXml(String titulo, List<List<String>> bloques) {
