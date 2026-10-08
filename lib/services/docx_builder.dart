@@ -67,6 +67,23 @@ class DocxBuilder {
     );
   }
 
+  /// Construye el documento Word "Máster" de todos los ingresos juntos
+  static List<int> buildMasterIngresos(List<CasoIngreso> ingresos) {
+    final bloques = <List<String>>[];
+    for (final c in ingresos) {
+      final textoBase = generarTextoNarrativoIngreso(c);
+      final lineasTexto = textoBase.split('\n');
+      bloques.add([
+        'HOJA N° ${c.hojaIngresoNro}',
+        ...lineasTexto,
+      ]);
+    }
+    return build(
+      titulo: 'MATRIZ MÁSTER DE HOJAS DE INGRESO',
+      bloques: bloques,
+    );
+  }
+
   /// Saludo interno según a quién se eleva el parte (coincide con el
   /// campo "Parte elevado al Sr/a" de los partes reales: MAYR / TCNL.).
   static String _saludo(String grado) {
@@ -94,25 +111,28 @@ class DocxBuilder {
   /// Público para que las pantallas puedan mostrarlo y copiarlo al
   /// portapapeles sin tener que generar el .docx completo.
   static String generarTextoNarrativoIngreso(CasoIngreso c) {
-    final causa = c.causaLegal.trim();
-    final detalle = c.detalleCausa.trim();
-    final hora = c.horaRetencion.trim();
+    String causa = c.causaLegal.trim();
+    if (causa.toLowerCase().contains('accidente de tránsito') || causa.toLowerCase().contains('accidente de transito')) {
+      causa = 'Accidente de Tránsito';
+    } else if (causa.contains('/')) {
+      causa = causa.split('/')[0].trim();
+    }
+    
+    String concepto = causa.isNotEmpty ? causa : 'retención vehicular';
+    if (c.detalleCausa.trim().isNotEmpty && causa != 'Accidente de Tránsito') {
+      concepto += ' (${c.detalleCausa.trim()})';
+    }
 
-    return 'Por medio del presente me permito poner en su conocimiento '
-        'que, encontrándome como custodio del CRV "${c.crv}", se procede '
-        'al ingreso del vehículo tipo ${c.tipoVehiculo}, marca ${c.marca}, '
-        'modelo ${c.modelo}, año ${c.anioFabricacion}, color ${c.color}, '
-        'de placas ${c.placa.toUpperCase()}, chasis ${c.chasis}, '
-        'motor ${c.motor}, el día ${c.fechaIngreso}'
-        '${hora.isNotEmpty ? ' a las $hora' : ''}, '
-        'por concepto de ${causa.isNotEmpty ? causa : 'retención vehicular'}'
-        '${detalle.isNotEmpty ? ' ($detalle)' : ''}. '
-        'Conductor: ${c.conductor} (C.I. ${c.cedulaConductor}); '
-        'propietario: ${c.propietario} (C.I. ${c.cedulaPropietario}). '
-        'Traslado: ${c.traslado}. '
-        'Hoja de Ingreso Nro. ${c.hojaIngresoNro}, '
-        'Parte Nro. ${c.parteIngresoNro}. '
-        'Recibe la custodia: ${c.custodioRecibeNombre}.';
+    return 'Por medio del presente me permito poner en su conocimiento, '
+        'que encontrándome de servicio como custodio del CRV "${c.crv}" '
+        'en el lugar y hora antes indicada se procedió al ingreso del vehículo '
+        'Tipo ${c.tipoVehiculo} Marca ${c.marca}, Modelo ${c.modelo}, Año ${c.anioFabricacion}, '
+        'color ${c.color} de placas ${c.placa.toUpperCase()}, Chasis ${c.chasis}, Motor ${c.motor}, '
+        'de propiedad del señor ${c.propietario} por concepto de: $concepto, '
+        'con hoja de ingreso N° ${c.hojaIngresoNro} y parte N° ${c.parteIngresoNro}; '
+        'quien es trasladado hasta los patios por ${c.traslado.toLowerCase()}; toma procedimiento el señor ${c.policiaNombre}\n'
+        'Sin mayor novedad\n'
+        'Particular que me permito poner en su conocimiento, para los fines pertinentes.';
   }
 
   /// Construye el documento Word específico para una Orden de Libertad /
@@ -238,11 +258,18 @@ class DocxBuilder {
       .replaceAll('"', '&quot;');
 
   static String _parrafo(String texto, {bool negrita = false, double? tamano}) {
+    final esIndexado = texto.startsWith('HOJA N°');
+    final pPr = esIndexado ? '<w:pPr><w:outlineLvl w:val="0"/></w:pPr>' : '';
+
     final rPr = StringBuffer();
-    if (negrita) rPr.write('<w:b/>');
-    if (tamano != null) rPr.write('<w:sz w:val="${(tamano * 2).round()}"/>');
+    if (negrita || esIndexado) rPr.write('<w:b/>');
+    if (tamano != null) {
+      rPr.write('<w:sz w:val="${(tamano * 2).round()}"/>');
+    } else if (esIndexado) {
+      rPr.write('<w:sz w:val="26"/>'); // Ligeramente más grande (13pt) para los títulos
+    }
     final rPrXml = rPr.isEmpty ? '' : '<w:rPr>$rPr</w:rPr>';
-    return '<w:p><w:r>$rPrXml<w:t xml:space="preserve">${_escape(texto)}</w:t></w:r></w:p>';
+    return '<w:p>$pPr<w:r>$rPrXml<w:t xml:space="preserve">${_escape(texto)}</w:t></w:r></w:p>';
   }
 
   static String _documentXml(String titulo, List<List<String>> bloques) {

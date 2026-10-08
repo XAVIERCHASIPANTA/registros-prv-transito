@@ -446,6 +446,20 @@ class _FormularioIngresoScreenState extends State<FormularioIngresoScreen> {
   }
 
   Future<bool> _puedeContinuar() async {
+    if (_hojaCtrl.text.trim().isEmpty) {
+      await showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('Hoja de Ingreso Obligatoria'),
+          content: const Text('El número de Hoja de Ingreso es un requisito esencial. No puedes continuar a la siguiente fase sin este dato.'),
+          actions: [
+            FilledButton(onPressed: () => Navigator.pop(context), child: const Text('Completar campo')),
+          ],
+        ),
+      );
+      return false;
+    }
+
     final valido = _formKey.currentState!.validate();
     if (valido) return true;
     if (!mounted) return false;
@@ -563,7 +577,7 @@ class _FormularioIngresoScreenState extends State<FormularioIngresoScreen> {
 
   Future<void> _compartir({bool mensajeWhatsapp = false}) async {
     final bytes = StorageService.generarWordIngreso(_caso);
-    final nombre = StorageService.obtenerNombreArchivoWord(placa: _caso.placa, esIngreso: true);
+    final nombre = StorageService.obtenerNombreArchivoWord(placa: _caso.placa, esIngreso: true, hojaIngresoNro: _caso.hojaIngresoNro);
     final xFile = XFile.fromData(
       Uint8List.fromList(bytes),
       name: nombre,

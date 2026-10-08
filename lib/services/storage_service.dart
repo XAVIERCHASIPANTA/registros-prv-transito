@@ -243,11 +243,21 @@ class StorageService {
 
   static List<int> generarWordIngreso(CasoIngreso c) => DocxBuilder.buildIngreso(c);
 
+  static Future<List<int>> generarWordMasterIngresos() async {
+    final ingresos = await obtenerIngresos();
+    ingresos.sort((a, b) => b.creado.compareTo(a.creado)); // Or maybe sort chronologically? Let's keep existing list order (usually sorted somewhere, or just as is, usually latest first)
+    return DocxBuilder.buildMasterIngresos(ingresos);
+  }
+
   static List<int> generarWordLibertad(CasoLibertad c) => DocxBuilder.buildLibertad(c);
 
-  static String obtenerNombreArchivoWord({required String placa, required bool esIngreso}) {
+  static String obtenerNombreArchivoWord({required String placa, required bool esIngreso, String hojaIngresoNro = ''}) {
     final placaLimpia = placa.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
-    return '${esIngreso ? 'Ingreso' : 'Libertad'}_$placaLimpia.docx';
+    if (esIngreso) {
+      return 'Ingreso $placaLimpia hoja Nro. $hojaIngresoNro.docx';
+    } else {
+      return 'Libertad_$placaLimpia.docx';
+    }
   }
 
   /// Genera el Excel consolidado (matriz VEHICULOS/MOTOCICLETAS) a

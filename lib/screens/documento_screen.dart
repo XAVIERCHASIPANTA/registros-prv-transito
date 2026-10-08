@@ -1,4 +1,4 @@
-// RUTA DE ARCHIVO: lib/screens/documento_screen.dart
+﻿// RUTA DE ARCHIVO: lib/screens/documento_screen.dart
 
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -11,21 +11,22 @@ import 'buscar_placa_screen.dart' show EstadoVehiculoIcon;
 import 'formulario_screen.dart';
 import 'formulario_libertad_screen.dart';
 import 'captura_screen.dart';
+import '../services/docx_builder.dart';
 
-/// 02/sep: sello grande tipo "estampado" (rojo = todavía en el patio,
-/// verde = ya liberado) — Xavier pidió aprovechar el espacio libre debajo
+/// 02/sep: sello grande tipo "estampado" (rojo = todavÃ­a en el patio,
+/// verde = ya liberado) â€” Xavier pidiÃ³ aprovechar el espacio libre debajo
 /// de cada caso encontrado para que el estado se note de un vistazo,
 /// como un sello de goma. Reutilizable en cualquier pantalla que liste
 /// ingresos/libertades.
 ///
-/// 14/sep (ronda 22): vuelve a ser el ESTADO REAL del vehículo (no un
-/// texto fijo por pantalla) — es justo lo que Xavier quiere: si busca una
+/// 14/sep (ronda 22): vuelve a ser el ESTADO REAL del vehÃ­culo (no un
+/// texto fijo por pantalla) â€” es justo lo que Xavier quiere: si busca una
 /// placa (ya sea en "Ingresos guardados" o en "Buscar por placa") y el
-/// vehículo YA tiene una Libertad registrada, el sello debe decir
-/// "LIBERADO" en verde; si todavía no la tiene, debe decir "INGRESADO"
-/// en rojo. El modo fijo `.ingresado()` de la ronda 21 quedó retirado
-/// porque contradecía esto (siempre mostraba "INGRESADO" aunque el
-/// vehículo ya hubiera salido).
+/// vehÃ­culo YA tiene una Libertad registrada, el sello debe decir
+/// "LIBERADO" en verde; si todavÃ­a no la tiene, debe decir "INGRESADO"
+/// en rojo. El modo fijo `.ingresado()` de la ronda 21 quedÃ³ retirado
+/// porque contradecÃ­a esto (siempre mostraba "INGRESADO" aunque el
+/// vehÃ­culo ya hubiera salido).
 enum _EstadoSello { ingresado, liberado }
 
 class SelloEstadoGrande extends StatelessWidget {
@@ -86,7 +87,7 @@ class SelloEstadoGrande extends StatelessWidget {
 /// Ya no existe un solo .docx con "todos los ingresos juntos" (eso era
 /// de la arquitectura vieja). Ahora esta pantalla simplemente lista
 /// todos los casos guardados de un tipo, y cada uno se comparte por
-/// separado. El consolidado de TODOS los casos es el Excel (botón
+/// separado. El consolidado de TODOS los casos es el Excel (botÃ³n
 /// "EXPORTAR MATRIZ COMPLETA" en la pantalla principal).
 class DocumentoScreen extends StatefulWidget {
   final TipoParte tipo;
@@ -111,9 +112,9 @@ class _DocumentoScreenState extends State<DocumentoScreen> {
 
   Future<void> _cargar() async {
     // 02/sep: ahora SIEMPRE se cargan ambas listas (antes solo se cargaba
-    // una u otra según la pestaña) — se necesita cruzar ingresos con
-    // libertades para saber el estado REAL de cada vehículo (antes el
-    // ícono quedaba fijo en rojo aunque ya estuviera liberado).
+    // una u otra segÃºn la pestaÃ±a) â€” se necesita cruzar ingresos con
+    // libertades para saber el estado REAL de cada vehÃ­culo (antes el
+    // Ã­cono quedaba fijo en rojo aunque ya estuviera liberado).
     final ingresos = await StorageService.obtenerIngresos();
     ingresos.sort((a, b) => b.creado.compareTo(a.creado));
     final libertades = await StorageService.obtenerLibertades();
@@ -135,9 +136,9 @@ class _DocumentoScreenState extends State<DocumentoScreen> {
 
   /// 13/sep (ronda 21): para poder editar una Libertad ya guardada hace
   /// falta su Ingreso de origen (FormularioLibertadScreen lo requiere).
-  /// Puede dar null si el ingreso correspondiente ya no está en la
+  /// Puede dar null si el ingreso correspondiente ya no estÃ¡ en la
   /// lista local (caso raro); en ese caso simplemente no se muestra el
-  /// botón de editar para esa tarjeta.
+  /// botÃ³n de editar para esa tarjeta.
   CasoIngreso? _ingresoDe(CasoLibertad libertad) {
     for (final ingreso in _ingresos) {
       if (ingreso.placa == libertad.placa &&
@@ -159,7 +160,7 @@ class _DocumentoScreenState extends State<DocumentoScreen> {
 
   Future<void> _compartirIngreso(CasoIngreso c) async {
     final bytes = StorageService.generarWordIngreso(c);
-    final nombre = StorageService.obtenerNombreArchivoWord(placa: c.placa, esIngreso: true);
+    final nombre = StorageService.obtenerNombreArchivoWord(placa: c.placa, esIngreso: true, hojaIngresoNro: c.hojaIngresoNro);
     final xFile = XFile.fromData(
       Uint8List.fromList(bytes),
       name: nombre,
@@ -185,11 +186,33 @@ class _DocumentoScreenState extends State<DocumentoScreen> {
     final total = _esIngreso ? _ingresos.length : _libertades.length;
 
     return Scaffold(
-      appBar: AppBar(title: Text(titulo)),
+      appBar: AppBar(
+        title: Text(titulo),
+        actions: [
+          if (_esIngreso && _ingresos.isNotEmpty) ...[
+            IconButton(
+              icon: const Icon(Icons.visibility),
+              tooltip: 'Vista Previa Máster',
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => VistaPreviaMasterScreen(ingresos: _ingresos)));
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.file_download),
+              tooltip: 'Descargar Matriz Máster (Word)',
+              onPressed: () async {
+                final bytes = await StorageService.generarWordMasterIngresos();
+                final xFile = XFile.fromData(Uint8List.fromList(bytes), name: 'Master_Ingresos.docx', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+                await Share.shareXFiles([xFile], text: 'MATRIZ MÁSTER DE HOJAS DE INGRESO');
+              },
+            ),
+          ],
+        ],
+      ),
       body: _cargando
           ? const Center(child: CircularProgressIndicator())
           : total == 0
-              ? const Center(child: Text('Todavía no hay registros guardados'))
+              ? const Center(child: Text('TodavÃ­a no hay registros guardados'))
               : ListView(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   children: _esIngreso
@@ -203,8 +226,8 @@ class _DocumentoScreenState extends State<DocumentoScreen> {
                                 children: [
                                   ListTile(
                                     leading: EstadoVehiculoIcon(liberado: tieneLibertad),
-                                    title: Text('${c.placa} — ${c.marca} ${c.color}'),
-                                    subtitle: Text('Hoja ${c.hojaIngresoNro} — ${c.fechaIngreso}'),
+                                    title: Text('${c.placa} â€” ${c.marca} ${c.color}'),
+                                    subtitle: Text('Hoja ${c.hojaIngresoNro} â€” ${c.fechaIngreso}'),
                                     trailing: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
@@ -226,8 +249,8 @@ class _DocumentoScreenState extends State<DocumentoScreen> {
                                       ],
                                     ),
                                   ),
-                                  // 02/sep: sello grande visible + botón "Liberar
-                                  // vehículo" — Xavier pidió aprovechar el
+                                  // 02/sep: sello grande visible + botÃ³n "Liberar
+                                  // vehÃ­culo" â€” Xavier pidiÃ³ aprovechar el
                                   // espacio libre debajo de cada caso.
                                   // 14/sep (ronda 22): el sello ahora refleja el
                                   // estado REAL (tieneLibertad), no un texto fijo.
@@ -242,7 +265,7 @@ class _DocumentoScreenState extends State<DocumentoScreen> {
                                             width: double.infinity,
                                             child: FilledButton.tonalIcon(
                                               icon: const Icon(Icons.logout),
-                                              label: const Text('Liberar vehículo'),
+                                              label: const Text('Liberar vehÃ­culo'),
                                               onPressed: () => _liberarVehiculo(c),
                                             ),
                                           ),
@@ -265,8 +288,8 @@ class _DocumentoScreenState extends State<DocumentoScreen> {
                                   children: [
                                     ListTile(
                                       leading: const EstadoVehiculoIcon(liberado: true),
-                                      title: Text('${c.placa} — ${c.marca} ${c.color}'),
-                                      subtitle: Text('Hoja ${c.hojaIngresoNro} — Salida ${c.fechaSalida}'),
+                                      title: Text('${c.placa} â€” ${c.marca} ${c.color}'),
+                                      subtitle: Text('Hoja ${c.hojaIngresoNro} â€” Salida ${c.fechaSalida}'),
                                       trailing: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
@@ -305,3 +328,33 @@ class _DocumentoScreenState extends State<DocumentoScreen> {
     );
   }
 }
+
+class VistaPreviaMasterScreen extends StatelessWidget {
+  final List<CasoIngreso> ingresos;
+  const VistaPreviaMasterScreen({super.key, required this.ingresos});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Vista Previa MÃ¡ster')),
+      body: ListView.separated(
+        padding: const EdgeInsets.all(16),
+        itemCount: ingresos.length,
+        separatorBuilder: (_, __) => const Divider(height: 32, thickness: 2),
+        itemBuilder: (context, index) {
+          final c = ingresos[index];
+          final textoNarrativo = DocxBuilder.generarTextoNarrativoIngreso(c);
+          final textoBase = 'HOJA N° ${c.hojaIngresoNro}\n$textoNarrativo';
+          return SelectableText(
+            textoBase,
+            style: const TextStyle(fontSize: 16, height: 1.5, color: Colors.black87),
+          );
+        },
+      ),
+    );
+  }
+}
+
+
+
+
