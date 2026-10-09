@@ -148,3 +148,20 @@ List<String> obtenerCrvDirectosDeZona(String zona) {
       .where((c) => c.isNotEmpty)
       .toList();
 }
+
+/// Busca un Patio de la lista nacional dado el nombre o un substring del CRV/Jefatura.
+Patio? buscarPatioPorNombre(String nombre) {
+  if (nombre.trim().isEmpty) return null;
+  final n = nombre.trim().toLowerCase();
+  for (final p in patiosNacional) {
+    if (p.crv.toLowerCase() == n || (p.crv.isNotEmpty && n.contains(p.crv.toLowerCase()))) {
+      return p;
+    }
+  }
+  for (final p in patiosNacional) {
+    if (p.jefatura.toLowerCase() == n || (p.jefatura.isNotEmpty && n.contains(p.jefatura.toLowerCase()))) {
+      return p;
+    }
+  }
+  return null;
+}

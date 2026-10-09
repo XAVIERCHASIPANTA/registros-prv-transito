@@ -232,7 +232,7 @@ class DocxBuilder {
     final lineas = <String>[
       'POLICÍA NACIONAL DEL ECUADOR',
       'DIRECCIÓN NACIONAL DE CONTROL DE TRÁNSITO Y SEGURIDAD VIAL "JEFATURA DE CONTROL DE '
-          'TRÁNSITO $jefaturaNombre" CENTRO DE RETENCION VEHICULAR $patio"',
+          'TRÁNSITO $jefaturaNombre" CENTRO DE RETENCION VEHICULAR \"$patio\"',
       '',
       'Oficio, $oficioNro',
       'Fecha, $fechaOficio',

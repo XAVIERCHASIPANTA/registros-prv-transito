@@ -1,3 +1,4 @@
+import '../data/patios_nacional.dart';
 // RUTA DE ARCHIVO: lib/services/storage_service.dart
 
 import 'dart:async';
@@ -52,6 +53,39 @@ class StorageService {
   static String ultimoDestinatarioRango = '';
   static String ultimoFirmanteNombre = '';
   static String ultimoFirmanteRango = '';
+
+  
+  static Future<Map<String, String>> obtenerPerfilCompletoUsuario() async {
+    final usuario = FirebaseAuth.instance.currentUser;
+    if (usuario == null) return {};
+    final perfil = await AuthService().obtenerPerfil(usuario.uid);
+    if (perfil == null) return {};
+
+    final patioStr = (perfil['patio'] ?? '').toString().trim();
+    final jefaturaStr = (perfil['jefaturaTransito'] ?? '').toString().trim();
+    final subzonaStr = (perfil['subzona'] ?? '').toString().trim();
+    final zonaStr = (perfil['zona'] ?? '').toString().trim();
+
+    Patio? patioMatch;
+    if (patioStr.isNotEmpty) {
+      patioMatch = buscarPatioPorNombre(patioStr);
+    }
+
+    final jefaturaFinal = jefaturaStr.isNotEmpty
+        ? jefaturaStr
+        : (patioMatch?.jefatura.isNotEmpty == true ? patioMatch!.jefatura : '');
+
+    final zonaFinal = zonaStr.isNotEmpty
+        ? zonaStr
+        : (patioMatch?.zona.isNotEmpty == true ? patioMatch!.zona : '');
+
+    return {
+      'patio': patioStr,
+      'jefatura': jefaturaFinal,
+      'subzona': subzonaStr,
+      'zona': zonaFinal,
+    };
+  }
 
   static Future<String> _patioDelUsuario() async {
     final usuario = FirebaseAuth.instance.currentUser;
