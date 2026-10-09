@@ -54,8 +54,7 @@ class StorageService {
   static String ultimoFirmanteNombre = '';
   static String ultimoFirmanteRango = '';
 
-  
-  static Future<Map<String, String>> obtenerPerfilCompletoUsuario() async {
+    static Future<Map<String, String>> obtenerPerfilCompletoUsuario() async {
     final usuario = FirebaseAuth.instance.currentUser;
     if (usuario == null) return {};
     final perfil = await AuthService().obtenerPerfil(usuario.uid);
@@ -65,6 +64,8 @@ class StorageService {
     final jefaturaStr = (perfil['jefaturaTransito'] ?? '').toString().trim();
     final subzonaStr = (perfil['subzona'] ?? '').toString().trim();
     final zonaStr = (perfil['zona'] ?? '').toString().trim();
+    final nombreStr = (perfil['nombre'] ?? usuario.displayName ?? '').toString().trim();
+    final rangoStr = (perfil['rango'] ?? perfil['grado'] ?? '').toString().trim();
 
     Patio? patioMatch;
     if (patioStr.isNotEmpty) {
@@ -84,6 +85,8 @@ class StorageService {
       'jefatura': jefaturaFinal,
       'subzona': subzonaStr,
       'zona': zonaFinal,
+      'nombre': nombreStr,
+      'rango': rangoStr,
     };
   }
 
