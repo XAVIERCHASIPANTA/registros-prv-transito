@@ -202,27 +202,8 @@ class _FormularioIngresoScreenState extends State<FormularioIngresoScreen> {
   bool _guardando = false;
 
   @override
-  
-  Future<void> _cargarPerfilAutocompletar() async {
-    if (_caso.crv.isEmpty || _caso.subzona.isEmpty) {
-      final perfil = await StorageService.obtenerPerfilCompletoUsuario();
-      if (mounted) {
-        setState(() {
-          if (_caso.crv.isEmpty && perfil['patio']?.isNotEmpty == true) {
-            _crvCtrl.text = perfil['patio']!;
-          }
-          if (_caso.subzona.isEmpty && perfil['subzona']?.isNotEmpty == true) {
-            _subzonaCtrl.text = perfil['subzona']!;
-          }
-        });
-      }
-    }
-  }
-
-  @override
   void initState() {
     super.initState();
-    _cargarPerfilAutocompletar();
     _caso = widget.caso;
 
     _tipoOperativoNroCtrl.text = _caso.numeroOperativo;
@@ -277,7 +258,7 @@ class _FormularioIngresoScreenState extends State<FormularioIngresoScreen> {
     _citacionCtrl.text = _caso.citacionNro;
     _custodioRecibeCtrl.text = _caso.custodioRecibeNombre;
     _subzonaCtrl.text = _caso.subzona;
-    _crvCtrl.text = _caso.crv.isEmpty ? (_crvCtrl.text.isNotEmpty ? _crvCtrl.text : 'Control 120') : _caso.crv;
+    _crvCtrl.text = _caso.crv.isEmpty ? 'Control 120' : _caso.crv;
     _observacionesCtrl.text = _caso.observaciones;
     // Si ya hay un valor guardado (caso existente/edición) se respeta
     // tal cual, aunque no coincida con la regla — es editable a mano.

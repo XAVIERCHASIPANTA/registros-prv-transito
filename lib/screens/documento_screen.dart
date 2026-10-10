@@ -249,18 +249,10 @@ class _DocumentoScreenState extends State<DocumentoScreen> {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         IconButton(
-                                            icon: const Icon(Icons.visibility),
-                                            tooltip: 'Vista Previa',
-                                            onPressed: () {
-                                              final txt = _generarResumenCompletoIngreso(c);
-                                              Navigator.push(context, MaterialPageRoute(builder: (_) => VistaPreviaIndividualScreen(titulo: 'Resumen Completo de Ingreso', texto: txt)));
-                                            },
-                                          ),
-                                          IconButton(
-                                            icon: const Icon(Icons.share_outlined),
-                                            tooltip: 'Compartir / Descargar',
-                                            onPressed: () => _compartirIngreso(c),
-                                          ),
+                                          icon: const Icon(Icons.share_outlined),
+                                          tooltip: 'Compartir / Descargar',
+                                          onPressed: () => _compartirIngreso(c),
+                                        ),
                                         IconButton(
                                           icon: const Icon(Icons.edit),
                                           tooltip: 'Editar',
@@ -319,18 +311,10 @@ class _DocumentoScreenState extends State<DocumentoScreen> {
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           IconButton(
-                                              icon: const Icon(Icons.visibility),
-                                              tooltip: 'Vista Previa',
-                                              onPressed: () {
-                                                final txt = _generarResumenCompletoLibertad(c);
-                                                Navigator.push(context, MaterialPageRoute(builder: (_) => VistaPreviaIndividualScreen(titulo: 'Resumen Completo de Libertad', texto: txt)));
-                                              },
-                                            ),
-                                            IconButton(
-                                              icon: const Icon(Icons.share_outlined),
-                                              tooltip: 'Compartir / Descargar',
-                                              onPressed: () => _compartirLibertad(c),
-                                            ),
+                                            icon: const Icon(Icons.share_outlined),
+                                            tooltip: 'Compartir / Descargar',
+                                            onPressed: () => _compartirLibertad(c),
+                                          ),
                                           if (ingresoOrigen != null)
                                             IconButton(
                                               icon: const Icon(Icons.edit),
@@ -413,123 +397,7 @@ class VistaPreviaMasterLibertadesScreen extends StatelessWidget {
   }
 }
 
-
-String _generarResumenCompletoIngreso(CasoIngreso c) {
-  final sb = StringBuffer();
-  sb.writeln('--- DATOS DEL INGRESO ---');
-  sb.writeln('Hoja de Ingreso N°: ${c.hojaIngresoNro}');
-  sb.writeln('Parte de Ingreso N°: ${c.parteIngresoNro}');
-  sb.writeln('Fecha de Ingreso: ${c.fechaIngreso}');
-  sb.writeln('Hora de Retención: ${c.horaRetencion}');
-  sb.writeln('CRV: ${c.crv}');
-  sb.writeln('Subzona: ${c.subzona}');
-  sb.writeln('');
-  sb.writeln('--- IDENTIFICACIÓN DEL VEHÍCULO ---');
-  sb.writeln('Placa: ${c.placa}');
-  sb.writeln('Marca: ${c.marca}');
-  sb.writeln('Modelo: ${c.modelo}');
-  sb.writeln('Año: ${c.anioFabricacion}');
-  sb.writeln('Color: ${c.color}');
-  sb.writeln('Tipo: ${c.tipoVehiculo}');
-  if (c.cilindraje.isNotEmpty) sb.writeln('Cilindraje: ${c.cilindraje}');
-  sb.writeln('Chasis: ${c.chasis}');
-  sb.writeln('Motor: ${c.motor}');
-  sb.writeln('Tonelaje: ${c.tonelaje}');
-  sb.writeln('');
-  sb.writeln('--- MOTIVO Y TRASLADO ---');
-  sb.writeln('Tipo de Operativo: ${c.tipoOperativo}');
-  if (c.numeroOperativo.isNotEmpty) sb.writeln('N° Operativo: ${c.numeroOperativo}');
-  sb.writeln('Causa Legal: ${c.causaLegal}');
-  sb.writeln('Detalle Causa: ${c.detalleCausa}');
-  sb.writeln('Traslado: ${c.traslado}');
-  if (c.traslado == 'PARTICULAR') {
-    sb.writeln('Grúa Particular: ${c.nombreGruaParticular}');
-    sb.writeln('Teléfono Grúa: ${c.telefonoGruaParticular}');
-    sb.writeln('Valor Grúa: ${c.valorGrua}');
-  }
-  if (c.kmGrua.isNotEmpty) sb.writeln('Km Grúa: ${c.kmGrua}');
-  sb.writeln('');
-  sb.writeln('--- INVOLUCRADOS Y PERSONAL ---');
-  sb.writeln('Propietario: ${c.propietario} (C.C. ${c.cedulaPropietario})');
-  sb.writeln('Conductor: ${c.conductor} (C.C. ${c.cedulaConductor})');
-  sb.writeln('Policía Procedimiento: ${c.policiaNombre} (C.C. ${c.policiaCedula})');
-  sb.writeln('Custodio Recibe: ${c.custodioRecibeNombre}');
-  sb.writeln('');
-  if (c.aplicaAlcohotest) {
-    sb.writeln('--- ALCOHOLEMIA ---');
-    sb.writeln('N° Prueba: ${c.numeroPruebaAlcoholemia}');
-    sb.writeln('Sancionado: ${c.nombreSancionado} (C.C. ${c.cedulaSancionado})');
-    sb.writeln('Resultado: ${c.resultadoAlcoholemia}');
-    sb.writeln('N° Citación: ${c.citacionNro}');
-    sb.writeln('');
-  }
-  sb.writeln('--- ESTADO ---');
-  sb.writeln('Estado Vehículo: ${c.estadoVehiculo}');
-  sb.writeln('Observaciones: ${c.observaciones}');
-  return sb.toString();
-}
-
-String _generarResumenCompletoLibertad(CasoLibertad l) {
-  final sb = StringBuffer();
-  sb.writeln('--- DATOS DE LIBERTAD ---');
-  sb.writeln('Hoja de Ingreso N°: ${l.hojaIngresoNro}');
-  sb.writeln('Parte Web Salida N°: ${l.numeroParteWebSalida}');
-  sb.writeln('Fecha de Ingreso: ${l.fechaIngreso}');
-  sb.writeln('Fecha de Salida: ${l.fechaSalida}');
-  sb.writeln('Días Permanencia: ${l.diasPermanencia}');
-  sb.writeln('CRV: ${l.crv}');
-  sb.writeln('');
-  sb.writeln('--- DOCUMENTACIÓN LEGAL ---');
-  sb.writeln('Memorando N°: ${l.memorandoNro} (Fecha: ${l.memorandoFecha})');
-  sb.writeln('Oficio Devolución N°: ${l.oficioDevolucionNro} (Fecha: ${l.oficioDevolucionFecha})');
-  sb.writeln('Firmado Por: ${l.firmadoPor}');
-  sb.writeln('Elevado a: ${l.gradoDestinatario}');
-  sb.writeln('');
-  sb.writeln('--- IDENTIFICACIÓN DEL VEHÍCULO ---');
-  sb.writeln('Placa: ${l.placa}');
-  sb.writeln('Marca: ${l.marca}');
-  sb.writeln('Color: ${l.color}');
-  sb.writeln('Tipo: ${l.tipoVehiculo}');
-  sb.writeln('Causa Original: ${l.causa}');
-  sb.writeln('');
-  sb.writeln('--- RETIRO DEL VEHÍCULO ---');
-  sb.writeln('Retirado Por: ${l.retiradoPor} (C.C. ${l.cedulaRetira})');
-  sb.writeln('Calidad: ${l.calidadRetira}');
-  sb.writeln('Custodio Entrega: ${l.custodioEntregaNombre}');
-  if (l.placaGrua.isNotEmpty) sb.writeln('Placa Grúa Salida: ${l.placaGrua}');
-  sb.writeln('');
-  
-  if (l.periciaRealizada.isNotEmpty) {
-    sb.writeln('--- PERICIAS E INVESTIGACIÓN ---');
-    sb.writeln('Pericia Realizada: ${l.periciaRealizada}');
-    sb.writeln('Perito: ${l.peritoNombre}');
-    sb.writeln('');
-  }
-
-  if (l.ordenPagoAlcohocheckNro.isNotEmpty) {
-    sb.writeln('--- PAGO ALCOHOLEMIA ---');
-    sb.writeln('Orden N°: ${l.ordenPagoAlcohocheckNro}');
-    sb.writeln('Comprobante N°: ${l.comprobantePagoAlcohocheckNro}');
-    sb.writeln('Valor: ${l.valorAlcohocheck}');
-    sb.writeln('Fecha/Hora: ${l.horaFechaPagoAlcohocheck}');
-    sb.writeln('');
-  }
-
-  sb.writeln('--- PAGOS GARAJE ---');
-  sb.writeln('Tipo de Servicio/Cobro: ${l.tipoServicioGaraje}');
-  sb.writeln('Total Cancelado: \${l.valorTotalGaraje.toStringAsFixed(2)}');
-  for (var p in l.pagos) {
-    final banco = p.entidadFinancieraOficial.isNotEmpty ? p.entidadFinancieraOficial : p.entidadFinanciera;
-    sb.writeln('  - Orden: ${p.ordenPagoNro} | Comp: ${p.comprobantePagoNro} | Valor: ${p.valor} | Entidad: $banco');
-  }
-  sb.writeln('');
-  sb.writeln('--- ESTADO ---');
-  sb.writeln('Observaciones: ${l.observaciones}');
-  return sb.toString();
-}
-
 class VistaPreviaIndividualScreen extends StatelessWidget {
-
   final String titulo;
   final String texto;
   const VistaPreviaIndividualScreen({super.key, required this.titulo, required this.texto});
