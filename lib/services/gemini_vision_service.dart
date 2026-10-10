@@ -22,8 +22,6 @@ class ParteDigitalExtraido {
 }
 
 class GeminiVisionService {
-  static const _modelo = 'gemini-3.8-flash';
-  static const _modeloFallback = 'gemini-3.6-flash';
   static const _endpointBase =
       'https://generativelanguage.googleapis.com/v1beta/models';
 

@@ -9,6 +9,7 @@ import '../models/caso_libertad.dart';
 import '../services/docx_builder.dart';
 import '../services/storage_service.dart';
 import '../services/entidad_financiera_service.dart';
+import '../widgets/calculadora_dias_dialog.dart';
 import 'buscar_placa_screen.dart' show EstadoVehiculoIcon;
 
 /// Pantalla real para registrar/editar la LIBERTAD de un vehículo que ya
@@ -441,6 +442,16 @@ class _FormularioLibertadScreenState extends State<FormularioLibertadScreen> {
                     icon: const Icon(Icons.refresh),
                     tooltip: 'Recalcular días',
                     onPressed: _recalcularDias,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.calculate, color: Color(0xFF17356E)),
+                    tooltip: 'Calculador de días de permanencia',
+                    onPressed: () => CalculadoraDiasDialog.mostrar(
+                      context,
+                      fechaIngreso: _parseFecha(widget.ingreso.fechaIngreso),
+                      fechaSalida: _parseFecha(_fechaSalidaCtrl.text),
+                      tipoVehiculo: _tipoServicioGaraje,
+                    ),
                   ),
                 ],
               ),

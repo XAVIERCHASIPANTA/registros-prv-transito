@@ -83,19 +83,6 @@ class DocxBuilder {
     );
   }
 
-
-  /// Saludo interno según a quién se eleva el parte (coincide con el
-  /// campo "Parte elevado al Sr/a" de los partes reales: MAYR / TCNL.).
-  static String _saludo(String grado) {
-    final g = grado.trim().toLowerCase();
-    if (g.contains('no aplica')) return '';
-    if (g.contains('coronel') || g.contains('tcrnl') || g.contains('tnte')) {
-      return 'Tcrnl.';
-    }
-    if (g.isEmpty) return 'Mayor';
-    return grado;
-  }
-
   /// Texto narrativo oficial de la Libertad (el párrafo que va al Parte
   /// Web / Acta de Salida). Público para que las pantallas puedan mostrarlo
   /// y copiarlo al portapapeles sin tener que generar el .docx completo.
@@ -138,9 +125,7 @@ class DocxBuilder {
   /// Construye el documento Word específico para una Orden de Libertad /
   /// Devolución, calcando EXACTAMENTE el texto real de LIBERTADES_2026.rtf.
   static List<int> buildLibertad(CasoLibertad l) {
-    final saludo = _saludo(l.gradoDestinatario);
     final parrafoPrincipal = generarTextoNarrativoLibertad(l);
-    final finalSaludo = saludo.isNotEmpty ? ' Mi $saludo' : '';
 
     final lineas = <String>[
       parrafoPrincipal,
@@ -193,9 +178,10 @@ class DocxBuilder {
 
 
   /// Datos para generar el Informe Semanal de salida de vehículos/motos.
-  /// Todo es editable en la pantalla — este objeto solo transporta lo que
-  /// el oficial ya confirmó antes de generar el Word.
+  /// Si se le pasa [templateBytes] (del asset informe_semanal_template.docx),
+  /// reemplaza las variables en la plantilla oficial conservando los escudos e imágenes.
   static List<int> buildInformeSemanal({
+    List<int>? templateBytes,
     required String jefaturaNombre, // Ej: "SANTO DOMINGO"
     required String patio, // Ej: "CONTROL 120"
     required String subzona, // Ej: "Santo Domingo de los Tsáchilas"
@@ -215,6 +201,69 @@ class DocxBuilder {
     required String firmanteRango,
   }) {
     final saludoRango = _saludoInforme(destinatarioRango);
+
+    if (templateBytes != null && templateBytes.isNotEmpty) {
+      try {
+        final archive = ZipDecoder().decodeBytes(templateBytes);
+        ArchiveFile? docXmlFile;
+        for (final file in archive.files) {
+          if (file.name == 'word/document.xml') {
+            docXmlFile = file;
+            break;
+          }
+        }
+
+        if (docXmlFile != null) {
+          var content = utf8.decode(docXmlFile.content as List<int>);
+
+          final strVehiculos = vehiculos.toString().padLeft(2, '0');
+          final strMotocicletas = motocicletas.toString().padLeft(2, '0');
+
+          content = content
+              .replaceAll('__VAR_JEFATURA__', _escape(jefaturaNombre))
+              .replaceAll('__VAR_PATIO__', _escape(patio))
+              .replaceAll('__VAR_OFICIO_NRO__', _escape(oficioNro))
+              .replaceAll('__VAR_FECHA_OFICIO__', _escape(fechaOficio))
+              .replaceAll('__VAR_ASUNTO_OFICIO_NRO__', _escape(asuntoOficioNro))
+              .replaceAll('__VAR_ASUNTO_OFICIO_FECHA__', _escape(asuntoOficioFecha))
+              .replaceAll('__VAR_DESTINATARIO_NOMBRE__', _escape(destinatarioNombre))
+              .replaceAll('__VAR_DESTINATARIO_RANGO__', _escape(destinatarioRango))
+              .replaceAll('__VAR_SALUDO_RANGO__', _escape(saludoRango))
+              .replaceAll('__VAR_FECHA_LUNES__', _escape(fechaLunes))
+              .replaceAll('__VAR_FECHA_DOMINGO__', _escape(fechaDomingo))
+              .replaceAll('__VAR_SUBZONA__', _escape(subzona))
+              .replaceAll('__VAR_VEHICULOS__', strVehiculos)
+              .replaceAll('__VAR_MOTOCICLETAS__', strMotocicletas)
+              .replaceAll('__VAR_FIRMANTE_NOMBRE__', _escape(firmanteNombre))
+              .replaceAll('__VAR_FIRMANTE_RANGO__', _escape(firmanteRango))
+              .replaceAll('__VAR_SUBZONA_ABREV__', _escape(subzonaAbrev));
+
+          if (observacionAdicional.trim().isNotEmpty) {
+            final obsParagraph =
+                '<w:p><w:pPr><w:rPr><w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/><w:sz w:val="20"/><w:szCs w:val="20"/><w:lang w:val="es-ES"/></w:rPr></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/><w:sz w:val="20"/><w:szCs w:val="20"/><w:lang w:val="es-ES"/></w:rPr><w:t>${_escape(observacionAdicional.trim())}</w:t></w:r></w:p>';
+            const p22Target = 'motocicletas durante esas fechas.</w:t></w:r></w:p>';
+            if (content.contains(p22Target)) {
+              content = content.replaceFirst(p22Target, '$p22Target$obsParagraph');
+            }
+          }
+
+          final updatedBytes = utf8.encode(content);
+          final newArchive = Archive();
+          for (final file in archive.files) {
+            if (file.name == 'word/document.xml') {
+              newArchive.addFile(ArchiveFile(file.name, updatedBytes.length, updatedBytes));
+            } else {
+              newArchive.addFile(file);
+            }
+          }
+
+          final resultBytes = ZipEncoder().encode(newArchive);
+          if (resultBytes != null) return resultBytes;
+        }
+      } catch (e) {
+        // En caso de algún fallo al decodificar, usa el fallback estático
+      }
+    }
 
     final parrafoCumplimiento = 'Con el honor de dirigirme a usted, me permito expresar un '
         'atento y cordial saludo, a la vez desearle éxitos en el desarrollo de sus '
@@ -269,10 +318,11 @@ class DocxBuilder {
 
   static String _saludoInforme(String rango) {
     final r = rango.trim().toLowerCase();
-    if (r.contains('coronel')) return 'coronel';
-    if (r.contains('mayor')) return 'mayor';
-    if (r.contains('general')) return 'general';
-    return rango.isEmpty ? 'coronel' : rango;
+    if (r.contains('coronel')) return 'Coronel';
+    if (r.contains('mayor')) return 'Mayor';
+    if (r.contains('general')) return 'General';
+    if (r.contains('teniente')) return 'Teniente Coronel';
+    return rango.isEmpty ? 'Coronel' : rango;
   }
 
   static ArchiveFile _textFile(String path, String content) {

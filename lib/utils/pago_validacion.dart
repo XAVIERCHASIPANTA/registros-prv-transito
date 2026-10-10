@@ -188,9 +188,12 @@ ResultadoValidacion validarValoresDeGaraje(
   );
 }
 
-/// Calcula automáticamente los días de permanencia real.
+/// Calcula automáticamente los días de permanencia real (conteo inclusivo desde el día 1).
 int calcularDiasPermanencia(DateTime fechaIngreso, DateTime fechaSalida) {
-  return fechaSalida.difference(fechaIngreso).inDays;
+  final inicio = DateTime(fechaIngreso.year, fechaIngreso.month, fechaIngreso.day);
+  final fin = DateTime(fechaSalida.year, fechaSalida.month, fechaSalida.day);
+  if (fin.isBefore(inicio)) return 0;
+  return fin.difference(inicio).inDays + 1;
 }
 
 /// VALIDACIÓN 2: suma de días pagados (todas las órdenes) vs. días

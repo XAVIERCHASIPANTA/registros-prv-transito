@@ -11,9 +11,12 @@ import 'documento_screen.dart';
 import 'ajustes_screen.dart';
 import 'buscar_placa_screen.dart';
 import 'informe_semanal_screen.dart';
+import 'historial_informes_screen.dart';
 import 'pdfs_guardados_screen.dart';
 import '../services/storage_service.dart';
 import '../services/auth_service.dart';
+import '../widgets/calculadora_dias_dialog.dart';
+import '../widgets/firma_digital_dialog.dart';
 import '../version.dart';
 
 enum TipoParte { ingreso, libertad }
@@ -49,10 +52,6 @@ class HomeScreen extends StatelessWidget {
     }
   }
 
-  // Abre la página externa de consulta de vehículos (AXIS CRV). Es un
-  // formulario de búsqueda por placa/VIN/motor; no tiene una URL de
-  // consulta directa por parámetros, así que solo se abre en el
-  // navegador — el oficial busca la placa manualmente ahí.
   static const _urlConsultaVehiculos = 'https://servicios.axiscloud.ec/CRV/?ps_empresa=02';
 
   Future<void> _abrirConsultaVehiculos(BuildContext context) async {
@@ -87,10 +86,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // NUEVO (30/ago): muestra "PRV [nombre del patio]" debajo del sello,
-  // leyendo en vivo el campo 'patio' que guarda identificacion_screen.dart
-  // en Firestore (colección "usuarios"). Es el nombre bautizado que esa
-  // cuenta le puso a su matriz (ej. "Control 120" → "PRV CONTROL 120").
   Widget _nombrePatio() {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return const SizedBox.shrink();
@@ -127,6 +122,11 @@ class HomeScreen extends StatelessWidget {
         actions: [
           _botonAdminSiCorresponde(),
           IconButton(
+            icon: const Icon(Icons.verified_outlined),
+            tooltip: 'Configuración Firma Digital (.p12)',
+            onPressed: () => FirmaDigitalDialog.mostrar(context),
+          ),
+          IconButton(
             icon: const Icon(Icons.settings),
             tooltip: 'Ajustes de IA',
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AjustesScreen())),
@@ -142,9 +142,6 @@ class HomeScreen extends StatelessWidget {
         width: double.infinity,
         constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height),
         decoration: const BoxDecoration(
-          // 01/sep: degradado azul institucional aprobado por Xavier
-          // (inspirado en la app oficial SIIPNE Móvil) — NO CAMBIAR sin
-          // que lo pida explícitamente, ya pasó por varias iteraciones.
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -153,16 +150,10 @@ class HomeScreen extends StatelessWidget {
         ),
         child: Stack(
           children: [
-            // Marca de agua sutil del sello institucional en la esquina
-            // inferior derecha, inspirada en la app oficial SIIPNE Móvil.
             Positioned(
               right: -30,
               bottom: -30,
               child: Opacity(
-                // 02/sep: reemplazado assets/logo.png por assets/sello_prv.png
-                // — el sello oficial real que Xavier subió, ya recortado y
-                // sin fondo (antes assets/logo.png era un genérico). Opacidad
-                // en 0.14 para que se note sutil sobre el degradado azul.
                 opacity: 0.14,
                 child: Image.asset('assets/sello_prv.png', width: 220, height: 220),
               ),
@@ -173,10 +164,6 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     const SizedBox(height: 8),
-                    // 23/sep: se quitó el bloque de texto "CONTROL Y GESTIÓN
-                    // DE / PATIOS DE RETENCIÓN VEHICULAR ECUADOR / En un
-                    // solo lugar" — Xavier lo pidió eliminar por quedar
-                    // repetido con el texto que ya trae el propio logo.
                     Image.asset('assets/logo.png', height: 190),
                     const SizedBox(height: 14),
                     Row(
@@ -195,7 +182,6 @@ class HomeScreen extends StatelessWidget {
                       icono: Icons.login,
                       titulo: 'INGRESO',
                       subtitulo: 'Registrar el ingreso de un vehículo al CRV',
-                      // 01/sep: Ingreso = ROJO (antes verde) — confirmado por Xavier
                       color: Colors.red.shade700,
                       onTap: () => Navigator.push(
                         context,
@@ -207,24 +193,9 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     _BotonPrincipal(
                       icono: Icons.logout,
-                      // Ronda 23: "LIBERTAD" no tenía mucho sentido como
-                      // rótulo porque abajo ya existía la tarjeta "Ver
-                      // libertades" — Xavier pidió renombrarlo a "BUSCAR
-                      // VEHÍCULOS EN EL PATIO" (mismo botón, mismo color,
-                      // misma función y mismo destino de siempre:
-                      // BuscarPlacaScreen, donde está "Liberar vehículo").
                       titulo: 'BUSCAR VEHÍCULOS EN EL PATIO',
                       subtitulo: 'Registrar la devolución / libertad de un vehículo',
-                      // 01/sep: Libertad = VERDE (antes naranja) — confirmado por Xavier. Se mantiene el verde.
                       color: Colors.green.shade700,
-                      // 02/sep: BUG CORREGIDO — este botón mandaba a CapturaScreen()
-                      // (la MISMA pantalla de escanear un Ingreso nuevo), así que
-                      // tocar "LIBERTAD" en realidad iniciaba un Ingreso, no una
-                      // Libertad. El flujo real de Libertad en esta app siempre
-                      // parte de buscar el Ingreso ya existente (para heredar sus
-                      // datos), así que este botón ahora manda directo a
-                      // "Buscar por placa", donde ya existe el botón funcional
-                      // "Liberar vehículo" junto a cada caso sin libertad.
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -233,12 +204,6 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // 02/sep: reemplazo de los 6 botones "planos" por tarjetas
-                    // de vidrio translúcido en grilla 2 columnas — es el pedido
-                    // original de Xavier (Imagen 1 del mockup) que se había
-                    // quedado pendiente. El fondo degradado azul del Scaffold
-                    // NO se toca; estas tarjetas solo van encima con
-                    // BackdropFilter + opacidad baja para el efecto vidrio.
                     GridView.count(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -247,16 +212,27 @@ class HomeScreen extends StatelessWidget {
                       mainAxisSpacing: 12,
                       childAspectRatio: 1,
                       children: [
-                        // Ronda 23: se quitó la tarjeta "Buscar placa" de
-                        // aquí — quedaba redundante porque el botón verde
-                        // grande de arriba ("BUSCAR VEHÍCULOS EN EL
-                        // PATIO") ya manda exactamente a la misma pantalla
-                        // (BuscarPlacaScreen).
                         _TarjetaVidrio(
                           icono: Icons.travel_explore,
                           colorIcono: Colors.tealAccent,
                           titulo: 'Consultar info',
                           onTap: () => _abrirConsultaVehiculos(context),
+                          iconoAccion: Icons.calculate,
+                          colorIconoAccion: Colors.amberAccent,
+                          tooltipAccion: 'Calculador de días de permanencia',
+                          onTapAccion: () => CalculadoraDiasDialog.mostrar(context),
+                        ),
+                        _TarjetaVidrio(
+                          icono: Icons.calculate,
+                          colorIcono: Colors.amberAccent,
+                          titulo: 'Calculador de días',
+                          onTap: () => CalculadoraDiasDialog.mostrar(context),
+                        ),
+                        _TarjetaVidrio(
+                          icono: Icons.verified_outlined,
+                          colorIcono: Colors.lightGreenAccent,
+                          titulo: 'Firma Digital (.p12)',
+                          onTap: () => FirmaDigitalDialog.mostrar(context),
                         ),
                         _TarjetaVidrio(
                           icono: Icons.table_chart_outlined,
@@ -271,6 +247,15 @@ class HomeScreen extends StatelessWidget {
                           onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(builder: (_) => const InformeSemanalScreen()),
+                          ),
+                        ),
+                        _TarjetaVidrio(
+                          icono: Icons.history_edu_outlined,
+                          colorIcono: Colors.amber.shade300,
+                          titulo: 'Historial de Informes',
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const HistorialInformesScreen()),
                           ),
                         ),
                         _TarjetaVidrio(
@@ -325,22 +310,25 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// 02/sep: tarjeta de vidrio translúcido (glassmorphism) — icono en color +
-// título, usada en la grilla 2x2+2 del home (Buscar placa, Consultar info,
-// Generar Excel, Generar Informe Semanal, Ver ingresos, Ver libertades).
-// El texto usa maxLines+overflow para que títulos largos ("Generar Informe
-// Semanal") hagan salto de línea en vez de desbordarse.
 class _TarjetaVidrio extends StatelessWidget {
   final IconData icono;
   final Color colorIcono;
   final String titulo;
   final VoidCallback onTap;
+  final IconData? iconoAccion;
+  final Color? colorIconoAccion;
+  final String? tooltipAccion;
+  final VoidCallback? onTapAccion;
 
   const _TarjetaVidrio({
     required this.icono,
     required this.colorIcono,
     required this.titulo,
     required this.onTap,
+    this.iconoAccion,
+    this.colorIconoAccion,
+    this.tooltipAccion,
+    this.onTapAccion,
   });
 
   @override
@@ -350,20 +338,48 @@ class _TarjetaVidrio extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
         child: Material(
-          color: Colors.white.withOpacity(0.10),
+          color: Colors.white.withValues(alpha: 0.10),
           child: InkWell(
             onTap: onTap,
             splashColor: Colors.white24,
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: Colors.white.withOpacity(0.25)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(icono, color: colorIcono, size: 34),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(icono, color: colorIcono, size: 34),
+                      if (iconoAccion != null && onTapAccion != null) ...[
+                        const SizedBox(width: 8),
+                        Tooltip(
+                          message: tooltipAccion ?? '',
+                          child: InkWell(
+                            onTap: onTapAccion,
+                            borderRadius: BorderRadius.circular(20),
+                            child: Container(
+                              padding: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.25),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                iconoAccion,
+                                color: colorIconoAccion ?? Colors.amberAccent,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                   const SizedBox(height: 10),
                   Text(
                     titulo,

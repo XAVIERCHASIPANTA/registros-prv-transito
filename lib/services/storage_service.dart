@@ -7,42 +7,25 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/caso_ingreso.dart';
 import '../models/caso_libertad.dart';
+import '../models/informe_semanal_record.dart';
 import 'auth_service.dart';
 import 'docx_builder.dart';
 import 'excel_matriz_builder.dart';
 import 'firestore_sync_service.dart';
 
-/// Ronda 23: se lanza cuando se intenta guardar un Ingreso NUEVO para
-/// una placa que ya tiene un Ingreso ABIERTO (sin Libertad todavía) —
-/// Xavier pidió que la app avise y no deje duplicar el mismo vehículo
-/// en el patio.
 class IngresoDuplicadoException implements Exception {
   final CasoIngreso ingresoExistente;
   IngresoDuplicadoException(this.ingresoExistente);
 }
 
-/// Fuente de verdad de los datos: todo se guarda como JSON en
-/// SharedPreferences (NO se usa dart:io/path_provider — así "Descargar"
-/// y "Enviar por WhatsApp" pueden compartir el mismo flujo de
-/// Share.shareXFiles en cualquier plataforma, incluida la web).
-///
-/// Cada caso (Ingreso o Libertad) se guarda/actualiza por su "id"
-/// (upsert). El Word de cada caso se genera al vuelo cuando se
-/// necesita compartir/descargar (ya no existe un solo .docx
-/// acumulado con "todos los casos juntos" como en versiones viejas).
 class StorageService {
   static const _claveIngresos = 'ingresos_json_v1';
   static const _claveLibertades = 'libertades_json_v1';
+  static const _claveInformesSemanales = 'informes_semanales_json_v1';
 
   static List<CasoIngreso>? _cacheIngresos;
   static List<CasoLibertad>? _cacheLibertades;
 
-  // ---------- "Recordados" en memoria para el Informe Semanal ----------
-  // Campos que rara vez cambian entre semanas (jefatura, oficio de
-  // referencia, destinatario, firmante...). Viven solo en memoria: si
-  // se cierra la app del todo se pierden — Xavier no ha pedido
-  // cambiar esto todavía (persistirlos sería agregar SharedPreferences
-  // acá también, es un cambio pequeño si se pide más adelante).
   static String ultimaSubzona = '';
   static String ultimoCrv = '';
   static String ultimoPoliciaNombre = '';
@@ -54,7 +37,7 @@ class StorageService {
   static String ultimoFirmanteNombre = '';
   static String ultimoFirmanteRango = '';
 
-    static Future<Map<String, String>> obtenerPerfilCompletoUsuario() async {
+  static Future<Map<String, String>> obtenerPerfilCompletoUsuario() async {
     final usuario = FirebaseAuth.instance.currentUser;
     if (usuario == null) return {};
     final perfil = await AuthService().obtenerPerfil(usuario.uid);
@@ -122,18 +105,6 @@ class StorageService {
     await prefs.setString(_claveLibertades, jsonEncode(_cacheLibertades!.map((e) => e.toJson()).toList()));
   }
 
-  // ---------- Lectura ----------
-  //
-  // Ronda 20: la nube (Firestore) pasa a ser la fuente de verdad, no
-  // el teléfono. Antes se leía SIEMPRE de SharedPreferences (local) y
-  // la subida a Firestore era de solo escritura ("mejor esfuerzo" en
-  // segundo plano) — nadie volvía a leer de ahí. Por eso, al cambiar
-  // de sesión/dispositivo o perder los datos locales, no aparecía
-  // nada. Ahora cada lectura intenta primero la nube (y de paso deja
-  // la copia local al día, como respaldo); si no hay internet, sigue
-  // funcionando con la última copia local guardada, sin bloquear al
-  // usuario.
-
   static Future<List<CasoIngreso>> obtenerIngresos() async {
     final patio = await _patioDelUsuario();
     if (patio.isNotEmpty) {
@@ -142,9 +113,7 @@ class StorageService {
         _cacheIngresos = desdeNube;
         await _guardarIngresosEnDisco();
         return List<CasoIngreso>.from(desdeNube);
-      } catch (_) {
-        // Sin internet (u otra falla): se sigue con la copia local.
-      }
+      } catch (_) {}
     }
     await _asegurarCargadoLocal();
     return List<CasoIngreso>.from(_cacheIngresos!);
@@ -158,9 +127,7 @@ class StorageService {
         _cacheLibertades = desdeNube;
         await _guardarLibertadesEnDisco();
         return List<CasoLibertad>.from(desdeNube);
-      } catch (_) {
-        // Sin internet (u otra falla): se sigue con la copia local.
-      }
+      } catch (_) {}
     }
     await _asegurarCargadoLocal();
     return List<CasoLibertad>.from(_cacheLibertades!);
@@ -182,18 +149,11 @@ class StorageService {
         .toList();
   }
 
-  /// True si ya existe una Libertad guardada para esa hoja de ingreso.
   static Future<bool> yaTieneLibertad(String hojaIngresoNro) async {
     final libertades = await obtenerLibertades();
     return libertades.any((l) => l.hojaIngresoNro == hojaIngresoNro);
   }
 
-  /// Ronda 23: devuelve el Ingreso ya guardado para esa placa que
-  /// TODAVÍA no tiene Libertad registrada (o sea, el vehículo sigue
-  /// retenido en el patio), o null si no hay ninguno abierto. Se usa
-  /// para impedir ingresar el mismo vehículo dos veces mientras no ha
-  /// salido. `excluirId` sirve para no comparar un caso contra sí
-  /// mismo cuando se está editando.
   static Future<CasoIngreso?> ingresoAbiertoPorPlaca(String placa, {String? excluirId}) async {
     final normalizada = placa.replaceAll('-', '').replaceAll(' ', '').toUpperCase();
     if (normalizada.isEmpty) return null;
@@ -210,17 +170,12 @@ class StorageService {
     return null;
   }
 
-  // ---------- Guardado (upsert por id) ----------
-
   static Future<void> guardarCasoIngreso(CasoIngreso caso) async {
     await _asegurarCargadoLocal();
     final indice = _cacheIngresos!.indexWhere((c) => c.id == caso.id);
-    final esEdicion = indice != -1; // ronda 21: ya existía localmente -> es una edición
+    final esEdicion = indice != -1;
 
     if (!esEdicion) {
-      // Ronda 23: antes de crear un Ingreso NUEVO, se verifica que esa
-      // placa no tenga ya un Ingreso abierto (sin Libertad) — evita
-      // duplicar el mismo vehículo en el patio.
       final duplicado = await ingresoAbiertoPorPlaca(caso.placa, excluirId: caso.id);
       if (duplicado != null) {
         throw IngresoDuplicadoException(duplicado);
@@ -229,19 +184,13 @@ class StorageService {
     } else {
       _cacheIngresos![indice] = caso;
     }
-    await _guardarIngresosEnDisco(); // respaldo local inmediato, por si no hay internet
+    await _guardarIngresosEnDisco();
 
-    // Se "recuerdan" para prellenar el próximo Informe Semanal.
     if (caso.subzona.trim().isNotEmpty) ultimaSubzona = caso.subzona;
     if (caso.crv.trim().isNotEmpty) ultimoCrv = caso.crv;
     if (caso.policiaNombre.trim().isNotEmpty) ultimoPoliciaNombre = caso.policiaNombre;
 
     final patio = await _patioDelUsuario();
-    // Ronda 20: antes esto era "unawaited" (subía en segundo plano sin
-    // que nadie confirmara si de verdad llegó a la nube). Ahora se
-    // espera la subida real — que es la fuente de verdad — y si falla
-    // por falta de internet el caso de todos modos ya quedó a salvo
-    // en el respaldo local de arriba.
     await FirestoreSyncService().subirIngreso(caso, patio: patio);
     if (esEdicion) {
       await FirestoreSyncService().registrarEdicion(
@@ -256,13 +205,13 @@ class StorageService {
   static Future<void> guardarCasoLibertad(CasoLibertad caso) async {
     await _asegurarCargadoLocal();
     final indice = _cacheLibertades!.indexWhere((c) => c.id == caso.id);
-    final esEdicion = indice != -1; // ronda 21: ya existía localmente -> es una edición
+    final esEdicion = indice != -1;
     if (!esEdicion) {
       _cacheLibertades!.add(caso);
     } else {
       _cacheLibertades![indice] = caso;
     }
-    await _guardarLibertadesEnDisco(); // respaldo local inmediato, por si no hay internet
+    await _guardarLibertadesEnDisco();
 
     final patio = await _patioDelUsuario();
     await FirestoreSyncService().subirLibertad(caso, patio: patio);
@@ -275,8 +224,6 @@ class StorageService {
       );
     }
   }
-
-  // ---------- Generación de documentos ----------
 
   static List<int> generarWordIngreso(CasoIngreso c) => DocxBuilder.buildIngreso(c);
 
@@ -303,17 +250,12 @@ class StorageService {
     }
   }
 
-  /// Genera el Excel consolidado (matriz VEHICULOS/MOTOCICLETAS) a
-  /// partir de TODOS los ingresos/libertades guardados. Devuelve null
-  /// si todavía no hay ningún Ingreso guardado.
   static Future<List<int>?> generarExcelConsolidado() async {
     final ingresos = await obtenerIngresos();
     if (ingresos.isEmpty) return null;
     final libertades = await obtenerLibertades();
     return ExcelMatrizBuilder.build(ingresos: ingresos, libertades: libertades);
   }
-
-  // ---------- Conteo para el Informe Semanal ----------
 
   static DateTime? _parseFechaDdMmAaaa(String texto) {
     final partes = texto.trim().split('/');
@@ -329,9 +271,6 @@ class StorageService {
     }
   }
 
-  /// Cuenta cuántas Libertades (por fecha de salida) caen dentro del
-  /// rango [lunes, domingo] (ambos inclusive), separando vehículos de
-  /// motocicletas según el campo tipoVehiculo.
   static Future<({int vehiculos, int motocicletas})> contarLibertadesEnRango(
     DateTime lunes,
     DateTime domingo,
@@ -356,5 +295,29 @@ class StorageService {
     }
 
     return (vehiculos: vehiculos, motocicletas: motocicletas);
+  }
+
+  // ---------- Historial de Informes Semanales ----------
+
+  static Future<void> guardarInformeSemanalRecord(InformeSemanalRecord record) async {
+    final prefs = await SharedPreferences.getInstance();
+    final historial = await obtenerHistorialInformesSemanales();
+    historial.removeWhere((r) => r.id == record.id);
+    historial.insert(0, record);
+    await prefs.setString(_claveInformesSemanales, jsonEncode(historial.map((e) => e.toJson()).toList()));
+    final patio = await _patioDelUsuario();
+    await FirestoreSyncService().subirInformeSemanal(record, patio: patio.isNotEmpty ? patio : record.patio);
+  }
+
+  static Future<List<InformeSemanalRecord>> obtenerHistorialInformesSemanales() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonStr = prefs.getString(_claveInformesSemanales);
+    if (jsonStr == null || jsonStr.isEmpty) return [];
+    try {
+      final list = jsonDecode(jsonStr) as List;
+      return list.map((e) => InformeSemanalRecord.fromJson(e)).toList();
+    } catch (_) {
+      return [];
+    }
   }
 }

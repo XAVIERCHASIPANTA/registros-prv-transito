@@ -1,12 +1,12 @@
 {
-    "name": "registros_prv_transito",
-    "short_name": "registros_prv_transito",
+    "name": "REGISTROS PRV TRANSITO - POLICÍA NACIONAL",
+    "short_name": "PRV Tránsito",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
-    "orientation": "portrait-primary",
+    "background_color": "#17356E",
+    "theme_color": "#17356E",
+    "description": "Sistema Nacional de Registros de Ingreso y Libertad de Vehículos en Centros de Retención Vehicular (CRV) - Policía Nacional del Ecuador",
+    "orientation": "any",
     "prefer_related_applications": false,
     "icons": [
         {

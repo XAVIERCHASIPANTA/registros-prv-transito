@@ -11,6 +11,7 @@ import '../models/caso_ingreso.dart';
 import '../services/docx_builder.dart';
 import '../services/storage_service.dart';
 import '../widgets/campo_autocompletable.dart';
+import '../widgets/calculadora_dias_dialog.dart';
 import 'documento_screen.dart';
 import 'home_screen.dart';
 
@@ -851,6 +852,12 @@ class _FormularioIngresoScreenState extends State<FormularioIngresoScreen> {
                       onPressed: _abrirConsultaVehiculos,
                       icon: const Icon(Icons.travel_explore),
                       tooltip: 'Consultar tonelaje del vehículo (AXIS CRV)',
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton.filledTonal(
+                      onPressed: () => CalculadoraDiasDialog.mostrar(context, tipoVehiculo: _tipoVehiculo),
+                      icon: const Icon(Icons.calculate),
+                      tooltip: 'Calculador de días de permanencia',
                     ),
                   ],
                 ),
