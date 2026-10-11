@@ -36,6 +36,42 @@ class StorageService {
   static String ultimoDestinatarioRango = '';
   static String ultimoFirmanteNombre = '';
   static String ultimoFirmanteRango = '';
+  static String _clavePatio(String patio, String campo) => 'informe_semanal_${patio.trim().toUpperCase()}_$campo';
+
+  static Future<Map<String, String>> obtenerConfigInformePorPatio(String patio) async {
+    final prefs = await SharedPreferences.getInstance();
+    final p = patio.trim().toUpperCase();
+    return {
+      'oficioNro': prefs.getString(_clavePatio(p, 'oficioNro')) ?? '',
+      'asuntoOficioNro': prefs.getString(_clavePatio(p, 'asuntoOficioNro')) ?? '',
+      'asuntoOficioFecha': prefs.getString(_clavePatio(p, 'asuntoOficioFecha')) ?? '',
+      'destinatarioNombre': prefs.getString(_clavePatio(p, 'destinatarioNombre')) ?? '',
+      'destinatarioRango': prefs.getString(_clavePatio(p, 'destinatarioRango')) ?? '',
+      'firmanteNombre': prefs.getString(_clavePatio(p, 'firmanteNombre')) ?? '',
+      'firmanteRango': prefs.getString(_clavePatio(p, 'firmanteRango')) ?? '',
+    };
+  }
+
+  static Future<void> guardarConfigInformePorPatio({
+    required String patio,
+    required String oficioNro,
+    required String asuntoOficioNro,
+    required String asuntoOficioFecha,
+    required String destinatarioNombre,
+    required String destinatarioRango,
+    required String firmanteNombre,
+    required String firmanteRango,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final p = patio.trim().toUpperCase();
+    await prefs.setString(_clavePatio(p, 'oficioNro'), oficioNro);
+    await prefs.setString(_clavePatio(p, 'asuntoOficioNro'), asuntoOficioNro);
+    await prefs.setString(_clavePatio(p, 'asuntoOficioFecha'), asuntoOficioFecha);
+    await prefs.setString(_clavePatio(p, 'destinatarioNombre'), destinatarioNombre);
+    await prefs.setString(_clavePatio(p, 'destinatarioRango'), destinatarioRango);
+    await prefs.setString(_clavePatio(p, 'firmanteNombre'), firmanteNombre);
+    await prefs.setString(_clavePatio(p, 'firmanteRango'), firmanteRango);
+  }
 
   static Future<Map<String, String>> obtenerPerfilCompletoUsuario() async {
     final usuario = FirebaseAuth.instance.currentUser;

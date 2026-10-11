@@ -12,7 +12,10 @@ import 'dart:html' as html;
 /// condicional que hay en storage_service.dart. No hace falta
 /// tocarlo ni importarlo manualmente en ningún otro lado.
 void descargarBytesEnNavegador(String nombreArchivo, List<int> bytes) {
-  final blob = html.Blob([bytes]);
+  final mimeType = nombreArchivo.toLowerCase().endsWith('.docx')
+      ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      : (nombreArchivo.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'application/octet-stream');
+  final blob = html.Blob([bytes], mimeType);
   final url = html.Url.createObjectUrlFromBlob(blob);
   final html.AnchorElement anchor = html.AnchorElement(href: url)
     ..setAttribute('download', nombreArchivo);

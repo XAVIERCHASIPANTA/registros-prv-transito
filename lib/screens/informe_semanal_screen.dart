@@ -1,12 +1,17 @@
+import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../models/informe_semanal_record.dart';
 import '../services/storage_service.dart';
 import '../services/docx_builder.dart';
 import '../services/firma_digital_service.dart';
 import '../services/pdf_informe_builder.dart';
+import '../services/web_download_stub.dart'
+    if (dart.library.html) '../services/web_download_web.dart';
 import '../widgets/firma_digital_dialog.dart';
 import '../widgets/modal_password_firma_dialog.dart';
 import 'historial_informes_screen.dart';
@@ -56,6 +61,17 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
 
   String _formatoFecha(DateTime d) => '${d.day.toString().padLeft(2, '0')} de ${_meses[d.month - 1]} de ${d.year}';
 
+  String _limpiarNombrePatio(String p) {
+    var patioLimpio = p.trim().toUpperCase();
+    patioLimpio = patioLimpio.replaceAll(RegExp(r'\s*SANTO DOMINGO DE LOS TS[ÁA]CHILAS.*$', caseSensitive: false), '');
+    patioLimpio = patioLimpio.replaceAll(RegExp(r'\s*SANTO DOMINGO.*$', caseSensitive: false), '');
+    patioLimpio = patioLimpio.replaceAll(RegExp(r'\s*PICHINCHA.*$', caseSensitive: false), '');
+    patioLimpio = patioLimpio.replaceAll(RegExp(r'\s*MANAB[IÍ].*$', caseSensitive: false), '');
+    patioLimpio = patioLimpio.replaceAll(RegExp(r'\s*GUAYAS.*$', caseSensitive: false), '');
+    patioLimpio = patioLimpio.replaceAll(RegExp(r'\s*ESMERALDAS.*$', caseSensitive: false), '');
+    return patioLimpio.isNotEmpty ? patioLimpio : p.trim().toUpperCase();
+  }
+
   ({DateTime lunes, DateTime domingo}) _calcularUltimaSemana() {
     final hoy = DateTime.now();
     final hoySinHora = DateTime(hoy.year, hoy.month, hoy.day);
@@ -85,11 +101,12 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
         ? StorageService.ultimaSubzona.toUpperCase() 
         : (jefaturaPerfil.isNotEmpty 
             ? jefaturaPerfil.toUpperCase() 
-            : (subzonaPerfil.isNotEmpty ? subzonaPerfil.toUpperCase() : 'SANTO DOMINGO'));
+            : 'SANTO DOMINGO');
         
-    _patioController.text = StorageService.ultimoCrv.isNotEmpty 
+    final patioBase = StorageService.ultimoCrv.isNotEmpty 
         ? StorageService.ultimoCrv.toUpperCase() 
         : (patioPerfil.isNotEmpty ? patioPerfil.toUpperCase() : 'CONTROL 120');
+    _patioController.text = _limpiarNombrePatio(patioBase);
         
     _subzonaController.text = StorageService.ultimaSubzona.isNotEmpty 
         ? StorageService.ultimaSubzona 
@@ -111,37 +128,62 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
       _subzonaAbrevController.text = 'SDT';
     }
         
-    _oficioNroController.text = StorageService.ultimoOficioInformeNro.isNotEmpty 
-        ? StorageService.ultimoOficioInformeNro 
-        : 'PN-SZ-${_subzonaAbrevController.text}-JPCTSV-CRV-2026-001-O';
+    final patioActual = _patioController.text.trim();
+    final configPatio = await StorageService.obtenerConfigInformePorPatio(patioActual);
+
+    _oficioNroController.text = configPatio['oficioNro']!.isNotEmpty
+        ? configPatio['oficioNro']!
+        : (StorageService.ultimoOficioInformeNro.isNotEmpty 
+            ? StorageService.ultimoOficioInformeNro 
+            : 'PN-SZ-${_subzonaAbrevController.text}-JPCTSV-CRV-2026-0063-O');
         
-    _asuntoOficioNroController.text = StorageService.ultimoAsuntoOficioNro.isNotEmpty 
-        ? StorageService.ultimoAsuntoOficioNro 
-        : 'PN-DNT-SCRV-QX-2025-045-O';
+    _asuntoOficioNroController.text = configPatio['asuntoOficioNro']!.isNotEmpty
+        ? configPatio['asuntoOficioNro']!
+        : (StorageService.ultimoAsuntoOficioNro.isNotEmpty 
+            ? StorageService.ultimoAsuntoOficioNro 
+            : 'PN-DNCTSV-SCRV-POL-20026-00080-O');
         
-    _asuntoOficioFechaController.text = StorageService.ultimoAsuntoOficioFecha.isNotEmpty 
-        ? StorageService.ultimoAsuntoOficioFecha 
-        : '30 de abril del 2025';
+    _asuntoOficioFechaController.text = configPatio['asuntoOficioFecha']!.isNotEmpty
+        ? configPatio['asuntoOficioFecha']!
+        : (StorageService.ultimoAsuntoOficioFecha.isNotEmpty 
+            ? StorageService.ultimoAsuntoOficioFecha 
+            : '04 de junio del 2026');
         
-    _destinatarioNombreController.text = StorageService.ultimoDestinatarioNombre.isNotEmpty 
-        ? StorageService.ultimoDestinatarioNombre 
-        : 'Cristian German Barreiros Tumipamba';
+    _destinatarioNombreController.text = configPatio['destinatarioNombre']!.isNotEmpty
+        ? configPatio['destinatarioNombre']!
+        : (StorageService.ultimoDestinatarioNombre.isNotEmpty 
+            ? StorageService.ultimoDestinatarioNombre 
+            : 'Wiliams Rodrigo Barreno Ramos');
         
-    _destinatarioRangoController.text = StorageService.ultimoDestinatarioRango.isNotEmpty 
-        ? StorageService.ultimoDestinatarioRango 
-        : 'Coronel de E.M';
-        
-    _firmanteNombreController.text = datosFirma['nombre']!.isNotEmpty
-        ? datosFirma['nombre']!
-        : (StorageService.ultimoFirmanteNombre.isNotEmpty
-            ? StorageService.ultimoFirmanteNombre
-            : (nombrePerfil.isNotEmpty ? nombrePerfil : 'Fausto Xavier Chasipanta Haro'));
+    _destinatarioRangoController.text = configPatio['destinatarioRango']!.isNotEmpty
+        ? configPatio['destinatarioRango']!
+        : (StorageService.ultimoDestinatarioRango.isNotEmpty 
+            ? StorageService.ultimoDestinatarioRango 
+            : 'Coronel de Estado Mayor');
+
+    final firmanteRaw = configPatio['firmanteNombre']!.isNotEmpty
+        ? configPatio['firmanteNombre']!
+        : (datosFirma['nombre']!.isNotEmpty
+            ? datosFirma['nombre']!
+            : (StorageService.ultimoFirmanteNombre.isNotEmpty
+                ? StorageService.ultimoFirmanteNombre
+                : 'Fausto Xavier Chasipanta Haro'));
+
+    _firmanteNombreController.text = (firmanteRaw.isEmpty ||
+            firmanteRaw.contains('@') ||
+            firmanteRaw.toLowerCase().contains('google') ||
+            firmanteRaw.toLowerCase().contains('xchasi') ||
+            firmanteRaw.toLowerCase().contains('xavier xchasi'))
+        ? 'Fausto Xavier Chasipanta Haro'
+        : firmanteRaw;
             
-    _firmanteRangoController.text = datosFirma['rango']!.isNotEmpty
-        ? datosFirma['rango']!
-        : (StorageService.ultimoFirmanteRango.isNotEmpty
-            ? StorageService.ultimoFirmanteRango
-            : (rangoPerfil.isNotEmpty ? rangoPerfil : 'Sargento Segundo De Policía'));
+    _firmanteRangoController.text = configPatio['firmanteRango']!.isNotEmpty
+        ? configPatio['firmanteRango']!
+        : (datosFirma['rango']!.isNotEmpty
+            ? datosFirma['rango']!
+            : (StorageService.ultimoFirmanteRango.isNotEmpty
+                ? StorageService.ultimoFirmanteRango
+                : 'Sargento Segundo De Policía'));
 
     _fechaOficioController.text = _formatoFecha(DateTime.now());
     _fechaLunesController.text = _formatoFecha(_lunes!);
@@ -155,6 +197,12 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
     _fojasController.text = (totalLiberados * 2).toString().padLeft(2, '0');
 
     if (mounted) setState(() => _cargando = false);
+  }
+
+  String _construirNombreArchivo(String patio, String fecha, String extension) {
+    final patioLimpio = patio.trim().isEmpty ? 'patio' : patio.trim().toLowerCase();
+    final fechaLimpia = fecha.trim().isEmpty ? 'fecha' : fecha.trim();
+    return 'informe semanal CRV $patioLimpio $fechaLimpia.$extension';
   }
 
   @override
@@ -222,7 +270,7 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
   }
 
   Future<void> _generarYCompartirPdf() async {
-    _guardarRecordados();
+    await _guardarRecordados();
     final pdfUnsignedBytes = await PdfInformeSemanalBuilder.buildPdf(
       jefaturaNombre: _jefaturaController.text.trim(),
       patio: _patioController.text.trim(),
@@ -242,7 +290,7 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
       observacionAdicional: _observacionController.text,
       firmanteNombre: _firmanteNombreController.text.trim(),
       firmanteRango: _firmanteRangoController.text.trim(),
-      incluirEstampaFirma: true,
+      incluirEstampaFirma: false,
     );
 
     Uint8List? finalPdfBytes = pdfUnsignedBytes;
@@ -264,29 +312,47 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
 
     await _registrarEnHistorial(firmadoDigitalmente: firmadoDigital);
 
-    final patioLimpio = _patioController.text.trim();
-    final nombreArchivo = 'Informe semanal CRV $patioLimpio.pdf';
-
-    final xFile = XFile.fromData(
-      finalPdfBytes,
-      name: nombreArchivo,
-      mimeType: 'application/pdf',
+    final nombreArchivo = _construirNombreArchivo(
+      _patioController.text,
+      _fechaOficioController.text,
+      'pdf',
     );
-    await Share.shareXFiles([xFile], text: 'Informe semanal oficial PDF del CRV $patioLimpio');
+
+    if (kIsWeb) {
+      descargarBytesEnNavegador(nombreArchivo, finalPdfBytes);
+    } else {
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/$nombreArchivo');
+      await file.writeAsBytes(finalPdfBytes, flush: true);
+
+      final xFile = XFile(
+        file.path,
+        name: nombreArchivo,
+        mimeType: 'application/pdf',
+      );
+      await Share.shareXFiles([xFile], text: nombreArchivo);
+    }
   }
 
   Future<void> _generarYCompartirWord() async {
-    _guardarRecordados();
+    await _guardarRecordados();
 
-    ByteData? templateData;
+    List<int>? bytesPolicia;
+    List<int>? bytesDireccion;
+
     try {
-      templateData = await rootBundle.load('assets/informe_semanal_template.docx');
-    } catch (e) {
-      debugPrint('No se pudo cargar el asset del template: $e');
-    }
+      final b1 = await rootBundle.load('assets/escudo_policia.jpg');
+      bytesPolicia = b1.buffer.asUint8List();
+    } catch (_) {}
+
+    try {
+      final b2 = await rootBundle.load('assets/logo_direccion_transito.png');
+      bytesDireccion = b2.buffer.asUint8List();
+    } catch (_) {}
 
     final bytes = DocxBuilder.buildInformeSemanal(
-      templateBytes: templateData?.buffer.asUint8List(),
+      escudoPoliciaBytes: bytesPolicia,
+      logoDireccionBytes: bytesDireccion,
       jefaturaNombre: _jefaturaController.text.trim(),
       patio: _patioController.text.trim(),
       subzona: _subzonaController.text.trim(),
@@ -301,6 +367,7 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
       fechaDomingo: _fechaDomingoController.text.trim(),
       vehiculos: int.tryParse(_vehiculosController.text.trim()) ?? 0,
       motocicletas: int.tryParse(_motocicletasController.text.trim()) ?? 0,
+      fojasStr: _fojasController.text.trim(),
       observacionAdicional: _observacionController.text,
       firmanteNombre: _firmanteNombreController.text.trim(),
       firmanteRango: _firmanteRangoController.text.trim(),
@@ -308,25 +375,69 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
 
     await _registrarEnHistorial(firmadoDigitalmente: false);
 
-    final patioLimpio = _patioController.text.trim();
-    final nombreArchivo = 'Informe semanal del CRV $patioLimpio.docx';
-
-    final xFile = XFile.fromData(
-      Uint8List.fromList(bytes),
-      name: nombreArchivo,
-      mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    final nombreArchivo = _construirNombreArchivo(
+      _patioController.text,
+      _fechaOficioController.text,
+      'docx',
     );
-    await Share.shareXFiles([xFile], text: 'Informe semanal del CRV $patioLimpio');
+
+    if (kIsWeb) {
+      descargarBytesEnNavegador(nombreArchivo, bytes);
+    } else {
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/$nombreArchivo');
+      await file.writeAsBytes(bytes, flush: true);
+
+      final xFile = XFile(
+        file.path,
+        name: nombreArchivo,
+        mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      );
+      await Share.shareXFiles([xFile], text: nombreArchivo);
+    }
   }
 
-  void _guardarRecordados() {
-    StorageService.ultimoOficioInformeNro = _oficioNroController.text.trim();
+  String _incrementarOficioNro(String oficioActual) {
+    final regExp = RegExp(r'^(.*?)(\d+)([^\d]*)$');
+    final match = regExp.firstMatch(oficioActual);
+    if (match != null) {
+      final prefix = match.group(1)!;
+      final numStr = match.group(2)!;
+      final suffix = match.group(3)!;
+      final nextNum = (int.tryParse(numStr) ?? 0) + 1;
+      final paddedNum = nextNum.toString().padLeft(numStr.length, '0');
+      return '$prefix$paddedNum$suffix';
+    }
+    return oficioActual;
+  }
+
+  Future<void> _guardarRecordados() async {
+    final oficioActual = _oficioNroController.text.trim();
+    final proximoOficio = _incrementarOficioNro(oficioActual);
+    final patioActual = _patioController.text.trim();
+
+    StorageService.ultimoOficioInformeNro = proximoOficio;
     StorageService.ultimoAsuntoOficioNro = _asuntoOficioNroController.text.trim();
     StorageService.ultimoAsuntoOficioFecha = _asuntoOficioFechaController.text.trim();
     StorageService.ultimoDestinatarioNombre = _destinatarioNombreController.text.trim();
     StorageService.ultimoDestinatarioRango = _destinatarioRangoController.text.trim();
-    StorageService.ultimoFirmanteNombre = _firmanteNombreController.text.trim();
+
+    final fNombre = (_firmanteNombreController.text.contains('@') || _firmanteNombreController.text.toLowerCase().contains('google'))
+        ? ''
+        : _firmanteNombreController.text.trim();
+    StorageService.ultimoFirmanteNombre = fNombre;
     StorageService.ultimoFirmanteRango = _firmanteRangoController.text.trim();
+
+    await StorageService.guardarConfigInformePorPatio(
+      patio: patioActual,
+      oficioNro: proximoOficio,
+      asuntoOficioNro: _asuntoOficioNroController.text.trim(),
+      asuntoOficioFecha: _asuntoOficioFechaController.text.trim(),
+      destinatarioNombre: _destinatarioNombreController.text.trim(),
+      destinatarioRango: _destinatarioRangoController.text.trim(),
+      firmanteNombre: fNombre,
+      firmanteRango: _firmanteRangoController.text.trim(),
+    );
   }
 
   void _abrirHistorial() {
@@ -595,11 +706,23 @@ class VistaPreviaInformeSemanalScreen extends StatelessWidget {
 
   String _saludoRango(String rango) {
     final r = rango.trim().toLowerCase();
-    if (r.contains('coronel')) return 'coronel';
-    if (r.contains('mayor')) return 'mayor';
-    if (r.contains('general')) return 'general';
-    if (r.contains('teniente')) return 'teniente coronel';
-    return rango.isEmpty ? 'coronel' : rango.toLowerCase();
+    if (r.contains('coronel')) return 'Coronel';
+    if (r.contains('mayor')) return 'Mayor';
+    if (r.contains('general')) return 'General';
+    if (r.contains('teniente coronel')) return 'Teniente Coronel';
+    if (r.contains('capitán') || r.contains('capitan')) return 'Capitán';
+    return rango.isEmpty ? 'Coronel' : (rango[0].toUpperCase() + rango.substring(1).toLowerCase());
+  }
+
+  String _limpiarNombrePatio(String p) {
+    var patioLimpio = p.trim().toUpperCase();
+    patioLimpio = patioLimpio.replaceAll(RegExp(r'\s*SANTO DOMINGO DE LOS TS[ÁA]CHILAS.*$', caseSensitive: false), '');
+    patioLimpio = patioLimpio.replaceAll(RegExp(r'\s*SANTO DOMINGO.*$', caseSensitive: false), '');
+    patioLimpio = patioLimpio.replaceAll(RegExp(r'\s*PICHINCHA.*$', caseSensitive: false), '');
+    patioLimpio = patioLimpio.replaceAll(RegExp(r'\s*MANAB[IÍ].*$', caseSensitive: false), '');
+    patioLimpio = patioLimpio.replaceAll(RegExp(r'\s*GUAYAS.*$', caseSensitive: false), '');
+    patioLimpio = patioLimpio.replaceAll(RegExp(r'\s*ESMERALDAS.*$', caseSensitive: false), '');
+    return patioLimpio.isNotEmpty ? patioLimpio : p.trim().toUpperCase();
   }
 
   @override
@@ -607,14 +730,27 @@ class VistaPreviaInformeSemanalScreen extends StatelessWidget {
     final saludo = _saludoRango(destinatarioRango);
     final strVehiculos = vehiculos.toString().padLeft(2, '0');
     final strMotocicletas = motocicletas.toString().padLeft(2, '0');
-    final totalLiberados = vehiculos + motocicletas;
-    final strTotal = totalLiberados.toString().padLeft(2, '0');
-    final strFojas = fojasStr.isNotEmpty ? fojasStr.padLeft(2, '0') : (totalLiberados * 2).toString().padLeft(2, '0');
+    final patioLimpio = _limpiarNombrePatio(patio);
+    final jefaturaClean = jefaturaNombre
+        .toUpperCase()
+        .replaceAll('JEFATURA DE CONTROL DE TRÁNSITO', '')
+        .replaceAll('JEFATURA DE TRÁNSITO', '')
+        .trim();
+
+    var firmanteClean = firmanteNombre.trim();
+    if (firmanteClean.isEmpty ||
+        firmanteClean.contains('@') ||
+        firmanteClean.toLowerCase().contains('google') ||
+        firmanteClean.toLowerCase().contains('xchasi') ||
+        firmanteClean.toLowerCase().contains('xavier xchasi')) {
+      firmanteClean = 'Fausto Xavier Chasipanta Haro';
+    }
+    final rangoFirmanteClean = firmanteRango.trim().isNotEmpty ? firmanteRango.trim() : 'Sargento Segundo De Policía';
 
     return Scaffold(
       backgroundColor: Colors.grey.shade200,
       appBar: AppBar(
-        title: Text('Vista Previa — CRV $patio'),
+        title: Text('Vista Previa — CRV $patioLimpio'),
         actions: [
           IconButton(
             icon: const Icon(Icons.draw),
@@ -692,7 +828,7 @@ class VistaPreviaInformeSemanalScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '“JEFATURA DE CONTROL DE TRÁNSITO $jefaturaNombre” CENTRO DE RETENCION VEHICULAR $patio”',
+                            '“JEFATURA DE CONTROL DE TRÁNSITO $jefaturaClean” CENTRO DE RETENCIÓN VEHICULAR “$patioLimpio”',
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontFamily: 'Times New Roman',
@@ -705,9 +841,9 @@ class VistaPreviaInformeSemanalScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     Image.asset(
-                      'assets/escudo_ministerio.jpg',
+                      'assets/logo_direccion_transito.png',
                       height: 55,
-                      width: 70,
+                      width: 55,
                       fit: BoxFit.contain,
                       errorBuilder: (_, __, ___) => Image.asset('assets/sello_prv.png', height: 55, width: 55),
                     ),
@@ -771,16 +907,14 @@ class VistaPreviaInformeSemanalScreen extends StatelessWidget {
                 SelectableText(
                   'Por los antes expuesto me permito remitir la información solicitada desde las 00H00 del día lunes '
                   '$fechaLunes hasta las 00H00 del día domingo $fechaDomingo, con relación a la salida de vehículos '
-                  'o motocicletas en el Centro de Retención Vehicular de la Jefatura de Tránsito $jefaturaNombre perteneciente a la Subzona $subzona.',
+                  'o motocicletas en el Centro de Retención Vehicular de la Jefatura de Tránsito $jefaturaClean perteneciente a la Subzona $subzona.',
                   textAlign: TextAlign.justify,
                   style: const TextStyle(fontSize: 12, height: 1.5, fontFamily: 'Times New Roman'),
                 ),
                 const SizedBox(height: 14),
 
                 SelectableText(
-                  vehiculos > 0 && motocicletas > 0
-                      ? 'Debo indicar que en dicha semana se realizó la liberación de $strVehiculos vehículos y $strMotocicletas motocicletas (total $strTotal liberaciones), por lo que adjunto $strFojas fojas de salida'
-                      : 'Debo indicar que en dicha semana se realizó la liberación de $strTotal vehículos, por lo que adjunto $strFojas fojas de salida',
+                  'Debo indicar que existió la libertad de $strVehiculos vehículos y $strMotocicletas motocicletas durante esas fechas.',
                   textAlign: TextAlign.justify,
                   style: const TextStyle(fontSize: 12, height: 1.5, fontFamily: 'Times New Roman'),
                 ),
@@ -792,6 +926,12 @@ class VistaPreviaInformeSemanalScreen extends StatelessWidget {
                     style: const TextStyle(fontSize: 12, height: 1.5, fontFamily: 'Times New Roman'),
                   ),
                 ],
+                const SizedBox(height: 14),
+                const SelectableText(
+                  'Adjunto los formularios descargados del SIIPNE 3W referente a la salida del vehículo.',
+                  textAlign: TextAlign.justify,
+                  style: TextStyle(fontSize: 12, height: 1.5, fontFamily: 'Times New Roman'),
+                ),
                 const SizedBox(height: 28),
 
                 const Text('Atentamente,', style: TextStyle(fontSize: 12, fontFamily: 'Times New Roman')),
@@ -800,33 +940,23 @@ class VistaPreviaInformeSemanalScreen extends StatelessWidget {
                   'VALOR, DISCIPLINA Y LEALTAD',
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'Times New Roman'),
                 ),
-                const SizedBox(height: 24),
-
-                GestureDetector(
-                  onTap: onAbrirConfigFirma,
-                  child: Tooltip(
-                    message: 'Toca para configurar tu archivo .p12 de FirmaEC',
-                    child: FirmaDigitalService.construirEstampaFirmaEC(
-                      nombreFirmante: firmanteNombre,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
+                // Espacio limpio sin QR preparado para FirmaEC
+                const SizedBox(height: 50),
 
                 Text(
-                  'Sr. $firmanteNombre',
+                  'Sr. $firmanteClean',
                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'Times New Roman'),
                 ),
                 Text(
-                  firmanteRango,
+                  rangoFirmanteClean,
                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'Times New Roman'),
                 ),
                 Text(
-                  'ENCARGADO DEL CENTRO DE RETENCIÓN VEHICULAR $patio',
+                  'ENCARGADO DEL CENTRO DE RETENCIÓN VEHICULAR “$patioLimpio”',
                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'Times New Roman'),
                 ),
                 Text(
-                  'PERTENECIENTE A LA JEFATURA DE TRÁNSITO SZ $subzonaAbrev.',
+                  'PERTENECIENTE A LA JEFATURA DE TRÁNSITO SZ ${subzonaAbrev.toUpperCase()}.',
                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'Times New Roman'),
                 ),
                 const SizedBox(height: 36),

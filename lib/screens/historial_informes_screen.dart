@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../models/informe_semanal_record.dart';
 import '../services/storage_service.dart';
@@ -59,6 +62,12 @@ class _HistorialInformesScreenState extends State<HistorialInformesScreen> {
     super.dispose();
   }
 
+  String _construirNombreArchivo(String patio, String fecha, String extension) {
+    final patioLimpio = patio.trim().isEmpty ? 'patio' : patio.trim().toLowerCase();
+    final fechaLimpia = fecha.trim().isEmpty ? 'fecha' : fecha.trim();
+    return 'informe semanal CRV $patioLimpio $fechaLimpia.$extension';
+  }
+
   Future<void> _reexportarPdf(InformeSemanalRecord r) async {
     final pdfBytes = await PdfInformeSemanalBuilder.buildPdf(
       jefaturaNombre: r.jefatura,
@@ -78,43 +87,71 @@ class _HistorialInformesScreenState extends State<HistorialInformesScreen> {
       fojasStr: r.fojasCount.toString(),
       firmanteNombre: r.firmanteNombre,
       firmanteRango: r.firmanteRango,
-      incluirEstampaFirma: true,
+      incluirEstampaFirma: false,
     );
 
-    final xFile = XFile.fromData(
-      pdfBytes,
-      name: 'Informe semanal CRV ${r.patio}.pdf',
+    final nombreArchivo = _construirNombreArchivo(r.patio, r.fechaOficio, 'pdf');
+
+    final tempDir = await getTemporaryDirectory();
+    final file = File('${tempDir.path}/$nombreArchivo');
+    await file.writeAsBytes(pdfBytes, flush: true);
+
+    final xFile = XFile(
+      file.path,
+      name: nombreArchivo,
       mimeType: 'application/pdf',
     );
-    await Share.shareXFiles([xFile], text: 'Informe Semanal Oficial (Historial) - CRV ${r.patio}');
+    await Share.shareXFiles([xFile], text: nombreArchivo);
   }
 
   Future<void> _reexportarWord(InformeSemanalRecord r) async {
+    List<int>? bytesPolicia;
+    List<int>? bytesDireccion;
+
+    try {
+      final b1 = await rootBundle.load('assets/escudo_policia.jpg');
+      bytesPolicia = b1.buffer.asUint8List();
+    } catch (_) {}
+
+    try {
+      final b2 = await rootBundle.load('assets/logo_direccion_transito.png');
+      bytesDireccion = b2.buffer.asUint8List();
+    } catch (_) {}
+
     final bytes = DocxBuilder.buildInformeSemanal(
+      escudoPoliciaBytes: bytesPolicia,
+      logoDireccionBytes: bytesDireccion,
       jefaturaNombre: r.jefatura,
       patio: r.patio,
       subzona: r.subzona,
       subzonaAbrev: r.subzonaAbrev,
       oficioNro: r.oficioNro,
       fechaOficio: r.fechaOficio,
-      asuntoOficioNro: 'PN-DNT-SCRV-QX-2025-045-O',
-      asuntoOficioFecha: '30 de abril del 2025',
-      destinatarioNombre: 'Cristian German Barreiros Tumipamba',
-      destinatarioRango: 'Coronel de E.M',
+      asuntoOficioNro: 'PN-DNCTSV-SCRV-POL-20026-00080-O',
+      asuntoOficioFecha: '04 de junio del 2026',
+      destinatarioNombre: 'Wiliams Rodrigo Barreno Ramos',
+      destinatarioRango: 'Coronel de Estado Mayor',
       fechaLunes: r.semanaLunes,
       fechaDomingo: r.semanaDomingo,
       vehiculos: r.vehiculosCount,
       motocicletas: r.motocicletasCount,
+      fojasStr: r.fojasCount.toString(),
       firmanteNombre: r.firmanteNombre,
       firmanteRango: r.firmanteRango,
     );
 
-    final xFile = XFile.fromData(
-      Uint8List.fromList(bytes),
-      name: 'Informe semanal CRV ${r.patio}.docx',
+    final nombreArchivo = _construirNombreArchivo(r.patio, r.fechaOficio, 'docx');
+
+    final tempDir = await getTemporaryDirectory();
+    final file = File('${tempDir.path}/$nombreArchivo');
+    await file.writeAsBytes(bytes, flush: true);
+
+    final xFile = XFile(
+      file.path,
+      name: nombreArchivo,
       mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     );
-    await Share.shareXFiles([xFile], text: 'Informe Semanal Word (Historial) - CRV ${r.patio}');
+    await Share.shareXFiles([xFile], text: nombreArchivo);
   }
 
   void _mostrarDetalle(InformeSemanalRecord r) {
