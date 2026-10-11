@@ -151,13 +151,21 @@ class HomeScreen extends StatelessWidget {
         child: Stack(
           children: [
             Positioned(
-              right: -30,
-              bottom: -30,
-              child: Opacity(
-                opacity: 0.14,
-                child: Image.asset('assets/sello_prv.png', width: 220, height: 220),
+              right: -60,
+              bottom: -60,
+              child: IgnorePointer(
+                child: Opacity(
+                  opacity: 0.13,
+                  child: Image.asset(
+                    'assets/sello_prv.png',
+                    width: 480,
+                    height: 480,
+                    fit: BoxFit.contain,
+                  ),
+                ),
               ),
             ),
+
             SafeArea(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
