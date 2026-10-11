@@ -36,6 +36,21 @@ class StorageService {
   static String ultimoDestinatarioRango = '';
   static String ultimoFirmanteNombre = '';
   static String ultimoFirmanteRango = '';
+  static const String correoInstitucionalDefault = 'dnctsv.sec.crv@gmail.com';
+  static String ultimoCorreoInstitucional = correoInstitucionalDefault;
+
+  static Future<String> obtenerCorreoInstitucional() async {
+    final prefs = await SharedPreferences.getInstance();
+    final c = prefs.getString('correo_institucional_envio') ?? '';
+    return c.trim().isNotEmpty ? c.trim() : correoInstitucionalDefault;
+  }
+
+  static Future<void> guardarCorreoInstitucional(String correo) async {
+    final prefs = await SharedPreferences.getInstance();
+    ultimoCorreoInstitucional = correo.trim().isNotEmpty ? correo.trim() : correoInstitucionalDefault;
+    await prefs.setString('correo_institucional_envio', ultimoCorreoInstitucional);
+  }
+
   static String _clavePatio(String patio, String campo) => 'informe_semanal_${patio.trim().toUpperCase()}_$campo';
 
   static Future<Map<String, String>> obtenerConfigInformePorPatio(String patio) async {

@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart' show rootBundle, Clipboard, ClipboardData;
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:syncfusion_flutter_pdf/pdf.dart' as sf;
 import '../models/informe_semanal_record.dart';
 import '../services/storage_service.dart';
 import '../services/docx_builder.dart';
@@ -16,12 +18,25 @@ import '../widgets/firma_digital_dialog.dart';
 import '../widgets/modal_password_firma_dialog.dart';
 import 'historial_informes_screen.dart';
 
+class AnexoPdfItem {
+  final String nombre;
+  final Uint8List bytes;
+  final int paginas;
+
+  AnexoPdfItem({
+    required this.nombre,
+    required this.bytes,
+    required this.paginas,
+  });
+}
+
 class InformeSemanalScreen extends StatefulWidget {
   const InformeSemanalScreen({super.key});
 
   @override
   State<InformeSemanalScreen> createState() => _InformeSemanalScreenState();
 }
+
 
 class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
   static const _meses = [
@@ -47,11 +62,15 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
   final _observacionController = TextEditingController();
   final _firmanteNombreController = TextEditingController();
   final _firmanteRangoController = TextEditingController();
+  final _correoInstitucionalController = TextEditingController();
+
+  final List<AnexoPdfItem> _anexosAdjuntos = [];
 
   bool _cargando = true;
   bool _tieneFirmaP12 = false;
   DateTime? _lunes;
   DateTime? _domingo;
+
 
   @override
   void initState() {
@@ -91,8 +110,7 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
     final patioPerfil = perfilUsuario['patio'] ?? '';
     final jefaturaPerfil = perfilUsuario['jefatura'] ?? '';
     final subzonaPerfil = perfilUsuario['subzona'] ?? '';
-    final nombrePerfil = perfilUsuario['nombre'] ?? '';
-    final rangoPerfil = perfilUsuario['rango'] ?? '';
+
 
     _tieneFirmaP12 = await FirmaDigitalService.tieneCertificado();
     final datosFirma = await FirmaDigitalService.obtenerDatosFirmante();
@@ -194,9 +212,81 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
     _motocicletasController.text = conteo.motocicletas.toString();
 
     final totalLiberados = conteo.vehiculos + conteo.motocicletas;
-    _fojasController.text = (totalLiberados * 2).toString().padLeft(2, '0');
+    // El usuario indicó sumar el informe (1 foja) a los formularios de salida (2 fojas por vehículo liberado)
+    final fojasEstimadas = totalLiberados > 0 ? (totalLiberados * 2 + 1) : 1;
+    _fojasController.text = fojasEstimadas.toString().padLeft(2, '0');
+
+    _correoInstitucionalController.text = await StorageService.obtenerCorreoInstitucional();
 
     if (mounted) setState(() => _cargando = false);
+  }
+
+  Future<void> _seleccionarPdfsSiipne() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+        withData: true,
+      );
+
+      if (result == null || result.files.isEmpty) return;
+
+      int nuevos = 0;
+      for (final f in result.files) {
+        Uint8List? bytes = f.bytes;
+        if (bytes == null && f.path != null) {
+          bytes = await File(f.path!).readAsBytes();
+        }
+        if (bytes == null || bytes.isEmpty) continue;
+
+        int numPags = 1;
+        try {
+          final doc = sf.PdfDocument(inputBytes: bytes);
+          numPags = doc.pages.count;
+          doc.dispose();
+        } catch (_) {}
+
+        _anexosAdjuntos.add(AnexoPdfItem(
+          nombre: f.name,
+          bytes: bytes,
+          paginas: numPags,
+        ));
+        nuevos++;
+      }
+
+      final totalPagsAnexos = _anexosAdjuntos.fold<int>(0, (s, it) => s + it.paginas);
+      // Fojas: Páginas de los formularios SIIPNE 3W + 1 hoja del informe semanal
+      _fojasController.text = (totalPagsAnexos + 1).toString().padLeft(2, '0');
+
+      if (mounted) {
+        setState(() {});
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Se adjuntaron $nuevos formulario(s) SIIPNE 3W ($totalPagsAnexos páginas + 1 informe = ${totalPagsAnexos + 1} fojas).'),
+            backgroundColor: const Color(0xFF17356E),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al adjuntar archivos: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
+  void _eliminarAnexo(int index) {
+    setState(() {
+      _anexosAdjuntos.removeAt(index);
+      final totalPagsAnexos = _anexosAdjuntos.fold<int>(0, (s, it) => s + it.paginas);
+      final vCount = int.tryParse(_vehiculosController.text.trim()) ?? 0;
+      final mCount = int.tryParse(_motocicletasController.text.trim()) ?? 0;
+      final totalLiberados = vCount + mCount;
+      final fojas = totalPagsAnexos > 0 ? (totalPagsAnexos + 1) : (totalLiberados > 0 ? (totalLiberados * 2 + 1) : 1);
+      _fojasController.text = fojas.toString().padLeft(2, '0');
+    });
   }
 
   String _construirNombreArchivo(String patio, String fecha, String extension) {
@@ -213,12 +303,13 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
       _asuntoOficioFechaController, _destinatarioNombreController, _destinatarioRangoController,
       _fechaLunesController, _fechaDomingoController, _vehiculosController,
       _motocicletasController, _fojasController, _observacionController, _firmanteNombreController,
-      _firmanteRangoController,
+      _firmanteRangoController, _correoInstitucionalController,
     ]) {
       c.dispose();
     }
     super.dispose();
   }
+
 
   Future<void> _abrirConfigFirma() async {
     await FirmaDigitalDialog.mostrar(
@@ -269,7 +360,10 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
     await StorageService.guardarInformeSemanalRecord(record);
   }
 
-  Future<void> _generarYCompartirPdf() async {
+  Future<void> _generarYCompartirPdf({
+    String? asuntoPersonalizado,
+    String? correoDestino,
+  }) async {
     await _guardarRecordados();
     final pdfUnsignedBytes = await PdfInformeSemanalBuilder.buildPdf(
       jefaturaNombre: _jefaturaController.text.trim(),
@@ -310,6 +404,14 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
       }
     }
 
+    // Compilar con anexos SIIPNE 3W si existen
+    if (_anexosAdjuntos.isNotEmpty) {
+      finalPdfBytes = PdfInformeSemanalBuilder.compilarConAnexos(
+        informePdfBytes: finalPdfBytes,
+        anexosPdfBytes: _anexosAdjuntos.map((e) => e.bytes).toList(),
+      );
+    }
+
     await _registrarEnHistorial(firmadoDigitalmente: firmadoDigital);
 
     final nombreArchivo = _construirNombreArchivo(
@@ -317,6 +419,20 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
       _fechaOficioController.text,
       'pdf',
     );
+
+    final patioLimpio = _limpiarNombrePatio(_patioController.text);
+    final asuntoDefecto = 'Informe Semanal del CRV $patioLimpio de la fecha del día domingo ${_fechaDomingoController.text.trim()} al día lunes ${_fechaLunesController.text.trim()}';
+    final asuntoFinal = asuntoPersonalizado?.isNotEmpty == true ? asuntoPersonalizado! : asuntoDefecto;
+    final destinoFinal = correoDestino?.isNotEmpty == true ? correoDestino! : _correoInstitucionalController.text.trim();
+
+    final textoEnvio = 'Estimados,\n\n'
+        'Se remite adjunto el $asuntoFinal, '
+        'junto con los formularios de salida del SIIPNE 3W adjuntos (total ${_fojasController.text} fojas).\n\n'
+        'Destinatario: $destinoFinal\n\n'
+        'Atentamente,\n'
+        '${_firmanteNombreController.text.trim()}\n'
+        '${_firmanteRangoController.text.trim()}\n'
+        'ENCARGADO DEL CENTRO DE RETENCIÓN VEHICULAR “$patioLimpio”';
 
     if (kIsWeb) {
       descargarBytesEnNavegador(nombreArchivo, finalPdfBytes);
@@ -330,9 +446,14 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
         name: nombreArchivo,
         mimeType: 'application/pdf',
       );
-      await Share.shareXFiles([xFile], text: nombreArchivo);
+      await Share.shareXFiles(
+        [xFile],
+        text: textoEnvio,
+        subject: asuntoFinal,
+      );
     }
   }
+
 
   Future<void> _generarYCompartirWord() async {
     await _guardarRecordados();
@@ -428,6 +549,11 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
     StorageService.ultimoFirmanteNombre = fNombre;
     StorageService.ultimoFirmanteRango = _firmanteRangoController.text.trim();
 
+    final cInst = _correoInstitucionalController.text.trim();
+    if (cInst.isNotEmpty) {
+      await StorageService.guardarCorreoInstitucional(cInst);
+    }
+
     await StorageService.guardarConfigInformePorPatio(
       patio: patioActual,
       oficioNro: proximoOficio,
@@ -438,6 +564,126 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
       firmanteNombre: fNombre,
       firmanteRango: _firmanteRangoController.text.trim(),
     );
+  }
+
+  Future<void> _mostrarDialogoEnviarCorreoInstitucional() async {
+    final patioLimpio = _limpiarNombrePatio(_patioController.text);
+    final asuntoDefault = 'Informe Semanal del CRV $patioLimpio de la fecha del día domingo ${_fechaDomingoController.text.trim()} al día lunes ${_fechaLunesController.text.trim()}';
+
+    final correoCtrl = TextEditingController(text: _correoInstitucionalController.text.trim());
+    final asuntoCtrl = TextEditingController(text: asuntoDefault);
+
+    final confirmado = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Row(
+          children: const [
+            Icon(Icons.mark_email_read_outlined, color: Color(0xFF17356E), size: 26),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Enviar a Correo Institucional',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'El informe oficial y los formularios SIIPNE 3W adjuntos se compilarán en un único PDF listo para enviar.',
+                style: TextStyle(fontSize: 13, color: Colors.black87),
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: correoCtrl,
+                decoration: InputDecoration(
+                  labelText: 'Correo Institucional Destinatario',
+                  hintText: 'ej. dnctsv.sec.crv@gmail.com',
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.alternate_email),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.copy, size: 20),
+                    tooltip: 'Copiar correo',
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: correoCtrl.text.trim()));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Correo copiado al portapapeles.')),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: asuntoCtrl,
+                maxLines: 2,
+                decoration: const InputDecoration(
+                  labelText: 'Asunto Oficial del Correo',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.subject),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.blue.shade200),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Resumen del paquete PDF único:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                    const SizedBox(height: 4),
+                    Text('• 1 hoja: Informe Oficial (CRV $patioLimpio)', style: const TextStyle(fontSize: 12)),
+                    Text(
+                      _anexosAdjuntos.isNotEmpty
+                          ? '• ${_anexosAdjuntos.length} formularios SIIPNE 3W anexados (${_anexosAdjuntos.fold<int>(0, (s, e) => s + e.paginas)} páginas)'
+                          : '• Sin formularios anexados (solo informe oficial)',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    const Divider(height: 10),
+                    Text(
+                      '• Total fojas a remitir: ${_fojasController.text} fojas',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF17356E)),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton.icon(
+            icon: const Icon(Icons.send),
+            label: const Text('Compilar y Enviar'),
+            style: FilledButton.styleFrom(backgroundColor: const Color(0xFF17356E)),
+            onPressed: () => Navigator.pop(ctx, true),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmado == true) {
+      final cFin = correoCtrl.text.trim();
+      final aFin = asuntoCtrl.text.trim();
+      _correoInstitucionalController.text = cFin;
+      await StorageService.guardarCorreoInstitucional(cFin);
+
+      await _generarYCompartirPdf(
+        asuntoPersonalizado: aFin,
+        correoDestino: cFin,
+      );
+    }
   }
 
   void _abrirHistorial() {
@@ -470,9 +716,12 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
           observacionAdicional: _observacionController.text,
           firmanteNombre: _firmanteNombreController.text.trim(),
           firmanteRango: _firmanteRangoController.text.trim(),
+          anexosCount: _anexosAdjuntos.length,
+          anexosPaginas: _anexosAdjuntos.fold<int>(0, (s, e) => s + e.paginas),
           tieneFirmaP12: _tieneFirmaP12,
           onAbrirConfigFirma: _abrirConfigFirma,
           onGenerarYCompartirPdf: _generarYCompartirPdf,
+          onEnviarCorreoInstitucional: _mostrarDialogoEnviarCorreoInstitucional,
           onGenerarYCompartirWord: _generarYCompartirWord,
         ),
       ),
@@ -586,19 +835,21 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
                   const SizedBox(height: 10),
                   _campo(_observacionController, 'Observación adicional (opcional, para casos especiales)', lineas: 3),
                 ]),
+                _seccionAnexosSiipne(),
                 _seccion('Quién firma (datos del oficial del patio)', [
                   _campo(_firmanteNombreController, 'Nombre completo de quien firma'),
                   _campo(_firmanteRangoController, 'Rango de quien firma'),
                 ]),
                 const SizedBox(height: 16),
 
-                OutlinedButton.icon(
-                  icon: const Icon(Icons.history),
-                  label: const Text('Ver Historial de Informes Semanales'),
-                  style: OutlinedButton.styleFrom(
+                FilledButton.icon(
+                  icon: const Icon(Icons.mark_email_read_outlined),
+                  label: const Text('Enviar a Correo Institucional (PDF Compilado)'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFF0F5A47),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  onPressed: _abrirHistorial,
+                  onPressed: _mostrarDialogoEnviarCorreoInstitucional,
                 ),
                 const SizedBox(height: 10),
 
@@ -621,8 +872,114 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
                   ),
                   onPressed: _generarYCompartirWord,
                 ),
+                const SizedBox(height: 8),
+
+                OutlinedButton.icon(
+                  icon: const Icon(Icons.history),
+                  label: const Text('Ver Historial de Informes Semanales'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  onPressed: _abrirHistorial,
+                ),
               ],
             ),
+    );
+  }
+
+  Widget _seccionAnexosSiipne() {
+    final totalPaginas = _anexosAdjuntos.fold<int>(0, (s, e) => s + e.paginas);
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.picture_as_pdf, color: Color(0xFFC62828), size: 24),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Text(
+                    'Anexos SIIPNE 3W (Formularios de Salida)',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
+                ),
+                Text(
+                  '${_anexosAdjuntos.length} adjunto(s)',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: _anexosAdjuntos.isNotEmpty ? Colors.green.shade700 : Colors.grey.shade600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              'Adjunta los PDFs de salida descargados del SIIPNE 3W (2 hojas por vehículo liberado). '
+              'El sistema los compilará automáticamente en un único PDF junto con el informe oficial.',
+              style: TextStyle(fontSize: 12, color: Colors.black87),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              icon: const Icon(Icons.attach_file),
+              label: const Text('Subir Formularios SIIPNE 3W (Múltiples PDFs)'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF17356E),
+                side: const BorderSide(color: Color(0xFF17356E)),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              ),
+              onPressed: _seleccionarPdfsSiipne,
+            ),
+            if (_anexosAdjuntos.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: Colors.green.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.check_circle_outline, color: Colors.green.shade800, size: 18),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        'Total: ${_anexosAdjuntos.length} archivos | $totalPaginas hojas de salida + 1 informe = ${totalPaginas + 1} fojas.',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.green.shade900),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                children: List.generate(_anexosAdjuntos.length, (index) {
+                  final it = _anexosAdjuntos[index];
+                  return Chip(
+                    backgroundColor: Colors.grey.shade100,
+                    avatar: const Icon(Icons.description, size: 16, color: Color(0xFFC62828)),
+                    label: Text(
+                      '${it.nombre} (${it.paginas}p)',
+                      style: const TextStyle(fontSize: 11),
+                    ),
+                    deleteIcon: const Icon(Icons.close, size: 16),
+                    onDeleted: () => _eliminarAnexo(index),
+                  );
+                }),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 
@@ -673,9 +1030,12 @@ class VistaPreviaInformeSemanalScreen extends StatelessWidget {
   final String observacionAdicional;
   final String firmanteNombre;
   final String firmanteRango;
+  final int anexosCount;
+  final int anexosPaginas;
   final bool tieneFirmaP12;
   final VoidCallback onAbrirConfigFirma;
   final VoidCallback onGenerarYCompartirPdf;
+  final VoidCallback onEnviarCorreoInstitucional;
   final VoidCallback onGenerarYCompartirWord;
 
   const VistaPreviaInformeSemanalScreen({
@@ -698,11 +1058,15 @@ class VistaPreviaInformeSemanalScreen extends StatelessWidget {
     required this.observacionAdicional,
     required this.firmanteNombre,
     required this.firmanteRango,
+    this.anexosCount = 0,
+    this.anexosPaginas = 0,
     required this.tieneFirmaP12,
     required this.onAbrirConfigFirma,
     required this.onGenerarYCompartirPdf,
+    required this.onEnviarCorreoInstitucional,
     required this.onGenerarYCompartirWord,
   });
+
 
   String _saludoRango(String rango) {
     final r = rango.trim().toLowerCase();
@@ -753,6 +1117,14 @@ class VistaPreviaInformeSemanalScreen extends StatelessWidget {
         title: Text('Vista Previa — CRV $patioLimpio'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.mark_email_read_outlined),
+            tooltip: 'Enviar a Correo Institucional',
+            onPressed: () {
+              Navigator.pop(context);
+              onEnviarCorreoInstitucional();
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.draw),
             tooltip: 'Generar y Firmar PDF',
             onPressed: () {
@@ -770,6 +1142,7 @@ class VistaPreviaInformeSemanalScreen extends StatelessWidget {
           ),
         ],
       ),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Center(
@@ -961,6 +1334,47 @@ class VistaPreviaInformeSemanalScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 36),
 
+                if (anexosCount > 0) ...[
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: Colors.green.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.check_circle_outline, color: Colors.green.shade800, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Formularios SIIPNE 3W anexados: $anexosCount archivos ($anexosPaginas páginas de salida). Total a remitir: $fojasStr fojas.',
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.green.shade900),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    icon: const Icon(Icons.mark_email_read_outlined, size: 18),
+                    label: const Text('Enviar a Correo Institucional (PDF Compilado)'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: const Color(0xFF0F5A47),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      onEnviarCorreoInstitucional();
+                    },
+                  ),
+                ),
+                const SizedBox(height: 10),
+
                 Row(
                   children: [
                     Expanded(
@@ -968,7 +1382,7 @@ class VistaPreviaInformeSemanalScreen extends StatelessWidget {
                         icon: const Icon(Icons.arrow_back, size: 16),
                         label: const FittedBox(
                           fit: BoxFit.scaleDown,
-                          child: Text('Volver y ajustar'),
+                          child: Text('Volver'),
                         ),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
@@ -1013,6 +1427,7 @@ class VistaPreviaInformeSemanalScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+
               ],
             ),
           ),

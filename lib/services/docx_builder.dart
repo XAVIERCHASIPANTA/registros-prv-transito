@@ -249,8 +249,9 @@ class DocxBuilder {
     final strVehiculos = vehiculos.toString().padLeft(2, '0');
     final strMotocicletas = motocicletas.toString().padLeft(2, '0');
 
-    final parrafoLiberaciones =
-        'Debo indicar que existió la libertad de $strVehiculos vehículos y $strMotocicletas motocicletas durante esas fechas.';
+    final parrafoLiberaciones = fojasStr.trim().isNotEmpty
+        ? 'Debo indicar que existió la libertad de $strVehiculos vehículos y $strMotocicletas motocicletas durante esas fechas, por lo que adjunto $fojasStr fojas de salida.'
+        : 'Debo indicar que existió la libertad de $strVehiculos vehículos y $strMotocicletas motocicletas durante esas fechas.';
 
     var patioLimpio = patio.trim().toUpperCase();
     patioLimpio = patioLimpio.replaceAll(RegExp(r'\s*SANTO DOMINGO DE LOS TS[ÁA]CHILAS.*$', caseSensitive: false), '');

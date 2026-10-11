@@ -1,7 +1,9 @@
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:syncfusion_flutter_pdf/pdf.dart' as sf;
 
 /// Generador del Informe Semanal en formato PDF Nativo oficial
 /// con diagramación estandarizada para impresión y FirmaEC.
@@ -201,7 +203,9 @@ class PdfInformeSemanalBuilder {
 
               // Cuerpo del informe (Párrafo 3)
               pw.Paragraph(
-                text: 'Debo indicar que existió la libertad de $strVehiculos vehículos y $strMotocicletas motocicletas durante esas fechas.',
+                text: fojasStr.trim().isNotEmpty
+                    ? 'Debo indicar que existió la libertad de $strVehiculos vehículos y $strMotocicletas motocicletas durante esas fechas, por lo que adjunto $fojasStr fojas de salida.'
+                    : 'Debo indicar que existió la libertad de $strVehiculos vehículos y $strMotocicletas motocicletas durante esas fechas.',
                 textAlign: pw.TextAlign.justify,
                 style: const pw.TextStyle(fontSize: 11, lineSpacing: 3),
               ),
@@ -258,6 +262,38 @@ class PdfInformeSemanalBuilder {
     return pdf.save();
   }
 
+  /// Compila el documento del informe oficial con los anexos en formato PDF (formularios SIIPNE 3W).
+  /// Genera un único archivo vectorial de alta definición donde la primera página es el oficio
+  /// y las siguientes son cada una de las páginas de los formularios anexados.
+  static Uint8List compilarConAnexos({
+    required Uint8List informePdfBytes,
+    required List<Uint8List> anexosPdfBytes,
+  }) {
+    if (anexosPdfBytes.isEmpty) return informePdfBytes;
+
+    final docBase = sf.PdfDocument(inputBytes: informePdfBytes);
+
+    for (final anexoBytes in anexosPdfBytes) {
+      sf.PdfDocument? docAnexo;
+      try {
+        docAnexo = sf.PdfDocument(inputBytes: anexoBytes);
+        for (int i = 0; i < docAnexo.pages.count; i++) {
+          final template = docAnexo.pages[i].createTemplate();
+          final page = docBase.pages.add();
+          page.graphics.drawPdfTemplate(template, const ui.Offset(0, 0));
+        }
+      } catch (_) {
+        // En caso de PDF anexo corrupto, se omite para no invalidar el informe
+      } finally {
+        docAnexo?.dispose();
+      }
+    }
+
+    final mergedBytes = Uint8List.fromList(docBase.saveSync());
+    docBase.dispose();
+    return mergedBytes;
+  }
+
   static String _saludoRango(String rango) {
     final r = rango.trim().toLowerCase();
     if (r.contains('coronel')) return 'Coronel';
@@ -267,3 +303,4 @@ class PdfInformeSemanalBuilder {
     return rango.isEmpty ? 'Coronel' : 'Coronel';
   }
 }
+
