@@ -8,6 +8,11 @@
   <meta name="description" content="Sistema Nacional de Registros de Ingreso y Libertad de Vehículos en Centros de Retención Vehicular (CRV) - Policía Nacional del Ecuador">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
+  <!-- Evitar caché obsoleta en navegadores móviles durante desarrollo continuo -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
   <!-- Theme Color para PWA en Android y navegadores -->
   <meta name="theme-color" content="#17356E">
 
@@ -61,6 +66,29 @@
     <div style="font-weight: bold; font-size: 16px; letter-spacing: 0.5px;">REGISTROS PRV TRANSITO</div>
     <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 6px;">Cargando aplicación PWA...</div>
   </div>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('sw.js?v=1.1.14')
+          .then(function (reg) {
+            reg.onupdatefound = function () {
+              var installingWorker = reg.installing;
+              if (installingWorker) {
+                installingWorker.onstatechange = function () {
+                  if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    console.log('Nueva versión detectada. Recargando para actualizar...');
+                    window.location.reload();
+                  }
+                };
+              }
+            };
+          })
+          .catch(function (err) {
+            console.warn('Registro de Service Worker omitido o no compatible:', err);
+          });
+      });
+    }
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
