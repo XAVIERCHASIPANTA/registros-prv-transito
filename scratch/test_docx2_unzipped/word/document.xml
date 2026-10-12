@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+            xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+            xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
+            xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+            xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+  <w:body>
+    <w:tbl>
+      <w:tblPr>
+        <w:tblW w:w="9360" w:type="dxa"/>
+        <w:tblBorders>
+          <w:top w:val="none"/><w:left w:val="none"/><w:bottom w:val="none"/><w:right w:val="none"/>
+          <w:insideH w:val="none"/><w:insideV w:val="none"/>
+        </w:tblBorders>
+      </w:tblPr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr><w:tcW w:w="1500" w:type="dxa"/><w:vAlign w:val="center"/></w:tcPr>
+          <w:p><w:pPr><w:jc w:val="center"/></w:pPr></w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr><w:tcW w:w="6360" w:type="dxa"/><w:vAlign w:val="center"/></w:tcPr>
+          <w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="40"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:b/><w:sz w:val="24"/></w:rPr><w:t>POLICÍA NACIONAL DEL ECUADOR</w:t></w:r></w:p>
+          <w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="40"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:b/><w:u w:val="single"/><w:sz w:val="20"/></w:rPr><w:t>DIRECCIÓN NACIONAL DE CONTROL DE TRÁNSITO Y SEGURIDAD VIAL</w:t></w:r></w:p>
+          <w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="0"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:b/><w:sz w:val="20"/></w:rPr><w:t>“JEFATURA DE CONTROL DE TRÁNSITO SANTO DOMINGO” CENTRO DE RETENCIÓN VEHICULAR “CONTROL 120”</w:t></w:r></w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr><w:tcW w:w="1500" w:type="dxa"/><w:vAlign w:val="center"/></w:tcPr>
+          <w:p><w:pPr><w:jc w:val="center"/></w:pPr></w:p>
+        </w:tc>
+      </w:tr>
+    </w:tbl>
+
+    <w:p><w:pPr><w:spacing w:before="240" w:after="40"/></w:pPr></w:p>
+
+    <w:p><w:pPr><w:jc w:val="right"/><w:spacing w:after="80" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="es-ES"/></w:rPr><w:t xml:space="preserve">Oficio, PN-SZ-SDT-JPCTSV-CRV-2026-001-O</w:t></w:r></w:p>
+    <w:p><w:pPr><w:jc w:val="right"/><w:spacing w:after="80" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="es-ES"/></w:rPr><w:t xml:space="preserve">Fecha, 10 de octubre de 2026</w:t></w:r></w:p>
+
+    <w:p><w:pPr><w:spacing w:before="120" w:after="120"/></w:pPr></w:p>
+
+    <w:p><w:pPr><w:jc w:val="left"/><w:spacing w:after="80" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="es-ES"/><w:b/></w:rPr><w:t xml:space="preserve">ASUNTO: EN CUMPLIMIENTO AL OFICIO Nro. PN-DNT-SCRV-QX-2025-045-O</w:t></w:r></w:p>
+
+    <w:p><w:pPr><w:spacing w:before="120" w:after="120"/></w:pPr></w:p>
+
+    <w:p><w:pPr><w:jc w:val="left"/><w:spacing w:after="80" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="es-ES"/></w:rPr><w:t xml:space="preserve">Señor</w:t></w:r></w:p>
+    <w:p><w:pPr><w:jc w:val="left"/><w:spacing w:after="80" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="es-ES"/><w:b/></w:rPr><w:t xml:space="preserve">Cristian German Barreiros Tumipamba</w:t></w:r></w:p>
+    <w:p><w:pPr><w:jc w:val="left"/><w:spacing w:after="80" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="es-ES"/></w:rPr><w:t xml:space="preserve">Coronel de E.M</w:t></w:r></w:p>
+    <w:p><w:pPr><w:jc w:val="left"/><w:spacing w:after="80" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="es-ES"/><w:b/></w:rPr><w:t xml:space="preserve">DIRECTOR NACIONAL DE CONTROL DE TRÁNSITO Y SEGURIDAD VIAL POLICÍA NACIONAL</w:t></w:r></w:p>
+    <w:p><w:pPr><w:jc w:val="left"/><w:spacing w:after="80" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="es-ES"/></w:rPr><w:t xml:space="preserve">En su Despacho. –</w:t></w:r></w:p>
+
+    <w:p><w:pPr><w:spacing w:before="120" w:after="120"/></w:pPr></w:p>
+
+    <w:p><w:pPr><w:jc w:val="left"/><w:spacing w:after="80" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="es-ES"/></w:rPr><w:t xml:space="preserve">Mi Coronel:</w:t></w:r></w:p>
+
+    <w:p><w:pPr><w:spacing w:before="120" w:after="80"/></w:pPr></w:p>
+
+    <w:p><w:pPr><w:jc w:val="both"/><w:spacing w:after="80" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="es-ES"/></w:rPr><w:t xml:space="preserve">Con el honor de dirigirme a usted, me permito expresar un atento y cordial saludo, a la vez desearle éxitos en el desarrollo de sus funciones, muy respetuosamente en cumplimiento al Oficio Nro. PN-DNT-SCRV-QX-2025-045-O, de fecha 30 de abril del 2025 firmado electrónicamente por el señor DIRECTOR NACIONAL DE CONTROL DE TRANSITO Y SEGURIDAD VIAL en el que se dispone remitir los formularios generados por el sistema una vez ejecutada la salida de los vehículos, los mismos que deberán ser consolidados por cada Centro de Retención Vehicular en un solo documento, indicando expresamente el CRV al que pertenecen.</w:t></w:r></w:p>
+    <w:p><w:pPr><w:jc w:val="both"/><w:spacing w:after="80" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="es-ES"/></w:rPr><w:t xml:space="preserve">Por los antes expuesto me permito remitir la información solicitada desde las 00H00 del día lunes 28 de septiembre de 2026 hasta las 00H00 del día domingo 04 de octubre de 2026, con relación a la salida de vehículos o motocicletas en el Centro de Retención Vehicular de la Jefatura de Tránsito SANTO DOMINGO perteneciente a la Subzona Santo Domingo de los Tsáchilas.</w:t></w:r></w:p>
+    <w:p><w:pPr><w:jc w:val="both"/><w:spacing w:after="80" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="es-ES"/></w:rPr><w:t xml:space="preserve">Debo indicar que en dicha semana se realizó la liberación de 01 vehículos, por lo que adjunto 02 fojas de salida.</w:t></w:r></w:p>
+    
+
+    <w:p><w:pPr><w:jc w:val="both"/><w:spacing w:after="80" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="es-ES"/></w:rPr><w:t xml:space="preserve">Adjunto los formularios descargados del SIIPNE 3W referente a la salida del vehículo.</w:t></w:r></w:p>
+
+    <w:p><w:pPr><w:spacing w:before="200" w:after="80"/></w:pPr></w:p>
+
+    <w:p><w:pPr><w:jc w:val="left"/><w:spacing w:after="80" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="es-ES"/></w:rPr><w:t xml:space="preserve">Atentamente,</w:t></w:r></w:p>
+
+    <w:p><w:pPr><w:spacing w:before="80" w:after="120"/></w:pPr></w:p>
+
+    <w:p><w:pPr><w:jc w:val="left"/><w:spacing w:after="80" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="es-ES"/><w:b/></w:rPr><w:t xml:space="preserve">VALOR, DISCIPLINA Y LEALTAD</w:t></w:r></w:p>
+
+    <w:p><w:pPr><w:spacing w:before="720" w:after="120"/></w:pPr></w:p>
+
+        <w:p><w:pPr><w:jc w:val="left"/><w:spacing w:after="80" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="es-ES"/><w:b/></w:rPr><w:t xml:space="preserve">Sr. Sargento Segundo De Policía</w:t></w:r></w:p>
+    <w:p><w:pPr><w:jc w:val="left"/><w:spacing w:after="80" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="es-ES"/><w:b/></w:rPr><w:t xml:space="preserve">ENCARGADO DEL CENTRO DE RETENCIÓN VEHICULAR CONTROL 120</w:t></w:r></w:p>
+    <w:p><w:pPr><w:jc w:val="left"/><w:spacing w:after="80" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="es-ES"/><w:b/></w:rPr><w:t xml:space="preserve">PERTENECIENTE A LA JEFATURA DE TRÁNSITO SZ SDT.</w:t></w:r></w:p>
+
+  </w:body>
+</w:document>

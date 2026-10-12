@@ -1,0 +1,2133 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:cx="http://schemas.microsoft.com/office/drawing/2014/chartex" xmlns:cx1="http://schemas.microsoft.com/office/drawing/2015/9/8/chartex" xmlns:cx2="http://schemas.microsoft.com/office/drawing/2015/10/21/chartex" xmlns:cx3="http://schemas.microsoft.com/office/drawing/2016/5/9/chartex" xmlns:cx4="http://schemas.microsoft.com/office/drawing/2016/5/10/chartex" xmlns:cx5="http://schemas.microsoft.com/office/drawing/2016/5/11/chartex" xmlns:cx6="http://schemas.microsoft.com/office/drawing/2016/5/12/chartex" xmlns:cx7="http://schemas.microsoft.com/office/drawing/2016/5/13/chartex" xmlns:cx8="http://schemas.microsoft.com/office/drawing/2016/5/14/chartex" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:aink="http://schemas.microsoft.com/office/drawing/2016/ink" xmlns:am3d="http://schemas.microsoft.com/office/drawing/2017/model3d" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:oel="http://schemas.microsoft.com/office/2019/extlst" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml" xmlns:w16cex="http://schemas.microsoft.com/office/word/2018/wordml/cex" xmlns:w16cid="http://schemas.microsoft.com/office/word/2016/wordml/cid" xmlns:w16="http://schemas.microsoft.com/office/word/2018/wordml" xmlns:w16du="http://schemas.microsoft.com/office/word/2023/wordml/word16du" xmlns:w16sdtdh="http://schemas.microsoft.com/office/word/2020/wordml/sdtdatahash" xmlns:w16sdtfl="http://schemas.microsoft.com/office/word/2024/wordml/sdtformatlock" xmlns:w16se="http://schemas.microsoft.com/office/word/2015/wordml/symex" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" mc:Ignorable="w14 w15 w16se w16cid w16 w16cex w16sdtdh w16sdtfl w16du wp14">
+  <w:body>
+    <w:p w14:paraId="73BA7F30" w14:textId="77777777" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:after="0" w:line="240" w:lineRule="auto" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Calibri" w:eastAsia="Times New Roman" w:hAnsi="Calibri" w:cs="Times New Roman" />
+          <w:noProof />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:drawing>
+          <wp:anchor distT="0" distB="0" distL="0" distR="0" simplePos="0" relativeHeight="251659264" behindDoc="0" locked="0" layoutInCell="1" allowOverlap="1" wp14:anchorId="3AE5168C" wp14:editId="019ECD02">
+            <wp:simplePos x="0" y="0" />
+            <wp:positionH relativeFrom="page">
+              <wp:posOffset>5821680</wp:posOffset>
+            </wp:positionH>
+            <wp:positionV relativeFrom="paragraph">
+              <wp:posOffset>153772</wp:posOffset>
+            </wp:positionV>
+            <wp:extent cx="1198511" cy="460375" />
+            <wp:effectExtent l="0" t="0" r="0" b="0" />
+            <wp:wrapNone />
+            <wp:docPr id="5" name="Image 5" />
+            <wp:cNvGraphicFramePr>
+              <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" />
+            </wp:cNvGraphicFramePr>
+            <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+              <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                  <pic:nvPicPr>
+                    <pic:cNvPr id="5" name="Image 5" />
+                    <pic:cNvPicPr />
+                  </pic:nvPicPr>
+                  <pic:blipFill>
+                    <a:blip r:embed="rId4" cstate="print" />
+                    <a:stretch>
+                      <a:fillRect />
+                    </a:stretch>
+                  </pic:blipFill>
+                  <pic:spPr>
+                    <a:xfrm>
+                      <a:off x="0" y="0" />
+                      <a:ext cx="1198511" cy="460375" />
+                    </a:xfrm>
+                    <a:prstGeom prst="rect">
+                      <a:avLst />
+                    </a:prstGeom>
+                  </pic:spPr>
+                </pic:pic>
+              </a:graphicData>
+            </a:graphic>
+          </wp:anchor>
+        </w:drawing>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Calibri" w:eastAsia="Times New Roman" w:hAnsi="Calibri" w:cs="Times New Roman" />
+          <w:noProof />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:drawing>
+          <wp:anchor distT="0" distB="0" distL="0" distR="0" simplePos="0" relativeHeight="251661312" behindDoc="0" locked="0" layoutInCell="1" allowOverlap="1" wp14:anchorId="442B7887" wp14:editId="52BBB2BA">
+            <wp:simplePos x="0" y="0" />
+            <wp:positionH relativeFrom="page">
+              <wp:posOffset>807720</wp:posOffset>
+            </wp:positionH>
+            <wp:positionV relativeFrom="paragraph">
+              <wp:posOffset>22225</wp:posOffset>
+            </wp:positionV>
+            <wp:extent cx="655827" cy="579754" />
+            <wp:effectExtent l="0" t="0" r="0" b="0" />
+            <wp:wrapNone />
+            <wp:docPr id="6" name="Image 6" />
+            <wp:cNvGraphicFramePr>
+              <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" />
+            </wp:cNvGraphicFramePr>
+            <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+              <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                  <pic:nvPicPr>
+                    <pic:cNvPr id="6" name="Image 6" />
+                    <pic:cNvPicPr />
+                  </pic:nvPicPr>
+                  <pic:blipFill>
+                    <a:blip r:embed="rId5" cstate="print" />
+                    <a:stretch>
+                      <a:fillRect />
+                    </a:stretch>
+                  </pic:blipFill>
+                  <pic:spPr>
+                    <a:xfrm>
+                      <a:off x="0" y="0" />
+                      <a:ext cx="655827" cy="579754" />
+                    </a:xfrm>
+                    <a:prstGeom prst="rect">
+                      <a:avLst />
+                    </a:prstGeom>
+                  </pic:spPr>
+                </pic:pic>
+              </a:graphicData>
+            </a:graphic>
+          </wp:anchor>
+        </w:drawing>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:noProof />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <mc:AlternateContent>
+          <mc:Choice Requires="wpg">
+            <w:drawing>
+              <wp:anchor distT="0" distB="0" distL="0" distR="0" simplePos="0" relativeHeight="251660288" behindDoc="0" locked="0" layoutInCell="1" allowOverlap="1" wp14:anchorId="05C46D27" wp14:editId="5B9C3401">
+                <wp:simplePos x="0" y="0" />
+                <wp:positionH relativeFrom="page">
+                  <wp:posOffset>398145</wp:posOffset>
+                </wp:positionH>
+                <wp:positionV relativeFrom="page">
+                  <wp:posOffset>8896362</wp:posOffset>
+                </wp:positionV>
+                <wp:extent cx="7019925" cy="762000" />
+                <wp:effectExtent l="0" t="0" r="0" b="0" />
+                <wp:wrapNone />
+                <wp:docPr id="1" name="Group 1" />
+                <wp:cNvGraphicFramePr>
+                  <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" />
+                </wp:cNvGraphicFramePr>
+                <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+                  <a:graphicData uri="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup">
+                    <wpg:wgp>
+                      <wpg:cNvGrpSpPr>
+                        <a:grpSpLocks />
+                      </wpg:cNvGrpSpPr>
+                      <wpg:grpSpPr>
+                        <a:xfrm>
+                          <a:off x="0" y="0" />
+                          <a:ext cx="7019925" cy="762000" />
+                          <a:chOff x="0" y="0" />
+                          <a:chExt cx="7019925" cy="762000" />
+                        </a:xfrm>
+                      </wpg:grpSpPr>
+                      <wps:wsp>
+                        <wps:cNvPr id="2" name="Graphic 2" />
+                        <wps:cNvSpPr />
+                        <wps:spPr>
+                          <a:xfrm>
+                            <a:off x="619125" y="123431" />
+                            <a:ext cx="476250" cy="638175" />
+                          </a:xfrm>
+                          <a:custGeom>
+                            <a:avLst />
+                            <a:gdLst />
+                            <a:ahLst />
+                            <a:cxnLst />
+                            <a:rect l="l" t="t" r="r" b="b" />
+                            <a:pathLst>
+                              <a:path w="476250" h="638175">
+                                <a:moveTo>
+                                  <a:pt x="476250" y="0" />
+                                </a:moveTo>
+                                <a:lnTo>
+                                  <a:pt x="0" y="0" />
+                                </a:lnTo>
+                                <a:lnTo>
+                                  <a:pt x="0" y="638174" />
+                                </a:lnTo>
+                                <a:lnTo>
+                                  <a:pt x="476250" y="638174" />
+                                </a:lnTo>
+                                <a:lnTo>
+                                  <a:pt x="476250" y="0" />
+                                </a:lnTo>
+                                <a:close />
+                              </a:path>
+                            </a:pathLst>
+                          </a:custGeom>
+                          <a:solidFill>
+                            <a:srgbClr val="9F9F9F" />
+                          </a:solidFill>
+                        </wps:spPr>
+                        <wps:bodyPr wrap="square" lIns="0" tIns="0" rIns="0" bIns="0" rtlCol="0">
+                          <a:prstTxWarp prst="textNoShape">
+                            <a:avLst />
+                          </a:prstTxWarp>
+                          <a:noAutofit />
+                        </wps:bodyPr>
+                      </wps:wsp>
+                      <wps:wsp>
+                        <wps:cNvPr id="3" name="Graphic 3" />
+                        <wps:cNvSpPr />
+                        <wps:spPr>
+                          <a:xfrm>
+                            <a:off x="304800" y="0" />
+                            <a:ext cx="6715125" cy="762000" />
+                          </a:xfrm>
+                          <a:custGeom>
+                            <a:avLst />
+                            <a:gdLst />
+                            <a:ahLst />
+                            <a:cxnLst />
+                            <a:rect l="l" t="t" r="r" b="b" />
+                            <a:pathLst>
+                              <a:path w="6715125" h="762000">
+                                <a:moveTo>
+                                  <a:pt x="476250" y="18669" />
+                                </a:moveTo>
+                                <a:lnTo>
+                                  <a:pt x="0" y="18669" />
+                                </a:lnTo>
+                                <a:lnTo>
+                                  <a:pt x="0" y="533006" />
+                                </a:lnTo>
+                                <a:lnTo>
+                                  <a:pt x="476250" y="533006" />
+                                </a:lnTo>
+                                <a:lnTo>
+                                  <a:pt x="476250" y="18669" />
+                                </a:lnTo>
+                                <a:close />
+                              </a:path>
+                              <a:path w="6715125" h="762000">
+                                <a:moveTo>
+                                  <a:pt x="6714731" y="0" />
+                                </a:moveTo>
+                                <a:lnTo>
+                                  <a:pt x="790956" y="0" />
+                                </a:lnTo>
+                                <a:lnTo>
+                                  <a:pt x="790956" y="761987" />
+                                </a:lnTo>
+                                <a:lnTo>
+                                  <a:pt x="6714731" y="761987" />
+                                </a:lnTo>
+                                <a:lnTo>
+                                  <a:pt x="6714731" y="0" />
+                                </a:lnTo>
+                                <a:close />
+                              </a:path>
+                            </a:pathLst>
+                          </a:custGeom>
+                          <a:solidFill>
+                            <a:srgbClr val="003792" />
+                          </a:solidFill>
+                        </wps:spPr>
+                        <wps:bodyPr wrap="square" lIns="0" tIns="0" rIns="0" bIns="0" rtlCol="0">
+                          <a:prstTxWarp prst="textNoShape">
+                            <a:avLst />
+                          </a:prstTxWarp>
+                          <a:noAutofit />
+                        </wps:bodyPr>
+                      </wps:wsp>
+                      <wps:wsp>
+                        <wps:cNvPr id="4" name="Graphic 4" />
+                        <wps:cNvSpPr />
+                        <wps:spPr>
+                          <a:xfrm>
+                            <a:off x="0" y="351828" />
+                            <a:ext cx="476250" cy="381000" />
+                          </a:xfrm>
+                          <a:custGeom>
+                            <a:avLst />
+                            <a:gdLst />
+                            <a:ahLst />
+                            <a:cxnLst />
+                            <a:rect l="l" t="t" r="r" b="b" />
+                            <a:pathLst>
+                              <a:path w="476250" h="381000">
+                                <a:moveTo>
+                                  <a:pt x="476249" y="0" />
+                                </a:moveTo>
+                                <a:lnTo>
+                                  <a:pt x="0" y="0" />
+                                </a:lnTo>
+                                <a:lnTo>
+                                  <a:pt x="0" y="381000" />
+                                </a:lnTo>
+                                <a:lnTo>
+                                  <a:pt x="476249" y="381000" />
+                                </a:lnTo>
+                                <a:lnTo>
+                                  <a:pt x="476249" y="0" />
+                                </a:lnTo>
+                                <a:close />
+                              </a:path>
+                            </a:pathLst>
+                          </a:custGeom>
+                          <a:solidFill>
+                            <a:srgbClr val="9F9F9F" />
+                          </a:solidFill>
+                        </wps:spPr>
+                        <wps:bodyPr wrap="square" lIns="0" tIns="0" rIns="0" bIns="0" rtlCol="0">
+                          <a:prstTxWarp prst="textNoShape">
+                            <a:avLst />
+                          </a:prstTxWarp>
+                          <a:noAutofit />
+                        </wps:bodyPr>
+                      </wps:wsp>
+                    </wpg:wgp>
+                  </a:graphicData>
+                </a:graphic>
+              </wp:anchor>
+            </w:drawing>
+          </mc:Choice>
+          <mc:Fallback>
+            <w:pict>
+              <v:group w14:anchorId="5A3EE685" id="Group 1" o:spid="_x0000_s1026" style="position:absolute;margin-left:31.35pt;margin-top:700.5pt;width:552.75pt;height:60pt;z-index:251660288;mso-wrap-distance-left:0;mso-wrap-distance-right:0;mso-position-horizontal-relative:page;mso-position-vertical-relative:page" coordsize="70199,7620" o:gfxdata="UEsDBBQABgAIAAAAIQC2gziS/gAAAOEBAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbJSRQU7DMBBF&#xA;90jcwfIWJU67QAgl6YK0S0CoHGBkTxKLZGx5TGhvj5O2G0SRWNoz/78nu9wcxkFMGNg6quQqL6RA&#xA;0s5Y6ir5vt9lD1JwBDIwOMJKHpHlpr69KfdHjyxSmriSfYz+USnWPY7AufNIadK6MEJMx9ApD/oD&#xA;OlTrorhX2lFEilmcO2RdNtjC5xDF9pCuTyYBB5bi6bQ4syoJ3g9WQ0ymaiLzg5KdCXlKLjvcW893&#xA;SUOqXwnz5DrgnHtJTxOsQfEKIT7DmDSUCaxw7Rqn8787ZsmRM9e2VmPeBN4uqYvTtW7jvijg9N/y&#xA;JsXecLq0q+WD6m8AAAD//wMAUEsDBBQABgAIAAAAIQA4/SH/1gAAAJQBAAALAAAAX3JlbHMvLnJl&#xA;bHOkkMFqwzAMhu+DvYPRfXGawxijTi+j0GvpHsDYimMaW0Yy2fr2M4PBMnrbUb/Q94l/f/hMi1qR&#xA;JVI2sOt6UJgd+ZiDgffL8ekFlFSbvV0oo4EbChzGx4f9GRdb25HMsYhqlCwG5lrLq9biZkxWOiqY&#xA;22YiTra2kYMu1l1tQD30/bPm3wwYN0x18gb45AdQl1tp5j/sFB2T0FQ7R0nTNEV3j6o9feQzro1i&#xA;OWA14Fm+Q8a1a8+Bvu/d/dMb2JY5uiPbhG/ktn4cqGU/er3pcvwCAAD//wMAUEsDBBQABgAIAAAA&#xA;IQCuZTyCigMAAJ4NAAAOAAAAZHJzL2Uyb0RvYy54bWzsV9FumzAUfZ+0f7D8vgIhCQGVVFO7VpOq&#xA;rVI77dkxJqAB9mwnpH+/a4MJTdeq7RRNmqZI2MQH+97jc4/h9GxXV2jLpCp5k+LgxMeINZRnZbNO&#xA;8be7yw8LjJQmTUYq3rAU3zOFz5bv3522ImETXvAqYxLBJI1KWpHiQmuReJ6iBauJOuGCNTCYc1kT&#xA;Dbdy7WWStDB7XXkT3597LZeZkJwypeDfi24QL+38ec6o/prnimlUpRhi0/Yq7XVlrt7ylCRrSURR&#xA;0j4M8oYoalI2sOgw1QXRBG1k+WiquqSSK57rE8prj+d5SZnNAbIJ/INsriTfCJvLOmnXYqAJqD3g&#xA;6c3T0i/bKyluxY3soofuNac/FPDitWKdjMfN/XoP3uWyNg9BEmhnGb0fGGU7jSj8GflBHE9mGFEY&#xA;i+awYz3ltIB9efQYLT49/6BHkm5ZG9wQTCtAPWpPkPozgm4LIpjlXRkCbiQqsxRPMGpIDRq+6uUy&#xA;MeoxSwPGMNjfqZ7MA37mQRwYJoCIYBJOw6DTnmNqCuzMQKGGqHm4CKKZGR/yJQndKH3FuKWcbK+V&#xA;hmHQW+Z6pHA9umtcV0IBGOlXVvoaI5C+xAikv+qWF0Sb58xUpovaFLtIiiEQM1rzLbvjFqfNvjmU&#xA;23OIdA+pmjEUshqh3JhrhZ2uw9jEp33iDuDaDjha93VoKzyI0k1HK65YR7HJ3HI9sAG4Md+KV2V2&#xA;WVaVyV/J9eq8kmhLgNj40vz6iEcw0KdKOiWY3opn9yCjFpSTYvVzQyTDqPrcgFCNK7mOdJ2V60hd&#xA;nXPrXZZ6qfTd7juRAgnopliDfL5wp1eSOGFA/AbQYc2TDf+40TwvjWpsbF1E/Q3UTqfkoxdReFhE&#xA;oeHuxUUU+tMFWMigJ5K4+plHwczW10OnASJcHY431PF0lAIaQoEK6j3PbMG+PB4pOVjM53Evoj3M&#xA;KXVcIWOkG3ftGDcLQzgdX1pJr0P/LoZH1bT3kxfSAbBpBK447C1s3VNcRLEfz+YPoI4E13ZkjIAR&#xA;GPAiepaRcQivhB/HXXw/jGJ7zAAZ/91l9KLnLK93jv6Inh66iz1LXuwunbGEs2AxWRih7N3FnTrG&#xA;XOBw7l9j/oa5uEjAW/pAnvKWafygQJ6qpZGbQj6ufFw79pQHiTuAazugia5f93Xo49TPP3Q62xde&#xA;+Aiw7yn9B4v5yhjf29N8/1m1/AUAAP//AwBQSwMEFAAGAAgAAAAhALyLWUriAAAADQEAAA8AAABk&#xA;cnMvZG93bnJldi54bWxMj0FLw0AQhe+C/2EZwZvdJNpYYjalFPVUBFuh9DbNTpPQ7G7IbpP03zs9&#xA;6W3mzePN9/LlZFoxUO8bZxXEswgE2dLpxlYKfnYfTwsQPqDV2DpLCq7kYVnc3+WYaTfabxq2oRIc&#xA;Yn2GCuoQukxKX9Zk0M9cR5ZvJ9cbDLz2ldQ9jhxuWplEUSoNNpY/1NjRuqbyvL0YBZ8jjqvn+H3Y&#xA;nE/r62E3/9pvYlLq8WFavYEINIU/M9zwGR0KZjq6i9VetArS5JWdrL9EMZe6OeJ0kYA48jRPWJNF&#xA;Lv+3KH4BAAD//wMAUEsBAi0AFAAGAAgAAAAhALaDOJL+AAAA4QEAABMAAAAAAAAAAAAAAAAAAAAA&#xA;AFtDb250ZW50X1R5cGVzXS54bWxQSwECLQAUAAYACAAAACEAOP0h/9YAAACUAQAACwAAAAAAAAAA&#xA;AAAAAAAvAQAAX3JlbHMvLnJlbHNQSwECLQAUAAYACAAAACEArmU8gooDAACeDQAADgAAAAAAAAAA&#xA;AAAAAAAuAgAAZHJzL2Uyb0RvYy54bWxQSwECLQAUAAYACAAAACEAvItZSuIAAAANAQAADwAAAAAA&#xA;AAAAAAAAAADkBQAAZHJzL2Rvd25yZXYueG1sUEsFBgAAAAAEAAQA8wAAAPMGAAAAAA==&#xA;">
+                <v:shape id="Graphic 2" o:spid="_x0000_s1027" style="position:absolute;left:6191;top:1234;width:4762;height:6382;visibility:visible;mso-wrap-style:square;v-text-anchor:top" coordsize="476250,638175" o:gfxdata="UEsDBBQABgAIAAAAIQDb4fbL7gAAAIUBAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbHyQz07DMAyH&#xA;70i8Q+QralM4IITa7kDhCAiNB7ASt43WOlEcyvb2pNu4IODoPz9/n1xv9vOkForiPDdwXVagiI23&#xA;jocG3rdPxR0oScgWJ8/UwIEENu3lRb09BBKV0ywNjCmFe63FjDSjlD4Q50nv44wpl3HQAc0OB9I3&#xA;VXWrjedEnIq03oC27qjHjympx31un0wiTQLq4bS4shrAECZnMGVTvbD9QSnOhDInjzsyuiBXWQP0&#xA;r4R18jfgnHvJr4nOknrFmJ5xzhraRtHWf3Kkpfz/yGo5S+H73hkquyhdjr3R8m2lj09svwAAAP//&#xA;AwBQSwMEFAAGAAgAAAAhAFr0LFu/AAAAFQEAAAsAAABfcmVscy8ucmVsc2zPwWrDMAwG4Ptg72B0&#xA;X5TuUMaI01uh19I+gLGVxCy2jGSy9e1nemrHjpL4P0nD4SetZiPRyNnCruvBUPYcYp4tXC/Htw8w&#xA;Wl0ObuVMFm6kcBhfX4Yzra62kC6xqGlKVgtLreUTUf1CyWnHhXKbTCzJ1VbKjMX5LzcTvvf9HuXR&#xA;gPHJNKdgQU5hB+ZyK23zHztFL6w81c5zQp6m6P9TMfB3PtPWFCczVQtB9N4U2rp2HOA44NMz4y8A&#xA;AAD//wMAUEsDBBQABgAIAAAAIQBybeCXwgAAANoAAAAPAAAAZHJzL2Rvd25yZXYueG1sRI/NasMw&#xA;EITvhb6D2EBvjRwfSnAsh7RNoKX0kL/7Ym1sEWtlLMVW374qFHIcZuYbplxH24mRBm8cK1jMMxDE&#xA;tdOGGwWn4+55CcIHZI2dY1LwQx7W1eNDiYV2E+9pPIRGJAj7AhW0IfSFlL5uyaKfu544eRc3WAxJ&#xA;Do3UA04JbjuZZ9mLtGg4LbTY01tL9fVwswq+6ubTnLe5lK/fbrmdxjiZ96jU0yxuViACxXAP/7c/&#xA;tIIc/q6kGyCrXwAAAP//AwBQSwECLQAUAAYACAAAACEA2+H2y+4AAACFAQAAEwAAAAAAAAAAAAAA&#xA;AAAAAAAAW0NvbnRlbnRfVHlwZXNdLnhtbFBLAQItABQABgAIAAAAIQBa9CxbvwAAABUBAAALAAAA&#xA;AAAAAAAAAAAAAB8BAABfcmVscy8ucmVsc1BLAQItABQABgAIAAAAIQBybeCXwgAAANoAAAAPAAAA&#xA;AAAAAAAAAAAAAAcCAABkcnMvZG93bnJldi54bWxQSwUGAAAAAAMAAwC3AAAA9gIAAAAA&#xA;" path="m476250,l,,,638174r476250,l476250,xe" fillcolor="#9f9f9f" stroked="f">
+                  <v:path arrowok="t" />
+                </v:shape>
+                <v:shape id="Graphic 3" o:spid="_x0000_s1028" style="position:absolute;left:3048;width:67151;height:7620;visibility:visible;mso-wrap-style:square;v-text-anchor:top" coordsize="6715125,762000" o:gfxdata="UEsDBBQABgAIAAAAIQDb4fbL7gAAAIUBAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbHyQz07DMAyH&#xA;70i8Q+QralM4IITa7kDhCAiNB7ASt43WOlEcyvb2pNu4IODoPz9/n1xv9vOkForiPDdwXVagiI23&#xA;jocG3rdPxR0oScgWJ8/UwIEENu3lRb09BBKV0ywNjCmFe63FjDSjlD4Q50nv44wpl3HQAc0OB9I3&#xA;VXWrjedEnIq03oC27qjHjympx31un0wiTQLq4bS4shrAECZnMGVTvbD9QSnOhDInjzsyuiBXWQP0&#xA;r4R18jfgnHvJr4nOknrFmJ5xzhraRtHWf3Kkpfz/yGo5S+H73hkquyhdjr3R8m2lj09svwAAAP//&#xA;AwBQSwMEFAAGAAgAAAAhAFr0LFu/AAAAFQEAAAsAAABfcmVscy8ucmVsc2zPwWrDMAwG4Ptg72B0&#xA;X5TuUMaI01uh19I+gLGVxCy2jGSy9e1nemrHjpL4P0nD4SetZiPRyNnCruvBUPYcYp4tXC/Htw8w&#xA;Wl0ObuVMFm6kcBhfX4Yzra62kC6xqGlKVgtLreUTUf1CyWnHhXKbTCzJ1VbKjMX5LzcTvvf9HuXR&#xA;gPHJNKdgQU5hB+ZyK23zHztFL6w81c5zQp6m6P9TMfB3PtPWFCczVQtB9N4U2rp2HOA44NMz4y8A&#xA;AAD//wMAUEsDBBQABgAIAAAAIQA++2yrxAAAANoAAAAPAAAAZHJzL2Rvd25yZXYueG1sRI/dasJA&#xA;FITvC32H5RR6I7qpBSkxGzGFghWsxPoAh+wxCWbPhuzmpz59Vyj0cpiZb5hkM5lGDNS52rKCl0UE&#xA;griwuuZSwfn7Y/4GwnlkjY1lUvBDDjbp40OCsbYj5zScfCkChF2MCirv21hKV1Rk0C1sSxy8i+0M&#xA;+iC7UuoOxwA3jVxG0UoarDksVNjSe0XF9dQbBYPJsmY/Yt33n7vssDx+5bdyptTz07Rdg/A0+f/w&#xA;X3unFbzC/Uq4ATL9BQAA//8DAFBLAQItABQABgAIAAAAIQDb4fbL7gAAAIUBAAATAAAAAAAAAAAA&#xA;AAAAAAAAAABbQ29udGVudF9UeXBlc10ueG1sUEsBAi0AFAAGAAgAAAAhAFr0LFu/AAAAFQEAAAsA&#xA;AAAAAAAAAAAAAAAAHwEAAF9yZWxzLy5yZWxzUEsBAi0AFAAGAAgAAAAhAD77bKvEAAAA2gAAAA8A&#xA;AAAAAAAAAAAAAAAABwIAAGRycy9kb3ducmV2LnhtbFBLBQYAAAAAAwADALcAAAD4AgAAAAA=&#xA;" path="m476250,18669l,18669,,533006r476250,l476250,18669xem6714731,l790956,r,761987l6714731,761987,6714731,xe" fillcolor="#003792" stroked="f">
+                  <v:path arrowok="t" />
+                </v:shape>
+                <v:shape id="Graphic 4" o:spid="_x0000_s1029" style="position:absolute;top:3518;width:4762;height:3810;visibility:visible;mso-wrap-style:square;v-text-anchor:top" coordsize="476250,381000" o:gfxdata="UEsDBBQABgAIAAAAIQDb4fbL7gAAAIUBAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbHyQz07DMAyH&#xA;70i8Q+QralM4IITa7kDhCAiNB7ASt43WOlEcyvb2pNu4IODoPz9/n1xv9vOkForiPDdwXVagiI23&#xA;jocG3rdPxR0oScgWJ8/UwIEENu3lRb09BBKV0ywNjCmFe63FjDSjlD4Q50nv44wpl3HQAc0OB9I3&#xA;VXWrjedEnIq03oC27qjHjympx31un0wiTQLq4bS4shrAECZnMGVTvbD9QSnOhDInjzsyuiBXWQP0&#xA;r4R18jfgnHvJr4nOknrFmJ5xzhraRtHWf3Kkpfz/yGo5S+H73hkquyhdjr3R8m2lj09svwAAAP//&#xA;AwBQSwMEFAAGAAgAAAAhAFr0LFu/AAAAFQEAAAsAAABfcmVscy8ucmVsc2zPwWrDMAwG4Ptg72B0&#xA;X5TuUMaI01uh19I+gLGVxCy2jGSy9e1nemrHjpL4P0nD4SetZiPRyNnCruvBUPYcYp4tXC/Htw8w&#xA;Wl0ObuVMFm6kcBhfX4Yzra62kC6xqGlKVgtLreUTUf1CyWnHhXKbTCzJ1VbKjMX5LzcTvvf9HuXR&#xA;gPHJNKdgQU5hB+ZyK23zHztFL6w81c5zQp6m6P9TMfB3PtPWFCczVQtB9N4U2rp2HOA44NMz4y8A&#xA;AAD//wMAUEsDBBQABgAIAAAAIQBdnvnxxAAAANoAAAAPAAAAZHJzL2Rvd25yZXYueG1sRI9Lb8Iw&#xA;EITvlfgP1iL1VpyiCrUpBhUQUjnx6OO8jZc4JF5HthvCv8dIlXoczcw3mum8t43oyIfKsYLHUQaC&#xA;uHC64lLB58f64RlEiMgaG8ek4EIB5rPB3RRz7c68p+4QS5EgHHJUYGJscylDYchiGLmWOHlH5y3G&#xA;JH0ptcdzgttGjrNsIi1WnBYMtrQ0VNSHX6uglqvtV727vJxOC+O+10ffbcKPUvfD/u0VRKQ+/of/&#xA;2u9awRPcrqQbIGdXAAAA//8DAFBLAQItABQABgAIAAAAIQDb4fbL7gAAAIUBAAATAAAAAAAAAAAA&#xA;AAAAAAAAAABbQ29udGVudF9UeXBlc10ueG1sUEsBAi0AFAAGAAgAAAAhAFr0LFu/AAAAFQEAAAsA&#xA;AAAAAAAAAAAAAAAAHwEAAF9yZWxzLy5yZWxzUEsBAi0AFAAGAAgAAAAhAF2e+fHEAAAA2gAAAA8A&#xA;AAAAAAAAAAAAAAAABwIAAGRycy9kb3ducmV2LnhtbFBLBQYAAAAAAwADALcAAAD4AgAAAAA=&#xA;" path="m476249,l,,,381000r476249,l476249,xe" fillcolor="#9f9f9f" stroked="f">
+                  <v:path arrowok="t" />
+                </v:shape>
+                <w10:wrap anchorx="page" anchory="page" />
+              </v:group>
+            </w:pict>
+          </mc:Fallback>
+        </mc:AlternateContent>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="54AE3E16" w14:textId="77777777" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:before="112" w:after="0" w:line="240" w:lineRule="auto" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p w14:paraId="3B90B054" w14:textId="6E66121C" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:after="0" w:line="240" w:lineRule="auto" />
+        <w:ind w:left="1416" w:firstLine="708" />
+        <w:rPr>
+          <w:rFonts w:ascii="ADLaM Display" w:eastAsia="Times New Roman" w:hAnsi="ADLaM Display" w:cs="ADLaM Display" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="ADLaM Display" w:eastAsia="Times New Roman" w:hAnsi="ADLaM Display" w:cs="ADLaM Display" />
+          <w:color w:val="5A5A5A" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve">   </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="ADLaM Display" w:eastAsia="Times New Roman" w:hAnsi="ADLaM Display" w:cs="ADLaM Display" />
+          <w:color w:val="5A5A5A" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>POLICÃA</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="ADLaM Display" w:eastAsia="Times New Roman" w:hAnsi="ADLaM Display" w:cs="ADLaM Display" />
+          <w:color w:val="5A5A5A" />
+          <w:spacing w:val="61" />
+          <w:w w:val="150" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="ADLaM Display" w:eastAsia="Times New Roman" w:hAnsi="ADLaM Display" w:cs="ADLaM Display" />
+          <w:color w:val="5A5A5A" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>NACIONAL</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="ADLaM Display" w:eastAsia="Times New Roman" w:hAnsi="ADLaM Display" w:cs="ADLaM Display" />
+          <w:color w:val="5A5A5A" />
+          <w:spacing w:val="66" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="ADLaM Display" w:eastAsia="Times New Roman" w:hAnsi="ADLaM Display" w:cs="ADLaM Display" />
+          <w:color w:val="5A5A5A" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>DEL</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="ADLaM Display" w:eastAsia="Times New Roman" w:hAnsi="ADLaM Display" w:cs="ADLaM Display" />
+          <w:color w:val="5A5A5A" />
+          <w:spacing w:val="46" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="ADLaM Display" w:eastAsia="Times New Roman" w:hAnsi="ADLaM Display" w:cs="ADLaM Display" />
+          <w:color w:val="5A5A5A" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>ECUADOR</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="60CA2E4E" w14:textId="77777777" w:rsidR="00EF6BCE" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:after="0" w:line="242" w:lineRule="auto" />
+        <w:ind w:left="472" w:right="607" w:firstLine="26" />
+        <w:jc w:val="center" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="ADLaM Display" w:eastAsia="Times New Roman" w:hAnsi="ADLaM Display" w:cs="ADLaM Display" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:u w:val="thick" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>DIRECCIÃ“N NACIONAL DE CONTROL DE TRÃNSITO Y</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="ADLaM Display" w:eastAsia="Times New Roman" w:hAnsi="ADLaM Display" w:cs="ADLaM Display" />
+          <w:spacing w:val="-6" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:u w:val="thick" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="ADLaM Display" w:eastAsia="Times New Roman" w:hAnsi="ADLaM Display" w:cs="ADLaM Display" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:u w:val="thick" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>SEGURIDAD VIAL</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="2E64168B" w14:textId="77777777" w:rsidR="00EF6BCE" w:rsidRDefault="00EF6BCE" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:after="0" w:line="242" w:lineRule="auto" />
+        <w:ind w:left="472" w:right="607" w:firstLine="26" />
+        <w:jc w:val="center" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p w14:paraId="38C9544B" w14:textId="25CF8A21" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:after="0" w:line="242" w:lineRule="auto" />
+        <w:ind w:left="472" w:right="607" w:firstLine="26" />
+        <w:jc w:val="center" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t xml:space="preserve">â€œJEFATURA DE CONTROL DE TRÃNSITO </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t>__VAR_JEFATURA__</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t xml:space="preserve">â€ CENTRO DE RETENCION VEHICULAR â€œ</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t>__VAR_PATIO__</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t>â€</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="1EB3898E" w14:textId="77777777" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:before="202" w:after="0" w:line="240" w:lineRule="auto" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p w14:paraId="68B0CAED" w14:textId="77777777" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:after="0" w:line="240" w:lineRule="auto" />
+        <w:ind w:left="4537" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t xml:space="preserve">Oficio, </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t>__VAR_OFICIO_NRO__</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6165C4BB" w14:textId="77777777" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:before="3" w:after="0" w:line="240" w:lineRule="auto" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p w14:paraId="18392396" w14:textId="77777777" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:after="0" w:line="240" w:lineRule="auto" />
+        <w:ind w:right="101" />
+        <w:jc w:val="right" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t xml:space="preserve">Fecha, </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t>__VAR_FECHA_OFICIO__</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6316E950" w14:textId="77777777" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:before="250" w:after="0" w:line="240" w:lineRule="auto" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p w14:paraId="01018845" w14:textId="77777777" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:after="0" w:line="240" w:lineRule="auto" />
+        <w:ind w:left="4" />
+        <w:outlineLvl w:val="0" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:bCs />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t xml:space="preserve">ASUNTO: EN CUMPLIMIENTO AL OFICIO Nro. </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t>__VAR_ASUNTO_OFICIO_NRO__</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="32D56941" w14:textId="77777777" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:before="6" w:after="0" w:line="240" w:lineRule="auto" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p w14:paraId="4033A035" w14:textId="77777777" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:after="0" w:line="240" w:lineRule="auto" />
+        <w:ind w:left="4" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>SeÃ±or</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="1795DC13" w14:textId="77777777" w:rsidR="001922B4" w:rsidRPr="00EF6BCE" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:before="11" w:after="0" w:line="240" w:lineRule="auto" />
+        <w:ind w:left="4" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:color />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+      <w:proofErr w:type="gramStart" />
+      <w:proofErr w:type="gramEnd" />
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t xml:space="preserve">__VAR_DESTINATARIO_NOMBRE__ </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t>__VAR_DESTINATARIO_RANGO__</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6B28735B" w14:textId="77777777" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:before="7" w:after="0" w:line="240" w:lineRule="auto" />
+        <w:ind w:left="4" w:right="630" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>DIRECTOR</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-22" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>NACIONAL</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-13" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>DE</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-18" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>CONTROL</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-13" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>DE</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-14" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>TRÃNSITO</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-14" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>Y</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-22" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>SEGURIDAD</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-12" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>VIAL</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-14" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>POLICÃA NACIONAL</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="09DE5B94" w14:textId="77777777" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:after="0" w:line="240" w:lineRule="auto" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p w14:paraId="326BF770" w14:textId="77777777" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:before="16" w:after="0" w:line="240" w:lineRule="auto" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p w14:paraId="73003FC7" w14:textId="77777777" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:after="0" w:line="240" w:lineRule="auto" />
+        <w:ind w:left="4" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-4" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>En</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-14" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-4" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>su</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-22" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-4" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>Despacho.</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-10" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> â€“</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6B9BA90E" w14:textId="729DBB11" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:before="164" w:after="0" w:line="240" w:lineRule="auto" />
+        <w:ind w:left="4" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+      <w:proofErr w:type="gramStart" />
+      <w:proofErr w:type="gramEnd" />
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t xml:space="preserve">Mi </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t>__VAR_SALUDO_RANGO__</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t>:</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="4DB1705A" w14:textId="77777777" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:before="163" w:after="0" w:line="237" w:lineRule="auto" />
+        <w:ind w:left="4" w:right="100" />
+        <w:jc w:val="both" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t xml:space="preserve">Con el honor de dirigirme a usted, me permito expresar un atento y cordial saludo, a la vez desearle Ã©xitos en el desarrollo de sus funciones, muy respetuosamente en cumplimiento al Oficio Nro. </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t>__VAR_ASUNTO_OFICIO_NRO__</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t xml:space="preserve">, de fecha </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t>__VAR_ASUNTO_OFICIO_FECHA__</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t xml:space="preserve">, emitido por la seÃ±ora JEFA DE SECCION DE CENTROS DE RETENCION VEHICULAR DE LA DIRECCION NACIONAL DE CONTROL DE</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="2B3006B0" w14:textId="77777777" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:after="0" w:line="237" w:lineRule="auto" />
+        <w:ind w:left="4" w:right="112" />
+        <w:jc w:val="both" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+      <w:proofErr w:type="gramStart" />
+      <w:proofErr w:type="gramEnd" />
+      <w:proofErr w:type="gramStart" />
+      <w:proofErr w:type="gramEnd" />
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t xml:space="preserve">TRANSITO Y SEGURIDAD VIAL en el que se dispone remitir los formularios generados por el sistema una vez ejecutada la salida de los vehÃ­culos, los mismos que deberÃ¡n ser consolidados por cada Centro de RetenciÃ³n Vehicular en un solo documento, indicando expresamente el CRV al que pertenecen. Por los antes expuesto me permito remitir la informaciÃ³n solicitada desde las 00H00 del dÃ­a lunes </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t>__VAR_FECHA_LUNES__</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t xml:space="preserve"> hasta las 00H00 del domingo </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t>__VAR_FECHA_DOMINGO__</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t xml:space="preserve">, con relaciÃ³n a la salida de vehÃ­culos o motocicletas en el Centro de RetenciÃ³n Vehicular de la Jefatura de TrÃ¡nsito de la Subzona </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t>__VAR_SUBZONA__</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t>.</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6C7D472E" w14:textId="773FA13C" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:before="131" w:after="0" w:line="240" w:lineRule="auto" />
+        <w:ind w:left="4" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t xml:space="preserve">Debo indicar que existiÃ³ la salida de </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t>__VAR_VEHICULOS__</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t xml:space="preserve"> vehÃ­culos y </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t>__VAR_MOTOCICLETAS__</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t xml:space="preserve"> motocicletas durante esas fechas.</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="1D20A739" w14:textId="77777777" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:before="158" w:after="0" w:line="240" w:lineRule="auto" />
+        <w:ind w:left="4" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>Adjunto</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-6" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>los</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-11" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>formularios</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-3" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>descargados</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-8" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>del</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-5" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>SIIPNE</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="1" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>3W</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-6" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>referente</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-3" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>a</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-6" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>la salida del</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-5" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>vehÃ­culo.</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="08BC04C3" w14:textId="77777777" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:before="167" w:after="0" w:line="240" w:lineRule="auto" />
+        <w:ind w:left="52" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>Atentamente,</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="300F5228" w14:textId="77777777" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:before="86" w:after="0" w:line="240" w:lineRule="auto" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p w14:paraId="56CF8D8A" w14:textId="77777777" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:after="0" w:line="240" w:lineRule="auto" />
+        <w:ind w:left="4" />
+        <w:outlineLvl w:val="0" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:bCs />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:bCs />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>VALOR,</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:bCs />
+          <w:spacing w:val="-11" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:bCs />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>DISCIPLINA</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:bCs />
+          <w:spacing w:val="-10" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:bCs />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>Y</w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:bCs />
+          <w:spacing w:val="-11" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:bCs />
+          <w:spacing w:val="-2" />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:t>LEALTAD</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="7375CC22" w14:textId="77777777" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:before="7" w:after="0" w:line="240" w:lineRule="auto" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+      <w:r w:rsidRPr="001922B4">
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:noProof />
+          <w:kern w:val="0" />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+        <w:drawing>
+          <wp:anchor distT="0" distB="0" distL="0" distR="0" simplePos="0" relativeHeight="251662336" behindDoc="1" locked="0" layoutInCell="1" allowOverlap="1" wp14:anchorId="1283E51B" wp14:editId="68F8EF02">
+            <wp:simplePos x="0" y="0" />
+            <wp:positionH relativeFrom="page">
+              <wp:posOffset>1149985</wp:posOffset>
+            </wp:positionH>
+            <wp:positionV relativeFrom="paragraph">
+              <wp:posOffset>165961</wp:posOffset>
+            </wp:positionV>
+            <wp:extent cx="1563901" cy="603504" />
+            <wp:effectExtent l="0" t="0" r="0" b="0" />
+            <wp:wrapTopAndBottom />
+            <wp:docPr id="7" name="Image 7" />
+            <wp:cNvGraphicFramePr>
+              <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" />
+            </wp:cNvGraphicFramePr>
+            <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+              <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                  <pic:nvPicPr>
+                    <pic:cNvPr id="7" name="Image 7" />
+                    <pic:cNvPicPr />
+                  </pic:nvPicPr>
+                  <pic:blipFill>
+                    <a:blip r:embed="rId6" cstate="print" />
+                    <a:stretch>
+                      <a:fillRect />
+                    </a:stretch>
+                  </pic:blipFill>
+                  <pic:spPr>
+                    <a:xfrm>
+                      <a:off x="0" y="0" />
+                      <a:ext cx="1563901" cy="603504" />
+                    </a:xfrm>
+                    <a:prstGeom prst="rect">
+                      <a:avLst />
+                    </a:prstGeom>
+                  </pic:spPr>
+                </pic:pic>
+              </a:graphicData>
+            </a:graphic>
+          </wp:anchor>
+        </w:drawing>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="09252EDD" w14:textId="77777777" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:before="120" w:after="0" w:line="254" w:lineRule="auto" />
+        <w:ind w:left="4" w:right="4619" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t xml:space="preserve">Sr. </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t xml:space="preserve">__VAR_FIRMANTE_NOMBRE__ </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t>__VAR_FIRMANTE_RANGO__</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="72838729" w14:textId="72879F1F" w:rsidR="001922B4" w:rsidRPr="001922B4" w:rsidRDefault="001922B4" w:rsidP="001922B4">
+      <w:pPr>
+        <w:widowControl w:val="0" />
+        <w:autoSpaceDE w:val="0" />
+        <w:autoSpaceDN w:val="0" />
+        <w:spacing w:before="8" w:after="0" w:line="254" w:lineRule="auto" />
+        <w:ind w:left="4" />
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:kern w:val="0" />
+          <w:sz w:val="22" />
+          <w:szCs w:val="22" />
+          <w:lang w:val="es-ES" />
+          <w14:ligatures w14:val="none" />
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t xml:space="preserve">ENCARGADO DEL CENTRO DE RETENCIÃ“N VEHICULAR â€œ</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t>__VAR_PATIO__</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t xml:space="preserve">â€ PERTENECIENTE A LA JEFATURA DE TRÃNSITO SZ </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t>__VAR_SUBZONA_ABREV__</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:sz w:val="20" />
+          <w:szCs w:val="20" />
+          <w:lang w:val="es-ES" />
+        </w:rPr>
+        <w:t>.</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="315FC36C" w14:textId="77777777" w:rsidR="00656317" w:rsidRDefault="00656317" />
+    <w:sectPr w:rsidR="00656317" w:rsidSect="001922B4">
+      <w:pgSz w:w="11940" w:h="16860" />
+      <w:pgMar w:top="640" w:right="1559" w:bottom="280" w:left="1700" w:header="720" w:footer="720" w:gutter="0" />
+      <w:cols w:space="720" />
+    </w:sectPr>
+  </w:body>
+</w:document>

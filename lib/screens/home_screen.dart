@@ -54,14 +54,154 @@ class HomeScreen extends StatelessWidget {
 
   static const _urlConsultaVehiculos = 'https://servicios.axiscloud.ec/CRV/?ps_empresa=02';
 
-  Future<void> _abrirConsultaVehiculos(BuildContext context) async {
-    final uri = Uri.parse(_urlConsultaVehiculos);
-    final abierto = await launchUrl(uri, mode: LaunchMode.externalApplication);
-    if (!abierto && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No se pudo abrir el navegador.')),
-      );
+  Future<void> _abrirEnlaceWeb(BuildContext context, String urlStr, {String? nombre}) async {
+    try {
+      final uri = Uri.parse(urlStr);
+      final abierto = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!abierto && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No se pudo abrir ${nombre ?? 'el enlace'}.')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al abrir enlace: $e')),
+        );
+      }
     }
+  }
+
+  Future<void> _abrirConsultaVehiculos(BuildContext context) async {
+    await _abrirEnlaceWeb(context, _urlConsultaVehiculos, nombre: 'Consulta de Vehículos');
+  }
+
+  void _mostrarSubmenuInformeSemanal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return _SubmenuModal(
+          titulo: 'Informe Semanal',
+          subtitulo: 'Gestión de informes semanales y firma electrónica',
+          icono: Icons.summarize_outlined,
+          colorIcono: Colors.orangeAccent,
+          opciones: [
+            _OpcionSubmenu(
+              titulo: 'Generar informe semanal',
+              descripcion: 'Crear nuevo informe consolidado de novedades',
+              icono: Icons.post_add_rounded,
+              colorIcono: Colors.orangeAccent,
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const InformeSemanalScreen()),
+                );
+              },
+            ),
+            _OpcionSubmenu(
+              titulo: 'Historial de informes',
+              descripcion: 'Consultar y reimprimir informes generados',
+              icono: Icons.history_edu_outlined,
+              colorIcono: Colors.amber.shade300,
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const HistorialInformesScreen()),
+                );
+              },
+            ),
+            _OpcionSubmenu(
+              titulo: 'Firma digital (.p12)',
+              descripcion: 'Configurar certificado de firma y credenciales',
+              icono: Icons.verified_outlined,
+              colorIcono: Colors.lightGreenAccent,
+              onTap: () {
+                Navigator.pop(ctx);
+                FirmaDigitalDialog.mostrar(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _mostrarSubmenuApartadosWeb(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return _SubmenuModal(
+          titulo: 'Apartados Web',
+          subtitulo: 'Accesos directos a plataformas policiales y de tránsito',
+          icono: Icons.language_outlined,
+          colorIcono: Colors.cyanAccent,
+          opciones: [
+            _OpcionSubmenu(
+              titulo: 'PARTE WEB',
+              descripcion: 'https://partepolicial.ministeriodelinterior.gob.ec/',
+              icono: Icons.shield_outlined,
+              colorIcono: const Color(0xFF5BA3F5),
+              onTap: () {
+                Navigator.pop(ctx);
+                _abrirEnlaceWeb(
+                  context,
+                  'https://partepolicial.ministeriodelinterior.gob.ec/',
+                  nombre: 'PARTE WEB',
+                );
+              },
+            ),
+            _OpcionSubmenu(
+              titulo: 'SIIPNE 3W',
+              descripcion: 'https://siipne.policia.gob.ec/indexSiipne.php',
+              icono: Icons.local_police_outlined,
+              colorIcono: Colors.tealAccent,
+              onTap: () {
+                Navigator.pop(ctx);
+                _abrirEnlaceWeb(
+                  context,
+                  'https://siipne.policia.gob.ec/indexSiipne.php',
+                  nombre: 'SIIPNE 3W',
+                );
+              },
+            ),
+            _OpcionSubmenu(
+              titulo: 'DOCPOL',
+              descripcion: 'https://docpol.policia.gob.ec/login.php',
+              icono: Icons.folder_shared_outlined,
+              colorIcono: Colors.amberAccent,
+              onTap: () {
+                Navigator.pop(ctx);
+                _abrirEnlaceWeb(
+                  context,
+                  'https://docpol.policia.gob.ec/login.php',
+                  nombre: 'DOCPOL',
+                );
+              },
+            ),
+            _OpcionSubmenu(
+              titulo: 'MULTAS AMT',
+              descripcion: 'https://servicios.axiscloud.ec/AutoServicio/inicio.jsp?ps_empresa=03&ps_accion=P55',
+              icono: Icons.receipt_long_outlined,
+              colorIcono: const Color(0xFFFF6B6B),
+              onTap: () {
+                Navigator.pop(ctx);
+                _abrirEnlaceWeb(
+                  context,
+                  'https://servicios.axiscloud.ec/AutoServicio/inicio.jsp?ps_empresa=03&ps_accion=P55',
+                  nombre: 'MULTAS AMT',
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Widget _botonAdminSiCorresponde() {
@@ -218,17 +358,13 @@ class HomeScreen extends StatelessWidget {
                       crossAxisCount: 2,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
-                      childAspectRatio: 1,
+                      childAspectRatio: 0.98,
                       children: [
                         _TarjetaVidrio(
                           icono: Icons.travel_explore,
                           colorIcono: Colors.tealAccent,
-                          titulo: 'Consultar info',
+                          titulo: 'Consultar tonelaje de vehículo',
                           onTap: () => _abrirConsultaVehiculos(context),
-                          iconoAccion: Icons.calculate,
-                          colorIconoAccion: Colors.amberAccent,
-                          tooltipAccion: 'Calculador de días de permanencia',
-                          onTapAccion: () => CalculadoraDiasDialog.mostrar(context),
                         ),
                         _TarjetaVidrio(
                           icono: Icons.calculate,
@@ -237,34 +373,22 @@ class HomeScreen extends StatelessWidget {
                           onTap: () => CalculadoraDiasDialog.mostrar(context),
                         ),
                         _TarjetaVidrio(
-                          icono: Icons.verified_outlined,
-                          colorIcono: Colors.lightGreenAccent,
-                          titulo: 'Firma Digital (.p12)',
-                          onTap: () => FirmaDigitalDialog.mostrar(context),
-                        ),
-                        _TarjetaVidrio(
                           icono: Icons.table_chart_outlined,
                           colorIcono: Colors.purpleAccent,
-                          titulo: 'Generar Excel',
+                          titulo: 'Matriz general de ingresos y salidas Excel',
                           onTap: () => _exportarExcelMasivo(context),
                         ),
                         _TarjetaVidrio(
                           icono: Icons.summarize_outlined,
                           colorIcono: Colors.orangeAccent,
-                          titulo: 'Generar Informe Semanal',
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const InformeSemanalScreen()),
-                          ),
+                          titulo: 'Informe semanal',
+                          onTap: () => _mostrarSubmenuInformeSemanal(context),
                         ),
                         _TarjetaVidrio(
-                          icono: Icons.history_edu_outlined,
-                          colorIcono: Colors.amber.shade300,
-                          titulo: 'Historial de Informes',
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const HistorialInformesScreen()),
-                          ),
+                          icono: Icons.language_outlined,
+                          colorIcono: Colors.cyanAccent,
+                          titulo: 'Apartados web',
+                          onTap: () => _mostrarSubmenuApartadosWeb(context),
                         ),
                         _TarjetaVidrio(
                           icono: Icons.description_outlined,
@@ -323,20 +447,12 @@ class _TarjetaVidrio extends StatelessWidget {
   final Color colorIcono;
   final String titulo;
   final VoidCallback onTap;
-  final IconData? iconoAccion;
-  final Color? colorIconoAccion;
-  final String? tooltipAccion;
-  final VoidCallback? onTapAccion;
 
   const _TarjetaVidrio({
     required this.icono,
     required this.colorIcono,
     required this.titulo,
     required this.onTap,
-    this.iconoAccion,
-    this.colorIconoAccion,
-    this.tooltipAccion,
-    this.onTapAccion,
   });
 
   @override
@@ -355,49 +471,22 @@ class _TarjetaVidrio extends StatelessWidget {
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(icono, color: colorIcono, size: 34),
-                      if (iconoAccion != null && onTapAccion != null) ...[
-                        const SizedBox(width: 8),
-                        Tooltip(
-                          message: tooltipAccion ?? '',
-                          child: InkWell(
-                            onTap: onTapAccion,
-                            borderRadius: BorderRadius.circular(20),
-                            child: Container(
-                              padding: const EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.25),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                iconoAccion,
-                                color: colorIconoAccion ?? Colors.amberAccent,
-                                size: 20,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 10),
+                  Icon(icono, color: colorIcono, size: 32),
+                  const SizedBox(height: 8),
                   Text(
                     titulo,
                     textAlign: TextAlign.center,
-                    maxLines: 2,
+                    maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
-                      fontSize: 13,
+                      fontSize: 12,
+                      height: 1.15,
                     ),
                   ),
                 ],
@@ -460,6 +549,178 @@ class _BotonPrincipal extends StatelessWidget {
                 ),
               ),
               const Icon(Icons.chevron_right, color: Colors.white),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _OpcionSubmenu {
+  final String titulo;
+  final String descripcion;
+  final IconData icono;
+  final Color colorIcono;
+  final VoidCallback onTap;
+
+  const _OpcionSubmenu({
+    required this.titulo,
+    required this.descripcion,
+    required this.icono,
+    required this.colorIcono,
+    required this.onTap,
+  });
+}
+
+class _SubmenuModal extends StatelessWidget {
+  final String titulo;
+  final String subtitulo;
+  final IconData icono;
+  final Color colorIcono;
+  final List<_OpcionSubmenu> opciones;
+
+  const _SubmenuModal({
+    required this.titulo,
+    required this.subtitulo,
+    required this.icono,
+    required this.colorIcono,
+    required this.opciones,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 520),
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF132B59),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.5),
+                blurRadius: 20,
+                offset: const Offset(0, -4),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.fromLTRB(20, 14, 20, 26),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 44,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(9),
+                    decoration: BoxDecoration(
+                      color: colorIcono.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: colorIcono.withValues(alpha: 0.3)),
+                    ),
+                    child: Icon(icono, color: colorIcono, size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          titulo,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          subtitulo,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white70),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ...opciones.map((opc) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Material(
+                    color: Colors.white.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(14),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(14),
+                      onTap: opc.onTap,
+                      splashColor: opc.colorIcono.withValues(alpha: 0.2),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: opc.colorIcono.withValues(alpha: 0.18),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Icon(opc.icono, color: opc.colorIcono, size: 24),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    opc.titulo,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    opc.descripcion,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 11.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(Icons.arrow_forward_ios, color: Colors.white38, size: 14),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
             ],
           ),
         ),
