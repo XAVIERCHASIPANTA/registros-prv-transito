@@ -308,130 +308,137 @@ class HomeScreen extends StatelessWidget {
 
             SafeArea(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 8),
-                    Image.asset('assets/logo.png', height: 190),
-                    const SizedBox(height: 14),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 520),
+                    child: Column(
                       children: [
-                        Container(width: 26, height: 3, color: const Color(0xFFE8B62C)),
-                        const SizedBox(width: 5),
-                        Container(width: 26, height: 3, color: const Color(0xFF5BA3F5)),
-                        const SizedBox(width: 5),
-                        Container(width: 26, height: 3, color: const Color(0xFFC0392B)),
-                      ],
-                    ),
-                    _nombrePatio(),
-                    const SizedBox(height: 28),
-                    _BotonPrincipal(
-                      icono: Icons.login,
-                      titulo: 'INGRESO',
-                      subtitulo: 'Registrar el ingreso de un vehículo al CRV',
-                      color: Colors.red.shade700,
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const CapturaScreen(tipo: TipoParte.ingreso),
+                        const SizedBox(height: 6),
+                        Image.asset('assets/logo.png', height: 165),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(width: 26, height: 3, color: const Color(0xFFE8B62C)),
+                            const SizedBox(width: 5),
+                            Container(width: 26, height: 3, color: const Color(0xFF5BA3F5)),
+                            const SizedBox(width: 5),
+                            Container(width: 26, height: 3, color: const Color(0xFFC0392B)),
+                          ],
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _BotonPrincipal(
-                      icono: Icons.logout,
-                      titulo: 'BUSCAR VEHÍCULOS EN EL PATIO',
-                      subtitulo: 'Registrar la devolución / libertad de un vehículo',
-                      color: Colors.green.shade700,
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const BuscarPlacaScreen(),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    GridView.count(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 0.98,
-                      children: [
-                        _TarjetaVidrio(
-                          icono: Icons.travel_explore,
-                          colorIcono: Colors.tealAccent,
-                          titulo: 'Consultar tonelaje de vehículo',
-                          onTap: () => _abrirConsultaVehiculos(context),
-                        ),
-                        _TarjetaVidrio(
-                          icono: Icons.calculate,
-                          colorIcono: Colors.amberAccent,
-                          titulo: 'Calculador de días',
-                          onTap: () => CalculadoraDiasDialog.mostrar(context),
-                        ),
-                        _TarjetaVidrio(
-                          icono: Icons.table_chart_outlined,
-                          colorIcono: Colors.purpleAccent,
-                          titulo: 'Matriz general de ingresos y salidas Excel',
-                          onTap: () => _exportarExcelMasivo(context),
-                        ),
-                        _TarjetaVidrio(
-                          icono: Icons.summarize_outlined,
-                          colorIcono: Colors.orangeAccent,
-                          titulo: 'Informe semanal',
-                          onTap: () => _mostrarSubmenuInformeSemanal(context),
-                        ),
-                        _TarjetaVidrio(
-                          icono: Icons.language_outlined,
-                          colorIcono: Colors.cyanAccent,
-                          titulo: 'Apartados web',
-                          onTap: () => _mostrarSubmenuApartadosWeb(context),
-                        ),
-                        _TarjetaVidrio(
-                          icono: Icons.description_outlined,
-                          colorIcono: Colors.grey.shade300,
-                          titulo: 'Ver ingresos',
+                        _nombrePatio(),
+                        const SizedBox(height: 22),
+                        _BotonPrincipal(
+                          icono: Icons.login,
+                          titulo: 'INGRESO',
+                          subtitulo: 'Registrar el ingreso de un vehículo al CRV',
+                          color: Colors.red.shade700,
                           onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const DocumentoScreen(tipo: TipoParte.ingreso),
+                              builder: (_) => const CapturaScreen(tipo: TipoParte.ingreso),
                             ),
                           ),
                         ),
-                        _TarjetaVidrio(
-                          icono: Icons.copy_all_outlined,
-                          colorIcono: Colors.grey.shade300,
-                          titulo: 'Ver libertades',
+                        const SizedBox(height: 14),
+                        _BotonPrincipal(
+                          icono: Icons.logout,
+                          titulo: 'BUSCAR VEHÍCULOS EN EL PATIO',
+                          subtitulo: 'Registrar la devolución / libertad de un vehículo',
+                          color: Colors.green.shade700,
                           onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const DocumentoScreen(tipo: TipoParte.libertad),
+                              builder: (_) => const BuscarPlacaScreen(),
                             ),
                           ),
                         ),
-                        _TarjetaVidrio(
-                          icono: Icons.picture_as_pdf_outlined,
-                          colorIcono: Colors.redAccent.shade100,
-                          titulo: 'PDFs guardados',
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const PdfsGuardadosScreen()),
+                        const SizedBox(height: 16),
+                        GridView(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                            mainAxisExtent: 118,
+                          ),
+                          children: [
+                            _TarjetaVidrio(
+                              icono: Icons.travel_explore,
+                              colorIcono: Colors.tealAccent,
+                              titulo: 'Consultar tonelaje de vehículo',
+                              onTap: () => _abrirConsultaVehiculos(context),
+                            ),
+                            _TarjetaVidrio(
+                              icono: Icons.calculate,
+                              colorIcono: Colors.amberAccent,
+                              titulo: 'Calculador de días',
+                              onTap: () => CalculadoraDiasDialog.mostrar(context),
+                            ),
+                            _TarjetaVidrio(
+                              icono: Icons.table_chart_outlined,
+                              colorIcono: Colors.purpleAccent,
+                              titulo: 'Matriz general de ingresos y salidas Excel',
+                              onTap: () => _exportarExcelMasivo(context),
+                            ),
+                            _TarjetaVidrio(
+                              icono: Icons.summarize_outlined,
+                              colorIcono: Colors.orangeAccent,
+                              titulo: 'Informe semanal',
+                              onTap: () => _mostrarSubmenuInformeSemanal(context),
+                            ),
+                            _TarjetaVidrio(
+                              icono: Icons.language_outlined,
+                              colorIcono: Colors.cyanAccent,
+                              titulo: 'Apartados web',
+                              onTap: () => _mostrarSubmenuApartadosWeb(context),
+                            ),
+                            _TarjetaVidrio(
+                              icono: Icons.description_outlined,
+                              colorIcono: Colors.grey.shade300,
+                              titulo: 'Ver ingresos',
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const DocumentoScreen(tipo: TipoParte.ingreso),
+                                ),
+                              ),
+                            ),
+                            _TarjetaVidrio(
+                              icono: Icons.copy_all_outlined,
+                              colorIcono: Colors.grey.shade300,
+                              titulo: 'Ver libertades',
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const DocumentoScreen(tipo: TipoParte.libertad),
+                                ),
+                              ),
+                            ),
+                            _TarjetaVidrio(
+                              icono: Icons.picture_as_pdf_outlined,
+                              colorIcono: Colors.redAccent.shade100,
+                              titulo: 'PDFs guardados',
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const PdfsGuardadosScreen()),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        const Center(
+                          child: Text(
+                            'Versión $appVersion',
+                            style: TextStyle(color: Colors.white54, fontSize: 12),
                           ),
                         ),
+                        const SizedBox(height: 16),
                       ],
                     ),
-                    const SizedBox(height: 24),
-                    const Center(
-                      child: Text(
-                        'Versión $appVersion',
-                        style: TextStyle(color: Colors.white54, fontSize: 12),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
+                  ),
                 ),
               ),
             ),
