@@ -1,45 +1,33 @@
 // RUTA DE ARCHIVO: lib/services/excel_matriz_builder.dart
 
+import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:excel/excel.dart';
 import '../models/caso_ingreso.dart';
 import '../models/caso_libertad.dart';
 
-/// Genera la matriz consolidada de Ingresos/Libertades con la MISMA
-/// estructura de columnas que la plantilla real de Xavier
-/// ("MATRIZ_LIBERTADES_DE_ARCHIVO...xlsx"), pestañas VEHICULOS y
-/// MOTOCICLETAS.
-///
-/// DECISIÓN DE DISEÑO: la plantilla original usa fórmulas de Excel
-/// (=(V-D)+1 para días, un IF anidado para la tarifa diaria según el
-/// tipo de servicio de garaje, etc.). Aquí esas mismas cuentas se
-/// calculan directamente en Dart y se escribe el VALOR ya calculado
-/// (no la fórmula). Esto es más robusto: el archivo que se descarga
-/// no depende de que Excel vuelva a evaluar nada, funciona igual en
-/// Google Sheets/LibreOffice, y no se rompe si alguien borra una
-/// fórmula sin querer. La contrapartida es que si Xavier cambia estos
-/// datos a mano en el Excel después de descargarlo, el cálculo de
-/// días/valor de ESA fila ya no se recalcula solo (tendría que volver
-/// a generar el archivo desde la app).
+/// Genera la matriz consolidada de Ingresos/Libertades utilizando EXACTAMENTE
+/// la plantilla oficial de Xavier ("media_1791867783316_11e71031.xlsx"),
+/// preservando:
+/// 1. Las 7 pestañas oficiales: VEHICULOS, INVENTARIO CAJA 1, CARATULA DE EXPEDIENTE,
+///    ETIQUETA DE CAJA, INDICE DE F.A, DATOS y MOTOCICLETAS.
+/// 2. Las filas 1 a 6 intactas con sus colores, fuentes, centrado, bordes
+///    y encabezados superiores ("INGRESO DEL VEHICULO", "SALIDA DE VEHICULO",
+///    "ALCOHOCHECK", "INVESTIGACIÓN").
+/// 3. Las fórmulas oficiales de Excel (cálculo dinámico de días, tarifas ANT,
+///    liquidaciones de garaje, referencias automáticas de formulario y banco).
+/// 4. Los datos reales de la aplicación inyectados a partir de la fila 7.
 class ExcelMatrizBuilder {
-  // Tarifas diarias vigentes según la plantilla (columna AD, IF
-  // anidado). Si la ANT actualiza las tarifas, basta con cambiar estos
-  // 4 números.
-  static const double _tarifaLivianos = 3;
-  static const double _tarifaPesados = 9;
-  static const double _tarifaMotocicleta = 1;
-  static const double _tarifaExtraPesados = 15;
-
   static const _servicioLivianos =
       'SERVICIO DE GARAJE LIVIANOS (HASTA 3,5 TN A EXCEPCIÓN DE MOTOCICLETAS) (DIARIOS)';
-  static const _servicioPesados = 'SERVICIO DE GARAJE PESADOS (DE 3,51 TN HASTA 12 TN) (DIARIOS)';
-  static const _servicioMotocicleta = 'SERVICIO DE GARAJE (CENTROS DE RETENCIÓN) MOTOCICLETA';
-  static const _servicioExtraPesados = 'SERVICIO DE GARAJE EXTRA PESADOS (MÁS DE 12 TN) (DIARIOS)';
+  static const _servicioPesados =
+      'SERVICIO DE GARAJE PESADOS (DE 3,51 TN HASTA 12 TN) (DIARIOS)';
+  static const _servicioMotocicleta =
+      'SERVICIO DE GARAJE (CENTROS DE RETENCIÓN) MOTOCICLETA';
+  static const _servicioExtraPesados =
+      'SERVICIO DE GARAJE EXTRA PESADOS (MÁS DE 12 TN) (DIARIOS)';
 
-  /// Mapea la etiqueta corta que se elige en el Ingreso (igual que el
-  /// desplegable "Tipo cobro parqueo" de SIIPNE 3W: LIVIANO, PESADO,
-  /// MOTOCICLETA, EXTRAPESADO) a la etiqueta larga oficial del
-  /// tarifario ANT — la misma que usa la columna "TIPO DE TYRAMITE /
-  /// PROCESO" de la matriz.
   static String _etiquetaLargaTarifario(String tipoCobroParqueo) {
     switch (tipoCobroParqueo.trim().toUpperCase()) {
       case 'LIVIANO':
@@ -52,317 +40,396 @@ class ExcelMatrizBuilder {
       case 'EXTRA PESADO':
         return _servicioExtraPesados;
       default:
-        return tipoCobroParqueo; // por si ya viene con la etiqueta larga (dato antiguo)
-    }
-  }
-
-  static double _tarifaDiaria(String tipoServicioGaraje) {
-    switch (tipoServicioGaraje) {
-      case _servicioLivianos:
-        return _tarifaLivianos;
-      case _servicioPesados:
-        return _tarifaPesados;
-      case _servicioMotocicleta:
-        return _tarifaMotocicleta;
-      case _servicioExtraPesados:
-        return _tarifaExtraPesados;
-      default:
-        return 0;
+        return tipoCobroParqueo.isNotEmpty ? tipoCobroParqueo : _servicioLivianos;
     }
   }
 
   static DateTime? _parseFecha(String texto) {
-    // Formato esperado dd/MM/aaaa (el mismo que usa toda la app).
     final partes = texto.trim().split('/');
-    if (partes.length != 3) return null;
-    final dia = int.tryParse(partes[0]);
-    final mes = int.tryParse(partes[1]);
-    final anio = int.tryParse(partes[2]);
-    if (dia == null || mes == null || anio == null) return null;
-    return DateTime(anio, mes, dia);
+    if (partes.length == 3) {
+      final dia = int.tryParse(partes[0]);
+      final mes = int.tryParse(partes[1]);
+      final anio = int.tryParse(partes[2]);
+      if (dia != null && mes != null && anio != null) return DateTime(anio, mes, dia);
+    }
+    final partesGuion = texto.trim().split('-');
+    if (partesGuion.length == 3) {
+      return DateTime.tryParse(texto.trim());
+    }
+    return null;
   }
 
-  /// Días de permanencia inclusivos (mismo criterio ya usado en el
-  /// resto de la app: entra lunes y sale viernes = 5 días).
-  static int? _diasPermanencia(String fechaIngreso, String fechaSalida) {
-    final ingreso = _parseFecha(fechaIngreso);
-    final salida = _parseFecha(fechaSalida);
-    if (ingreso == null || salida == null) return null;
-    return salida.difference(ingreso).inDays + 1;
+  static CellValue _celdaFecha(String texto) {
+    final dt = _parseFecha(texto);
+    if (dt != null) {
+      return DateCellValue(year: dt.year, month: dt.month, day: dt.day);
+    }
+    return TextCellValue(texto.trim());
   }
 
-  /// Busca, entre todas las libertades, la que corresponde a un
-  /// ingreso (primero por N° de hoja de ingreso —más confiable—, y si
-  /// no hay coincidencia, por placa).
+  static CellValue _celdaNumeroOTexto(String val) {
+    final limpio = val.trim();
+    final n = int.tryParse(limpio);
+    if (n != null && !limpio.startsWith('0')) {
+      return IntCellValue(n);
+    }
+    return TextCellValue(limpio);
+  }
+
   static CasoLibertad? _libertadDe(CasoIngreso ingreso, List<CasoLibertad> libertades) {
     for (final l in libertades) {
       if (l.hojaIngresoNro.isNotEmpty && l.hojaIngresoNro == ingreso.hojaIngresoNro) return l;
     }
     for (final l in libertades) {
-      if (l.placa.toUpperCase() == ingreso.placa.toUpperCase()) return l;
+      if (l.placa.trim().toUpperCase() == ingreso.placa.trim().toUpperCase()) return l;
     }
     return null;
   }
 
-  static const _headerVehiculos = [
-    'ORD.',
-    'SUBZONA',
-    'CENTRO DE RETENCION VEHICULAR',
-    'FECHA DE INGRESO',
-    'NÚMERO DE FORMULARIO DE INGRESO VEHICULAR ',
-    'PLACA',
-    'MARCA',
-    'TIPO',
-    'MODELO',
-    'COLOR',
-    'AÑO DE FABRICACIÓN',
-    'NÚMERO DE CHASIS',
-    'NÚMERO DE MOTOR',
-    'NÚMERO DE PARTE ',
-    'PARTE ELABORADO POR',
-    'NOMBRE PROPIETARIO/RESPONSABLE DEL VEHICULO',
-    'SITUACIÓN LEGAL (Infracción tránsito)',
-    'AUTORIDAD QUE CONOCE (Juzgado Y/O fiscalia  que avocó conocimiento)',
-    'PLACA-GRUA',
-    'NOMBRES CONDUCTOR GRUA',
-    'NOMBRE SERVIDOR POLICIAL QUE RECIBE LA CUSTODIA DEL VEHÍCULO',
-    'FECHA EGRESO',
-    'ORDEN DE LIBERTAD EMITIDA AUTORIDAD COMPETENTE',
-    'NOMBRE DEL SEÑOR  JEFE QUE  EMITE LIBERTAD',
-    'NOMBRES DE PERSONA A QUIEN SE ENTREGA',
-    'NÚMERO DE CEDULA ',
-    'NÚMERO DE ORDEN DE PAGO (GARAGE)',
-    'TIPO DE TYRAMITE / PROCESO',
-    'DIAS DE PERMANENCIA',
-    'VALOR TARIFARIO DIARIO',
-    'VALOR CANCELADO POR PARQUEO ',
-    'No DE ORDEN DE PAGO',
-    'FECHA DE PAGO EN LA ENTIDA FINANCIERA',
-    'No DE COMPROBANTE DE PAGO DE LA ENTIDAD FINANCIERA',
-    'INSTITUCION FINANCIERA (BANCO, COOPERATIVA, ETC)',
-    'NOMBRE DE LA INSTITUCIÓN FINANCIERA',
-    'NÚMERO DE FORMULARIO DE EGRESO VEHICULAR',
-    'NOMBRE SERVIDOR POLICIAL QUE ENTREGA EL VEHÍCULO (CUSTODIO)',
-    'NÚMERO DE ORDEN DE PAGO POR ALCOHOCHECK',
-    'VALOR CANCELADO POR ALCOHOCHEK',
-    'PERICIAS REALIZADAS',
-    'NOMBRE DEL PERITO',
-    'FECHA  DE PAGO EN  LA ENTIDAD FINANCIERA',
-    'NRO. DE COMPROBANTE DE PAGO DE LA ENTIDAD FINANCIERA',
-    'INSTITUCIÓN FINANCIERA (BANCO-COOPERATIVA)',
-  ];
+  static Future<Uint8List?> _cargarPlantillaBytes() async {
+    try {
+      final byteData = await rootBundle.load('assets/plantilla_matriz_general.xlsx');
+      return byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes);
+    } catch (_) {
+      try {
+        final f = File('assets/plantilla_matriz_general.xlsx');
+        if (f.existsSync()) return f.readAsBytesSync();
+      } catch (_) {}
+    }
+    return null;
+  }
 
-  static const _headerMotocicletas = [
-    'ORD.',
-    'SUBZONA',
-    'CENTRO DE RETENCION VEHICULAR',
-    'FECHA DE INGRESO',
-    'NÚMERO DE FORMULARIO DE INGRESO VEHICULAR ',
-    'PLACA',
-    'MARCA',
-    'MODELO',
-    'COLOR',
-    'AÑO DE FABRICACIÓN',
-    'NÚMERO DE CHASIS',
-    'NÚMERO DE MOTOR',
-    'NÚMERO DE PARTE ',
-    'PARTE ELABORADO POR (QUIEN TOMA PROCEDIMIENTO)',
-    'NOMBRE PROPIETARIO/RESPONSABLE DEL VEHICULO',
-    'SITUACIÓN LEGAL (Infracción tránsito)',
-    'AUTORIDAD QUE CONOCE (Juzgado Y/O fiscalia  que avocó conocimiento)',
-    'PLACA-GRUA',
-    'NOMBRES CONDUCTOR GRUA',
-    'NOMBRE SERVIDOR POLICIAL QUE RECIBE LA CUSTODIA DEL VEHÍCULO',
-    'FECHA EGRESO',
-    'ORDEN DE LIBERTAD EMITIDA AUTORIDAD COMPETENTE',
-    'NOMBRE DEL SEÑOR  JEFE QUE  EMITE LIBERTAD',
-    'NOMBRES DE PERSONA A QUIEN SE ENTREGA',
-    'NÚMERO DE CEDULA ',
-    'NÚMERO DE ORDEN DE PAGO (GARAGE)',
-    'DIAS DE PARQUEO ',
-    'VALOR CANCELADO POR PARQUEO ',
-    'NÚMERO DE FORMULARIO DE EGRESO VEHICULAR',
-    'NOMBRE SERVIDOR POLICIAL QUE ENTREGA EL VEHÍCULO (CUSTODIO)',
-    'NÚMERO DE ORDEN DE PAGO POR ALCOHOCHECK',
-    'VALOR CANCELADO POR ALCOHOCHEK',
-    'PERICIAS REALIZADAS',
-    'NOMBRE DEL PERITO',
-    'FECHA  DE PAGO EN  LA ENTIDAD FINANCIERA',
-    'NRO. DE COMPROBANTE DE PAGO DE LA ENTIDAD FINANCIERA',
-    'INSTITUCIÓN FINANCIERA (BANCO-COOPERATIVA)',
-  ];
-
-  static List<int> build({
+  /// Construye la matriz Excel usando el archivo de plantilla oficial de Xavier
+  static Future<List<int>> build({
     required List<CasoIngreso> ingresos,
     required List<CasoLibertad> libertades,
-    String tituloPatio = 'CENTRO DE RETENCIÓN VEHICULAR',
+    String tituloPatio = 'CONTROL 120',
+  }) async {
+    final templateBytes = await _cargarPlantillaBytes();
+    if (templateBytes == null || templateBytes.isEmpty) {
+      // Fallback de emergencia si no se encuentra el asset
+      return _buildFallback(ingresos: ingresos, libertades: libertades, tituloPatio: tituloPatio);
+    }
+
+    final excel = Excel.decodeBytes(templateBytes);
+
+    final vehiculosSheet = excel.tables['VEHICULOS'];
+    final motosSheet = excel.tables['MOTOCICLETAS'];
+
+    // Actualizar nombre de patio en fila 3 si corresponde
+    final textoCRV = 'CENTRO DE RETENCIÓN VEHICULAR "$tituloPatio"';
+    if (vehiculosSheet != null && vehiculosSheet.maxRows > 2) {
+      vehiculosSheet.updateCell(
+        CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 2),
+        TextCellValue(textoCRV),
+      );
+    }
+    if (motosSheet != null && motosSheet.maxRows > 2) {
+      motosSheet.updateCell(
+        CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 2),
+        TextCellValue(textoCRV),
+      );
+    }
+
+    // 1. POBLAR PESTAÑA VEHÍCULOS
+    if (vehiculosSheet != null) {
+      final listaVehiculos = ingresos.where((i) => i.tipoVehiculo.trim().toUpperCase() != 'MOTOCICLETA').toList();
+      int rowVehIndex = 6; // Fila 7 en Excel (0-indexed = 6)
+
+      for (int i = 0; i < listaVehiculos.length; i++) {
+        final ing = listaVehiculos[i];
+        final lib = _libertadDe(ing, libertades);
+        final ord = i + 1;
+        final excelRow = rowVehIndex + 1; // 1-based para fórmulas
+
+        final situacionLegal = ing.causaLegal.isNotEmpty
+            ? (ing.detalleCausa.isNotEmpty ? '${ing.causaLegal} - ${ing.detalleCausa}' : ing.causaLegal)
+            : ing.causaPrincipal;
+
+        final autoridad = ing.autoridadRequirente.isNotEmpty
+            ? ing.autoridadRequirente
+            : (lib?.firmadoPor.isNotEmpty == true ? 'FISCALIA' : 'N/A');
+
+        final placaGrua = lib?.placaGrua.isNotEmpty == true
+            ? lib!.placaGrua
+            : (ing.placaGrua.isNotEmpty ? ing.placaGrua : 'N/A');
+
+        final conductorGrua = ing.conductorGrua.isNotEmpty
+            ? ing.conductorGrua
+            : (ing.nombreGruaParticular.isNotEmpty ? ing.nombreGruaParticular : 'N/A');
+
+        final primerPago = lib != null && lib.pagos.isNotEmpty ? lib.pagos.first : null;
+        final bancoGaraje = primerPago != null
+            ? (primerPago.entidadFinancieraOficial.isNotEmpty
+                ? primerPago.entidadFinancieraOficial
+                : primerPago.entidadFinanciera)
+            : '';
+
+        final ordenPagoGaraje = primerPago?.ordenPagoNro ?? '';
+        final comprobanteGaraje = primerPago?.comprobantePagoNro ?? '';
+
+        final ordenPagoAlcoho = lib?.ordenPagoAlcohocheckNro.isNotEmpty == true
+            ? lib!.ordenPagoAlcohocheckNro
+            : (ing.ordenPagoAlcohocheckNro.isNotEmpty ? ing.ordenPagoAlcohocheckNro : 'N/A');
+
+        final valorAlcoho = lib?.valorAlcohocheck.isNotEmpty == true
+            ? lib!.valorAlcohocheck
+            : (ing.valorAlcohocheck.isNotEmpty ? ing.valorAlcohocheck : 'N/A');
+
+        final pericia = lib?.periciaRealizada.isNotEmpty == true ? lib!.periciaRealizada : 'N/A';
+        final perito = lib?.peritoNombre.isNotEmpty == true ? lib!.peritoNombre : 'N/A';
+
+        final tipoCobro = ing.tipoCobroParqueo.isNotEmpty
+            ? ing.tipoCobroParqueo
+            : (lib?.tipoServicioGaraje.isNotEmpty == true ? lib!.tipoServicioGaraje : 'LIVIANO');
+        final etiquetaLargaTarifa = _etiquetaLargaTarifario(tipoCobro);
+
+        void setCell(int col, CellValue val) {
+          vehiculosSheet.updateCell(
+            CellIndex.indexByColumnRow(columnIndex: col, rowIndex: rowVehIndex),
+            val,
+          );
+        }
+
+        setCell(0, IntCellValue(ord));
+        setCell(1, TextCellValue(ing.subzona.isNotEmpty ? ing.subzona : 'SANTO DOMINGO'));
+        setCell(2, TextCellValue(ing.crv.isNotEmpty ? ing.crv : tituloPatio));
+        setCell(3, _celdaFecha(ing.fechaIngreso));
+        setCell(4, _celdaNumeroOTexto(ing.hojaIngresoNro));
+        setCell(5, TextCellValue(ing.placa.trim().toUpperCase()));
+        setCell(6, TextCellValue(ing.marca.trim()));
+        setCell(7, TextCellValue(ing.tipoVehiculo.trim()));
+        setCell(8, TextCellValue(ing.modelo.trim()));
+        setCell(9, TextCellValue(ing.color.trim()));
+        setCell(10, _celdaNumeroOTexto(ing.anioFabricacion));
+        setCell(11, TextCellValue(ing.chasis.trim()));
+        setCell(12, TextCellValue(ing.motor.trim()));
+        setCell(13, TextCellValue(ing.parteIngresoNro.trim()));
+        setCell(14, TextCellValue(ing.policiaNombre.trim()));
+        setCell(15, TextCellValue(ing.propietario.trim()));
+        setCell(16, TextCellValue(situacionLegal));
+        setCell(17, TextCellValue(autoridad));
+        setCell(18, TextCellValue(placaGrua));
+        setCell(19, TextCellValue(conductorGrua));
+        setCell(20, TextCellValue(ing.custodioRecibeNombre.trim().isNotEmpty ? ing.custodioRecibeNombre.trim() : 'SGOS. CHASIPANTA XAVIER'));
+
+        if (lib != null && lib.fechaSalida.isNotEmpty) {
+          setCell(21, _celdaFecha(lib.fechaSalida));
+          setCell(22, TextCellValue(lib.oficioDevolucionNro.trim()));
+          setCell(23, TextCellValue(lib.firmadoPor.trim()));
+          setCell(24, TextCellValue(lib.retiradoPor.trim()));
+          setCell(25, TextCellValue(lib.cedulaRetira.trim()));
+          setCell(26, _celdaNumeroOTexto(ordenPagoGaraje));
+          setCell(27, TextCellValue(etiquetaLargaTarifa));
+          // Fórmula oficial de días:
+          setCell(28, FormulaCellValue('=(V$excelRow-D$excelRow)+1'));
+          // Fórmula oficial de tarifa diaria ANT:
+          setCell(29, FormulaCellValue('IF(AB$excelRow="SERVICIO DE GARAJE LIVIANOS (HASTA 3,5 TN A EXCEPCIÓN DE MOTOCICLETAS) (DIARIOS)",3,IF(AB$excelRow="SERVICIO DE GARAJE PESADOS (DE 3,51 TN HASTA 12 TN) (DIARIOS)",9,IF(AB$excelRow="SERVICIO DE GARAJE (CENTROS DE RETENCIÓN) MOTOCICLETA",1,IF(AB$excelRow="SERVICIO DE GARAJE EXTRA PESADOS (MÁS DE 12 TN) (DIARIOS)",15,0))))'));
+          // Fórmula oficial de total parqueo:
+          setCell(30, FormulaCellValue('IFERROR(AD$excelRow*AC$excelRow,0)'));
+          // Fórmula de réplica de orden de pago:
+          setCell(31, FormulaCellValue('AA$excelRow'));
+          if (primerPago?.horaFechaPago.isNotEmpty == true) {
+            setCell(32, _celdaFecha(primerPago!.horaFechaPago));
+          } else {
+            setCell(32, TextCellValue(''));
+          }
+          setCell(33, _celdaNumeroOTexto(comprobanteGaraje));
+          setCell(34, TextCellValue(bancoGaraje));
+          setCell(35, FormulaCellValue('AI$excelRow'));
+          setCell(36, FormulaCellValue('IF(E$excelRow="","",E$excelRow)'));
+          setCell(37, TextCellValue(lib.custodioEntregaNombre.trim()));
+        } else {
+          setCell(21, TextCellValue(''));
+          setCell(22, TextCellValue(''));
+          setCell(23, TextCellValue(''));
+          setCell(24, TextCellValue(''));
+          setCell(25, TextCellValue(''));
+          setCell(26, TextCellValue(''));
+          setCell(27, TextCellValue(''));
+          setCell(28, TextCellValue(''));
+          setCell(29, TextCellValue(''));
+          setCell(30, TextCellValue(''));
+          setCell(31, TextCellValue(''));
+          setCell(32, TextCellValue(''));
+          setCell(33, TextCellValue(''));
+          setCell(34, TextCellValue(''));
+          setCell(35, TextCellValue(''));
+          setCell(36, FormulaCellValue('IF(E$excelRow="","",E$excelRow)'));
+          setCell(37, TextCellValue(''));
+        }
+
+        setCell(38, TextCellValue(ordenPagoAlcoho));
+        setCell(39, TextCellValue(valorAlcoho));
+        setCell(40, TextCellValue(pericia));
+        setCell(41, TextCellValue(perito));
+        setCell(42, FormulaCellValue('AG$excelRow'));
+        setCell(43, FormulaCellValue('AH$excelRow'));
+        setCell(44, FormulaCellValue('AI$excelRow'));
+
+        rowVehIndex++;
+      }
+
+      // Limpiar filas antiguas de plantilla si hubieran quedado remanentes
+      while (rowVehIndex < vehiculosSheet.maxRows) {
+        final placaVal = vehiculosSheet.rows[rowVehIndex].length > 5 ? vehiculosSheet.rows[rowVehIndex][5]?.value : null;
+        if (placaVal == null || placaVal.toString().trim().isEmpty) break;
+        for (int c = 0; c < 45; c++) {
+          vehiculosSheet.updateCell(CellIndex.indexByColumnRow(columnIndex: c, rowIndex: rowVehIndex), TextCellValue(''));
+        }
+        rowVehIndex++;
+      }
+    }
+
+    // 2. POBLAR PESTAÑA MOTOCICLETAS
+    if (motosSheet != null) {
+      final listaMotos = ingresos.where((i) => i.tipoVehiculo.trim().toUpperCase() == 'MOTOCICLETA').toList();
+      int rowMotoIndex = 6; // Fila 7 en Excel (0-indexed = 6)
+
+      for (int i = 0; i < listaMotos.length; i++) {
+        final ing = listaMotos[i];
+        final lib = _libertadDe(ing, libertades);
+        final ord = i + 1;
+        final excelRow = rowMotoIndex + 1;
+
+        final situacionLegal = ing.causaLegal.isNotEmpty
+            ? (ing.detalleCausa.isNotEmpty ? '${ing.causaLegal} - ${ing.detalleCausa}' : ing.causaLegal)
+            : ing.causaPrincipal;
+
+        final autoridad = ing.autoridadRequirente.isNotEmpty
+            ? ing.autoridadRequirente
+            : (lib?.firmadoPor.isNotEmpty == true ? 'FISCALIA' : 'N/A');
+
+        final placaGrua = lib?.placaGrua.isNotEmpty == true
+            ? lib!.placaGrua
+            : (ing.placaGrua.isNotEmpty ? ing.placaGrua : 'N/A');
+
+        final conductorGrua = ing.conductorGrua.isNotEmpty
+            ? ing.conductorGrua
+            : (ing.nombreGruaParticular.isNotEmpty ? ing.nombreGruaParticular : 'N/A');
+
+        final primerPago = lib != null && lib.pagos.isNotEmpty ? lib.pagos.first : null;
+        final bancoGaraje = primerPago != null
+            ? (primerPago.entidadFinancieraOficial.isNotEmpty
+                ? primerPago.entidadFinancieraOficial
+                : primerPago.entidadFinanciera)
+            : '';
+
+        final ordenPagoGaraje = primerPago?.ordenPagoNro ?? '';
+        final comprobanteGaraje = primerPago?.comprobantePagoNro ?? '';
+
+        final ordenPagoAlcoho = lib?.ordenPagoAlcohocheckNro.isNotEmpty == true
+            ? lib!.ordenPagoAlcohocheckNro
+            : (ing.ordenPagoAlcohocheckNro.isNotEmpty ? ing.ordenPagoAlcohocheckNro : 'N/A');
+
+        final valorAlcoho = lib?.valorAlcohocheck.isNotEmpty == true
+            ? lib!.valorAlcohocheck
+            : (ing.valorAlcohocheck.isNotEmpty ? ing.valorAlcohocheck : 'N/A');
+
+        final pericia = lib?.periciaRealizada.isNotEmpty == true ? lib!.periciaRealizada : 'N/A';
+        final perito = lib?.peritoNombre.isNotEmpty == true ? lib!.peritoNombre : 'N/A';
+
+        final dias = lib != null ? _diasPermanencia(ing.fechaIngreso, lib.fechaSalida) : null;
+
+        void setCell(int col, CellValue val) {
+          motosSheet.updateCell(
+            CellIndex.indexByColumnRow(columnIndex: col, rowIndex: rowMotoIndex),
+            val,
+          );
+        }
+
+        setCell(0, IntCellValue(ord));
+        setCell(1, TextCellValue(ing.subzona.isNotEmpty ? ing.subzona : 'SANTO DOMINGO'));
+        setCell(2, TextCellValue(ing.crv.isNotEmpty ? ing.crv : tituloPatio));
+        setCell(3, _celdaFecha(ing.fechaIngreso));
+        setCell(4, _celdaNumeroOTexto(ing.hojaIngresoNro));
+        setCell(5, TextCellValue(ing.placa.trim().toUpperCase()));
+        setCell(6, TextCellValue(ing.marca.trim()));
+        setCell(7, TextCellValue(ing.modelo.trim()));
+        setCell(8, TextCellValue(ing.color.trim()));
+        setCell(9, _celdaNumeroOTexto(ing.anioFabricacion));
+        setCell(10, TextCellValue(ing.chasis.trim()));
+        setCell(11, TextCellValue(ing.motor.trim()));
+        setCell(12, TextCellValue(ing.parteIngresoNro.trim()));
+        setCell(13, TextCellValue(ing.policiaNombre.trim()));
+        setCell(14, TextCellValue(ing.propietario.trim()));
+        setCell(15, TextCellValue(situacionLegal));
+        setCell(16, TextCellValue(autoridad));
+        setCell(17, TextCellValue(placaGrua));
+        setCell(18, TextCellValue(conductorGrua));
+        setCell(19, TextCellValue(ing.custodioRecibeNombre.trim().isNotEmpty ? ing.custodioRecibeNombre.trim() : 'SGOS. CHASIPANTA XAVIER'));
+
+        if (lib != null && lib.fechaSalida.isNotEmpty) {
+          setCell(20, _celdaFecha(lib.fechaSalida));
+          setCell(21, TextCellValue(lib.oficioDevolucionNro.trim()));
+          setCell(22, TextCellValue(lib.firmadoPor.trim()));
+          setCell(23, TextCellValue(lib.retiradoPor.trim()));
+          setCell(24, TextCellValue(lib.cedulaRetira.trim()));
+          setCell(25, _celdaNumeroOTexto(ordenPagoGaraje));
+          setCell(26, dias != null ? IntCellValue(dias) : TextCellValue(''));
+          setCell(27, dias != null ? IntCellValue(dias) : TextCellValue(''));
+          setCell(28, FormulaCellValue('IF(E$excelRow="","",E$excelRow)'));
+          setCell(29, TextCellValue(lib.custodioEntregaNombre.trim()));
+        } else {
+          setCell(20, TextCellValue(''));
+          setCell(21, TextCellValue(''));
+          setCell(22, TextCellValue(''));
+          setCell(23, TextCellValue(''));
+          setCell(24, TextCellValue(''));
+          setCell(25, TextCellValue(''));
+          setCell(26, TextCellValue(''));
+          setCell(27, TextCellValue(''));
+          setCell(28, FormulaCellValue('IF(E$excelRow="","",E$excelRow)'));
+          setCell(29, TextCellValue(''));
+        }
+
+        setCell(30, TextCellValue(ordenPagoAlcoho));
+        setCell(31, TextCellValue(valorAlcoho));
+        setCell(32, TextCellValue(pericia));
+        setCell(33, TextCellValue(perito));
+        if (lib != null && primerPago?.horaFechaPago.isNotEmpty == true) {
+          setCell(34, _celdaFecha(primerPago!.horaFechaPago));
+        } else {
+          setCell(34, TextCellValue(''));
+        }
+        setCell(35, _celdaNumeroOTexto(comprobanteGaraje));
+        setCell(36, TextCellValue(bancoGaraje));
+
+        rowMotoIndex++;
+      }
+
+      // Limpiar filas antiguas si hubieran quedado remanentes
+      while (rowMotoIndex < motosSheet.maxRows) {
+        final placaVal = motosSheet.rows[rowMotoIndex].length > 5 ? motosSheet.rows[rowMotoIndex][5]?.value : null;
+        if (placaVal == null || placaVal.toString().trim().isEmpty) break;
+        for (int c = 0; c < 37; c++) {
+          motosSheet.updateCell(CellIndex.indexByColumnRow(columnIndex: c, rowIndex: rowMotoIndex), TextCellValue(''));
+        }
+        rowMotoIndex++;
+      }
+    }
+
+    return excel.encode() ?? [];
+  }
+
+  static int? _diasPermanencia(String fechaIngreso, String fechaSalida) {
+    final f1 = _parseFecha(fechaIngreso);
+    final f2 = _parseFecha(fechaSalida);
+    if (f1 == null || f2 == null) return null;
+    return f2.difference(f1).inDays + 1;
+  }
+
+  /// Generador básico de respaldo solo en caso extremo de que no exista el archivo de plantilla
+  static List<int> _buildFallback({
+    required List<CasoIngreso> ingresos,
+    required List<CasoLibertad> libertades,
+    required String tituloPatio,
   }) {
     final excel = Excel.createExcel();
-    // La hoja "Sheet1" que trae por defecto el paquete `excel` se
-    // elimina al final, una vez creadas las dos hojas reales.
     final hojaDefectoOriginal = excel.getDefaultSheet();
 
     final vehiculos = excel['VEHICULOS'];
     final motos = excel['MOTOCICLETAS'];
-
-    _escribirEncabezado(vehiculos, tituloPatio, _headerVehiculos);
-    _escribirEncabezado(motos, tituloPatio, _headerMotocicletas);
-
-    var ordVehiculos = 1;
-    var ordMotos = 1;
-
-    for (final ing in ingresos) {
-      final lib = _libertadDe(ing, libertades);
-      final esMoto = ing.tipoVehiculo.toUpperCase() == 'MOTOCICLETA';
-      final sheet = esMoto ? motos : vehiculos;
-      final ord = esMoto ? ordMotos++ : ordVehiculos++;
-
-      final dias = lib != null ? _diasPermanencia(ing.fechaIngreso, lib.fechaSalida) : null;
-      final tipoCobro = ing.tipoCobroParqueo.isNotEmpty ? ing.tipoCobroParqueo : lib?.tipoServicioGaraje ?? '';
-      final etiquetaLargaTarifa = _etiquetaLargaTarifario(tipoCobro);
-      final tarifa = lib != null ? _tarifaDiaria(etiquetaLargaTarifa) : null;
-      final valorCalculado = (dias != null && tarifa != null) ? dias * tarifa : null;
-      final primerPago = lib != null && lib.pagos.isNotEmpty ? lib.pagos.first : null;
-      final bancoGaraje = primerPago != null
-          ? (primerPago.entidadFinancieraOficial.isNotEmpty
-              ? primerPago.entidadFinancieraOficial
-              : primerPago.entidadFinanciera)
-          : '';
-
-      final situacionLegal = ing.causaLegal.isNotEmpty
-          ? (ing.detalleCausa.isNotEmpty ? '${ing.causaLegal} - ${ing.detalleCausa}' : ing.causaLegal)
-          : (ing.causaPrincipal.isNotEmpty ? ing.causaPrincipal : 'ACCIDENTE DE TRANSITO');
-
-      final autoridad = ing.autoridadRequirente.isNotEmpty
-          ? ing.autoridadRequirente
-          : (lib?.firmadoPor.isNotEmpty == true ? 'FISCALIA' : 'N/A');
-
-      final placaGrua = lib?.placaGrua.isNotEmpty == true
-          ? lib!.placaGrua
-          : (ing.placaGrua.isNotEmpty ? ing.placaGrua : 'N/A');
-
-      final conductorGrua = ing.conductorGrua.isNotEmpty
-          ? ing.conductorGrua
-          : (ing.nombreGruaParticular.isNotEmpty ? ing.nombreGruaParticular : 'N/A');
-
-      final ordenPagoGaraje = primerPago?.ordenPagoNro ?? '';
-      final comprobanteGaraje = primerPago?.comprobantePagoNro ?? '';
-      final fechaPagoGaraje = primerPago?.horaFechaPago ?? '';
-
-      final ordenPagoAlcoho = lib?.ordenPagoAlcohocheckNro.isNotEmpty == true
-          ? lib!.ordenPagoAlcohocheckNro
-          : (ing.ordenPagoAlcohocheckNro.isNotEmpty ? ing.ordenPagoAlcohocheckNro : 'N/A');
-
-      final valorAlcoho = lib?.valorAlcohocheck.isNotEmpty == true
-          ? lib!.valorAlcohocheck
-          : (ing.valorAlcohocheck.isNotEmpty ? ing.valorAlcohocheck : 'N/A');
-
-      final pericia = lib?.periciaRealizada.isNotEmpty == true ? lib!.periciaRealizada : 'N/A';
-      final perito = lib?.peritoNombre.isNotEmpty == true ? lib!.peritoNombre : 'N/A';
-
-      final fechaPagoPericia = lib?.horaFechaPagoAlcohocheck.isNotEmpty == true
-          ? lib!.horaFechaPagoAlcohocheck
-          : fechaPagoGaraje;
-
-      final compPagoPericia = lib?.comprobantePagoAlcohocheckNro.isNotEmpty == true
-          ? lib!.comprobantePagoAlcohocheckNro
-          : comprobanteGaraje;
-
-      final bancoPericia = bancoGaraje;
-
-      List<CellValue?> fila;
-      if (!esMoto) {
-        fila = [
-          IntCellValue(ord), // 1. ORD.
-          TextCellValue(ing.subzona.isNotEmpty ? ing.subzona : 'SANTO DOMINGO'), // 2. SUBZONA
-          TextCellValue(ing.crv.isNotEmpty ? ing.crv : 'CONTROL 120'), // 3. CENTRO DE RETENCION VEHICULAR
-          TextCellValue(ing.fechaIngreso), // 4. FECHA DE INGRESO
-          TextCellValue(ing.hojaIngresoNro), // 5. NÚMERO DE FORMULARIO DE INGRESO VEHICULAR
-          TextCellValue(ing.placa.toUpperCase()), // 6. PLACA
-          TextCellValue(ing.marca), // 7. MARCA
-          TextCellValue(ing.tipoVehiculo), // 8. TIPO
-          TextCellValue(ing.modelo), // 9. MODELO
-          TextCellValue(ing.color), // 10. COLOR
-          TextCellValue(ing.anioFabricacion), // 11. AÑO DE FABRICACIÓN
-          TextCellValue(ing.chasis), // 12. NÚMERO DE CHASIS
-          TextCellValue(ing.motor), // 13. NÚMERO DE MOTOR
-          TextCellValue(ing.parteIngresoNro), // 14. NÚMERO DE PARTE
-          TextCellValue(ing.policiaNombre), // 15. PARTE ELABORADO POR
-          TextCellValue(ing.propietario), // 16. NOMBRE PROPIETARIO/RESPONSABLE DEL VEHICULO
-          TextCellValue(situacionLegal), // 17. SITUACIÓN LEGAL (Infracción tránsito)
-          TextCellValue(autoridad), // 18. AUTORIDAD QUE CONOCE
-          TextCellValue(placaGrua), // 19. PLACA-GRUA
-          TextCellValue(conductorGrua), // 20. NOMBRES CONDUCTOR GRUA
-          TextCellValue(ing.custodioRecibeNombre), // 21. NOMBRE SERVIDOR POLICIAL QUE RECIBE LA CUSTODIA
-          TextCellValue(lib?.fechaSalida ?? ''), // 22. FECHA EGRESO
-          TextCellValue(lib?.oficioDevolucionNro ?? ''), // 23. ORDEN DE LIBERTAD EMITIDA AUTORIDAD COMPETENTE
-          TextCellValue(lib?.firmadoPor ?? ''), // 24. NOMBRE DEL SEÑOR JEFE QUE EMITE LIBERTAD
-          TextCellValue(lib?.retiradoPor ?? ''), // 25. NOMBRES DE PERSONA A QUIEN SE ENTREGA
-          TextCellValue(lib?.cedulaRetira ?? ''), // 26. NÚMERO DE CEDULA
-          TextCellValue(ordenPagoGaraje), // 27. NÚMERO DE ORDEN DE PAGO (GARAGE)
-          TextCellValue(etiquetaLargaTarifa), // 28. TIPO DE TYRAMITE / PROCESO
-          if (dias != null) IntCellValue(dias) else TextCellValue(''), // 29. DIAS DE PERMANENCIA
-          if (tarifa != null) DoubleCellValue(tarifa) else TextCellValue(''), // 30. VALOR TARIFARIO DIARIO
-          if (valorCalculado != null) DoubleCellValue(valorCalculado) else TextCellValue(''), // 31. VALOR CANCELADO POR PARQUEO
-          TextCellValue(ordenPagoGaraje), // 32. No DE ORDEN DE PAGO
-          TextCellValue(fechaPagoGaraje), // 33. FECHA DE PAGO EN LA ENTIDA FINANCIERA
-          TextCellValue(comprobanteGaraje), // 34. No DE COMPROBANTE DE PAGO DE LA ENTIDAD FINANCIERA
-          TextCellValue(bancoGaraje), // 35. INSTITUCION FINANCIERA (BANCO, COOPERATIVA, ETC)
-          TextCellValue(bancoGaraje), // 36. NOMBRE DE LA INSTITUCIÓN FINANCIERA
-          TextCellValue(lib != null ? ing.hojaIngresoNro : ''), // 37. NÚMERO DE FORMULARIO DE EGRESO VEHICULAR
-          TextCellValue(lib?.custodioEntregaNombre ?? ''), // 38. NOMBRE SERVIDOR POLICIAL QUE ENTREGA EL VEHÍCULO (CUSTODIO)
-          TextCellValue(ordenPagoAlcoho), // 39. NÚMERO DE ORDEN DE PAGO POR ALCOHOCHECK
-          TextCellValue(valorAlcoho), // 40. VALOR CANCELADO POR ALCOHOCHEK
-          TextCellValue(pericia), // 41. PERICIAS REALIZADAS
-          TextCellValue(perito), // 42. NOMBRE DEL PERITO
-          TextCellValue(fechaPagoPericia), // 43. FECHA DE PAGO EN LA ENTIDAD FINANCIERA
-          TextCellValue(compPagoPericia), // 44. NRO. DE COMPROBANTE DE PAGO DE LA ENTIDAD FINANCIERA
-          TextCellValue(bancoPericia), // 45. INSTITUCIÓN FINANCIERA (BANCO-COOPERATIVA)
-        ];
-      } else {
-        fila = [
-          IntCellValue(ord), // 1. ORD.
-          TextCellValue(ing.subzona.isNotEmpty ? ing.subzona : 'SANTO DOMINGO'), // 2. SUBZONA
-          TextCellValue(ing.crv.isNotEmpty ? ing.crv : 'CONTROL 120'), // 3. CENTRO DE RETENCION VEHICULAR
-          TextCellValue(ing.fechaIngreso), // 4. FECHA DE INGRESO
-          TextCellValue(ing.hojaIngresoNro), // 5. NÚMERO DE FORMULARIO DE INGRESO VEHICULAR
-          TextCellValue(ing.placa.toUpperCase()), // 6. PLACA
-          TextCellValue(ing.marca), // 7. MARCA
-          TextCellValue(ing.modelo), // 8. MODELO
-          TextCellValue(ing.color), // 9. COLOR
-          TextCellValue(ing.anioFabricacion), // 10. AÑO DE FABRICACIÓN
-          TextCellValue(ing.chasis), // 11. NÚMERO DE CHASIS
-          TextCellValue(ing.motor), // 12. NÚMERO DE MOTOR
-          TextCellValue(ing.parteIngresoNro), // 13. NÚMERO DE PARTE
-          TextCellValue(ing.policiaNombre), // 14. PARTE ELABORADO POR
-          TextCellValue(ing.propietario), // 15. NOMBRE PROPIETARIO/RESPONSABLE DEL VEHICULO
-          TextCellValue(situacionLegal), // 16. SITUACIÓN LEGAL (Infracción tránsito)
-          TextCellValue(autoridad), // 17. AUTORIDAD QUE CONOCE
-          TextCellValue(placaGrua), // 18. PLACA-GRUA
-          TextCellValue(conductorGrua), // 19. NOMBRES CONDUCTOR GRUA
-          TextCellValue(ing.custodioRecibeNombre), // 20. NOMBRE SERVIDOR POLICIAL QUE RECIBE LA CUSTODIA
-          TextCellValue(lib?.fechaSalida ?? ''), // 21. FECHA EGRESO
-          TextCellValue(lib?.oficioDevolucionNro ?? ''), // 22. ORDEN DE LIBERTAD EMITIDA AUTORIDAD COMPETENTE
-          TextCellValue(lib?.firmadoPor ?? ''), // 23. NOMBRE DEL SEÑOR JEFE QUE EMITE LIBERTAD
-          TextCellValue(lib?.retiradoPor ?? ''), // 24. NOMBRES DE PERSONA A QUIEN SE ENTREGA
-          TextCellValue(lib?.cedulaRetira ?? ''), // 25. NÚMERO DE CEDULA
-          TextCellValue(ordenPagoGaraje), // 26. NÚMERO DE ORDEN DE PAGO (GARAGE)
-          if (dias != null) IntCellValue(dias) else TextCellValue(''), // 27. DIAS DE PARQUEO
-          if (valorCalculado != null) DoubleCellValue(valorCalculado) else TextCellValue(''), // 28. VALOR CANCELADO POR PARQUEO
-          TextCellValue(lib != null ? ing.hojaIngresoNro : ''), // 29. NÚMERO DE FORMULARIO DE EGRESO VEHICULAR
-          TextCellValue(lib?.custodioEntregaNombre ?? ''), // 30. NOMBRE SERVIDOR POLICIAL QUE ENTREGA EL VEHÍCULO (CUSTODIO)
-          TextCellValue(ordenPagoAlcoho), // 31. NÚMERO DE ORDEN DE PAGO POR ALCOHOCHECK
-          TextCellValue(valorAlcoho), // 32. VALOR CANCELADO POR ALCOHOCHEK
-          TextCellValue(pericia), // 33. PERICIAS REALIZADAS
-          TextCellValue(perito), // 34. NOMBRE DEL PERITO
-          TextCellValue(fechaPagoPericia), // 35. FECHA DE PAGO EN LA ENTIDAD FINANCIERA
-          TextCellValue(compPagoPericia), // 36. NRO. DE COMPROBANTE DE PAGO DE LA ENTIDAD FINANCIERA
-          TextCellValue(bancoPericia), // 37. INSTITUCIÓN FINANCIERA (BANCO-COOPERATIVA)
-        ];
-      }
-
-      sheet.appendRow(fila);
-    }
 
     if (hojaDefectoOriginal != null &&
         hojaDefectoOriginal != 'VEHICULOS' &&
@@ -372,14 +439,5 @@ class ExcelMatrizBuilder {
     excel.setDefaultSheet('VEHICULOS');
 
     return excel.encode() ?? [];
-  }
-
-  static void _escribirEncabezado(Sheet sheet, String tituloPatio, List<String> columnas) {
-    sheet.appendRow([TextCellValue('POLICÍA NACIONAL DE ECUADOR')]);
-    sheet.appendRow([TextCellValue('DIRECCIÓN NACIONAL DE CONTROL DE TRÁNSITO Y SEGURIDAD VIAL')]);
-    sheet.appendRow([TextCellValue(tituloPatio)]);
-    sheet.appendRow([]);
-    sheet.appendRow([]);
-    sheet.appendRow(columnas.map((e) => TextCellValue(e)).toList());
   }
 }

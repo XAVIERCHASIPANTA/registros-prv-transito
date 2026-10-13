@@ -390,7 +390,7 @@ class StorageService {
     final ingresos = await obtenerIngresos();
     if (ingresos.isEmpty) return null;
     final libertades = await obtenerLibertades();
-    return ExcelMatrizBuilder.build(ingresos: ingresos, libertades: libertades);
+    return await ExcelMatrizBuilder.build(ingresos: ingresos, libertades: libertades);
   }
 
   static DateTime? _parseFechaDdMmAaaa(String texto) {
