@@ -1,7 +1,5 @@
-import 'dart:typed_data';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -14,7 +12,6 @@ import 'informe_semanal_screen.dart';
 import 'historial_informes_screen.dart';
 import 'matriz_excel_screen.dart';
 import 'pdfs_guardados_screen.dart';
-import '../services/storage_service.dart';
 import '../services/auth_service.dart';
 import '../widgets/calculadora_dias_dialog.dart';
 import '../widgets/firma_digital_dialog.dart';
@@ -24,34 +21,6 @@ enum TipoParte { ingreso, libertad }
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  Future<void> _exportarExcelMasivo(BuildContext context) async {
-    try {
-      final bytes = await StorageService.generarExcelConsolidado();
-      if (bytes == null || bytes.isEmpty) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No hay información suficiente para generar la matriz Excel.')),
-          );
-        }
-        return;
-      }
-
-      final xFile = XFile.fromData(
-        Uint8List.fromList(bytes),
-        name: 'REPORTE_MATRIZ_PATIO_2026.xlsx',
-        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      );
-
-      await Share.shareXFiles([xFile], text: 'Matriz Consolidada de Registros de Patio 2026 (.xlsx)');
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al generar la matriz Excel: $e')),
-        );
-      }
-    }
-  }
 
   static const _urlConsultaVehiculos = 'https://servicios.axiscloud.ec/CRV/?ps_empresa=02';
 
