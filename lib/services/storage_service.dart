@@ -188,6 +188,45 @@ class StorageService {
     return nuevos;
   }
 
+  static Future<int> aplicarImportacionExcel({
+    required List<CasoIngreso> nuevosIngresos,
+    required List<CasoLibertad> nuevasLibertades,
+    required bool reemplazar,
+  }) async {
+    await _asegurarCargadoLocal();
+    if (reemplazar) {
+      _cacheIngresos = List<CasoIngreso>.from(nuevosIngresos);
+      _cacheLibertades = List<CasoLibertad>.from(nuevasLibertades);
+    } else {
+      final placasExistentes = _cacheIngresos!.map((e) => e.placa.trim().toUpperCase()).toSet();
+      final hojasExistentes = _cacheIngresos!.map((e) => e.hojaIngresoNro.trim()).toSet();
+      for (final ing in nuevosIngresos) {
+        final p = ing.placa.trim().toUpperCase();
+        final h = ing.hojaIngresoNro.trim();
+        if (!placasExistentes.contains(p) && !hojasExistentes.contains(h)) {
+          _cacheIngresos!.add(ing);
+        }
+      }
+      final hojasLibExistentes = _cacheLibertades!.map((e) => e.hojaIngresoNro.trim()).toSet();
+      for (final lib in nuevasLibertades) {
+        final h = lib.hojaIngresoNro.trim();
+        if (!hojasLibExistentes.contains(h)) {
+          _cacheLibertades!.add(lib);
+        }
+      }
+    }
+    await _guardarIngresosEnDisco();
+    await _guardarLibertadesEnDisco();
+    return nuevosIngresos.length;
+  }
+
+  static Future<void> vaciarMatrizLocal() async {
+    _cacheIngresos = <CasoIngreso>[];
+    _cacheLibertades = <CasoLibertad>[];
+    await _guardarIngresosEnDisco();
+    await _guardarLibertadesEnDisco();
+  }
+
   static Future<List<CasoIngreso>> obtenerIngresos() async {
     await _asegurarCargadoLocal();
     final patio = await _patioDelUsuario();

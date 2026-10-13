@@ -117,9 +117,14 @@ class CasoIngreso {
   String estadoVehiculo;
   String observaciones;
   DateTime creado;
+  String origen; // 'app' o 'excel'
+
+  bool get esDeExcel => origen == 'excel' || id.startsWith('seed_') || id.startsWith('import_');
+  bool get esDeApp => !esDeExcel;
 
   CasoIngreso({
     required this.id,
+    this.origen = 'app',
     this.hojaIngresoNro = '',
     this.parteIngresoNro = '',
     this.fechaIngreso = '',
@@ -235,11 +240,17 @@ class CasoIngreso {
         'peritoNombre': peritoNombre,
         'estadoVehiculo': estadoVehiculo,
         'observaciones': observaciones,
+        'origen': origen,
         'creado': creado.toIso8601String(),
       };
 
   factory CasoIngreso.fromJson(Map<String, dynamic> j) => CasoIngreso(
         id: j['id'] ?? '',
+        origen: j['origen'] ??
+            ((j['id']?.toString().startsWith('seed_') == true ||
+                    j['id']?.toString().startsWith('import_') == true)
+                ? 'excel'
+                : 'app'),
         hojaIngresoNro: j['hojaIngresoNro'] ?? '',
         parteIngresoNro: j['parteIngresoNro'] ?? '',
         fechaIngreso: j['fechaIngreso'] ?? '',

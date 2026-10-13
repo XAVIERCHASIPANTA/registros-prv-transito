@@ -107,9 +107,14 @@ class CasoLibertad {
 
   List<PagoGaraje> pagos;
   DateTime creado;
+  String origen; // 'app' o 'excel'
+
+  bool get esDeExcel => origen == 'excel' || id.startsWith('seed_') || id.startsWith('import_');
+  bool get esDeApp => !esDeExcel;
 
   CasoLibertad({
     required this.id,
+    this.origen = 'app',
     this.memorandoNro = '',
     this.memorandoFecha = '',
     this.oficioDevolucionNro = '',
@@ -201,11 +206,17 @@ class CasoLibertad {
         'valorAlcohocheck': valorAlcohocheck,
         'horaFechaPagoAlcohocheck': horaFechaPagoAlcohocheck,
         'pagos': pagos.map((p) => p.toJson()).toList(),
+        'origen': origen,
         'creado': creado.toIso8601String(),
       };
 
   factory CasoLibertad.fromJson(Map<String, dynamic> j) => CasoLibertad(
         id: j['id'],
+        origen: j['origen'] ??
+            ((j['id']?.toString().startsWith('seed_') == true ||
+                    j['id']?.toString().startsWith('import_') == true)
+                ? 'excel'
+                : 'app'),
         memorandoNro: j['memorandoNro'] ?? '',
         memorandoFecha: j['memorandoFecha'] ?? '',
         oficioDevolucionNro: j['oficioDevolucionNro'] ?? '',
