@@ -67,9 +67,28 @@
     <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 6px;">Cargando aplicación PWA...</div>
   </div>
   <script>
+    const APP_VERSION = '1.1.16';
+    const lastVersion = localStorage.getItem('prv_app_version');
+    if (lastVersion !== APP_VERSION) {
+      localStorage.setItem('prv_app_version', APP_VERSION);
+      if ('caches' in window) {
+        caches.keys().then(function (names) {
+          for (var name of names) {
+            caches.delete(name);
+          }
+        });
+      }
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function (registrations) {
+          for (var reg of registrations) {
+            reg.unregister();
+          }
+        });
+      }
+    }
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
-        navigator.serviceWorker.register('sw.js?v=1.1.15')
+        navigator.serviceWorker.register('sw.js?v=1.1.16')
           .then(function (reg) {
             reg.onupdatefound = function () {
               var installingWorker = reg.installing;
@@ -89,6 +108,6 @@
       });
     }
   </script>
-  <script src="flutter_bootstrap.js" async></script>
+  <script src="flutter_bootstrap.js?v=1.1.16" async></script>
 </body>
 </html>
