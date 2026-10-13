@@ -12,6 +12,7 @@ import 'ajustes_screen.dart';
 import 'buscar_placa_screen.dart';
 import 'informe_semanal_screen.dart';
 import 'historial_informes_screen.dart';
+import 'matriz_excel_screen.dart';
 import 'pdfs_guardados_screen.dart';
 import '../services/storage_service.dart';
 import '../services/auth_service.dart';
@@ -381,7 +382,10 @@ class HomeScreen extends StatelessWidget {
                               icono: Icons.table_chart_outlined,
                               colorIcono: Colors.purpleAccent,
                               titulo: 'Matriz general de ingresos y salidas Excel',
-                              onTap: () => _exportarExcelMasivo(context),
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const MatrizExcelScreen()),
+                              ),
                             ),
                             _TarjetaVidrio(
                               icono: Icons.summarize_outlined,
