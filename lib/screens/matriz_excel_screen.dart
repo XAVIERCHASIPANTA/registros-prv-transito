@@ -40,8 +40,13 @@ class _MatrizExcelScreenState extends State<MatrizExcelScreen> with SingleTicker
   Future<void> _cargarDatos() async {
     setState(() => _cargando = true);
     try {
-      final ing = await StorageService.obtenerIngresos();
-      final lib = await StorageService.obtenerLibertades();
+      var ing = await StorageService.obtenerIngresos();
+      var lib = await StorageService.obtenerLibertades();
+      if (ing.length < 20) {
+        await StorageService.cargarMatrizHistoricaExcel();
+        ing = await StorageService.obtenerIngresos();
+        lib = await StorageService.obtenerLibertades();
+      }
       if (mounted) {
         setState(() {
           _ingresos = ing;
@@ -54,6 +59,39 @@ class _MatrizExcelScreenState extends State<MatrizExcelScreen> with SingleTicker
         setState(() => _cargando = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al cargar datos: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _recargarMatrizHistorica() async {
+    setState(() => _cargando = true);
+    try {
+      final nuevos = await StorageService.cargarMatrizHistoricaExcel();
+      final ing = await StorageService.obtenerIngresos();
+      final lib = await StorageService.obtenerLibertades();
+      if (mounted) {
+        setState(() {
+          _ingresos = ing;
+          _libertades = lib;
+          _cargando = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              nuevos > 0
+                  ? '¡Se sincronizaron $nuevos registros de tu matriz Excel con éxito!'
+                  : 'Todos los registros de la matriz Excel están al día (${_ingresos.length} registros).',
+            ),
+            backgroundColor: Colors.green.shade800,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _cargando = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al recargar matriz: $e')),
         );
       }
     }
@@ -530,6 +568,11 @@ class _MatrizExcelScreenState extends State<MatrizExcelScreen> with SingleTicker
         foregroundColor: Colors.white,
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.sync_rounded),
+            tooltip: 'Sincronizar 65 vehículos de archivo Excel',
+            onPressed: _recargarMatrizHistorica,
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: 'Actualizar datos',

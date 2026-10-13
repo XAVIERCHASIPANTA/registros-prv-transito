@@ -13,6 +13,8 @@ import 'historial_informes_screen.dart';
 import 'matriz_excel_screen.dart';
 import 'pdfs_guardados_screen.dart';
 import '../services/auth_service.dart';
+import '../services/pwa_install_stub.dart'
+    if (dart.library.html) '../services/pwa_install_web.dart';
 import '../widgets/calculadora_dias_dialog.dart';
 import '../widgets/firma_digital_dialog.dart';
 import '../version.dart';
@@ -221,6 +223,147 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  void _manejarDescargaOInstalacion(BuildContext context) {
+    final instalado = intentarInstalarPWA();
+    if (instalado) return;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Color(0xFF132B59),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: const EdgeInsets.fromLTRB(22, 16, 22, 28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 44,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.cyanAccent.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.download_rounded, color: Colors.cyanAccent, size: 24),
+                  ),
+                  const SizedBox(width: 14),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Instalar Aplicación en Celular',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'Acceso directo en pantalla de inicio (PWA)',
+                          style: TextStyle(color: Colors.white70, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const Divider(color: Colors.white24, height: 26),
+              _itemGuiaInstalacion(
+                icono: Icons.android_rounded,
+                colorIcono: Colors.greenAccent,
+                titulo: 'En celulares Android (Chrome / Brave)',
+                pasos: '1. Toca el menú de tres puntos (⋮) en la esquina superior derecha del navegador.\n'
+                    '2. Pulsa en "Instalar aplicación" o "Agregar a la pantalla principal".\n'
+                    '3. ¡Listo! La app se abrirá a pantalla completa como una aplicación instalada.',
+              ),
+              const SizedBox(height: 12),
+              _itemGuiaInstalacion(
+                icono: Icons.apple_rounded,
+                colorIcono: Colors.white,
+                titulo: 'En iPhone / iPad (Safari)',
+                pasos: '1. Toca el botón Compartir (icono de cuadrado con flecha hacia arriba).\n'
+                    '2. Desliza hacia abajo y selecciona "Agregar al inicio" (Add to Home Screen).\n'
+                    '3. Toca "Agregar" en la esquina superior.',
+              ),
+              const SizedBox(height: 18),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1E5BB0),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(vertical: 13),
+                  ),
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Entendido', style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  static Widget _itemGuiaInstalacion({
+    required IconData icono,
+    required Color colorIcono,
+    required String titulo,
+    required String pasos,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icono, color: colorIcono, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                titulo,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13.5,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            pasos,
+            style: const TextStyle(color: Colors.white70, fontSize: 12, height: 1.4),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -285,7 +428,48 @@ class HomeScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         const SizedBox(height: 6),
-                        Image.asset('assets/logo.png', height: 165),
+                        Stack(
+                          clipBehavior: Clip.none,
+                          alignment: Alignment.center,
+                          children: [
+                            Image.asset('assets/logo.png', height: 165),
+                            Positioned(
+                              left: 6,
+                              bottom: 12,
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: () => _manejarDescargaOInstalacion(context),
+                                  borderRadius: BorderRadius.circular(24),
+                                  child: Container(
+                                    width: 38,
+                                    height: 38,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: const Color(0xFF1B3D75).withValues(alpha: 0.85),
+                                      border: Border.all(
+                                        color: Colors.white.withValues(alpha: 0.45),
+                                        width: 1.5,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(alpha: 0.35),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: const Icon(
+                                      Icons.download_rounded,
+                                      color: Colors.white,
+                                      size: 21,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                         const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,

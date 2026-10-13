@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <base href="/registros-prv-transito/">
+  <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
@@ -67,7 +67,7 @@
     <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 6px;">Cargando aplicación PWA...</div>
   </div>
   <script>
-    const APP_VERSION = '1.1.16';
+    const APP_VERSION = '1.1.17';
     const lastVersion = localStorage.getItem('prv_app_version');
     if (lastVersion !== APP_VERSION) {
       localStorage.setItem('prv_app_version', APP_VERSION);
@@ -86,9 +86,33 @@
         });
       }
     }
+
+    // PWA Install Prompt Listener
+    let prvInstallPrompt = null;
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      prvInstallPrompt = e;
+      window.prvInstallPrompt = e;
+      console.log('PWA beforeinstallprompt capturado con éxito');
+    });
+
+    window.instalarPWA = function () {
+      if (window.prvInstallPrompt) {
+        window.prvInstallPrompt.prompt();
+        window.prvInstallPrompt.userChoice.then(function (choiceResult) {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('Usuario aceptó instalar la PWA');
+          }
+          window.prvInstallPrompt = null;
+        });
+        return true;
+      }
+      return false;
+    };
+
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
-        navigator.serviceWorker.register('sw.js?v=1.1.16')
+        navigator.serviceWorker.register('sw.js?v=1.1.17')
           .then(function (reg) {
             reg.onupdatefound = function () {
               var installingWorker = reg.installing;
@@ -108,6 +132,6 @@
       });
     }
   </script>
-  <script src="flutter_bootstrap.js?v=1.1.16" async></script>
+  <script src="flutter_bootstrap.js?v=1.1.17" async></script>
 </body>
 </html>

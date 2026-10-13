@@ -1,3 +1,4 @@
+import '../data/matriz_historica_seed.dart';
 import '../data/patios_nacional.dart';
 // RUTA DE ARCHIVO: lib/services/storage_service.dart
 
@@ -137,12 +138,12 @@ class StorageService {
 
     final jsonIngresos = prefs.getString(_claveIngresos);
     _cacheIngresos = jsonIngresos == null
-        ? <CasoIngreso>[]
+        ? MatrizHistoricaSeed.obtenerIngresos()
         : (jsonDecode(jsonIngresos) as List).map((e) => CasoIngreso.fromJson(e)).toList();
 
     final jsonLibertades = prefs.getString(_claveLibertades);
     _cacheLibertades = jsonLibertades == null
-        ? <CasoLibertad>[]
+        ? MatrizHistoricaSeed.obtenerLibertades()
         : (jsonDecode(jsonLibertades) as List).map((e) => CasoLibertad.fromJson(e)).toList();
   }
 
@@ -156,31 +157,76 @@ class StorageService {
     await prefs.setString(_claveLibertades, jsonEncode(_cacheLibertades!.map((e) => e.toJson()).toList()));
   }
 
+  static Future<int> cargarMatrizHistoricaExcel() async {
+    await _asegurarCargadoLocal();
+    final historicos = MatrizHistoricaSeed.obtenerIngresos();
+    final historicosLib = MatrizHistoricaSeed.obtenerLibertades();
+
+    final placasExistentes = _cacheIngresos!.map((e) => e.placa.trim().toUpperCase()).toSet();
+    final hojasExistentes = _cacheIngresos!.map((e) => e.hojaIngresoNro.trim()).toSet();
+
+    int nuevos = 0;
+    for (final ing in historicos) {
+      final p = ing.placa.trim().toUpperCase();
+      final h = ing.hojaIngresoNro.trim();
+      if (!placasExistentes.contains(p) && !hojasExistentes.contains(h)) {
+        _cacheIngresos!.add(ing);
+        nuevos++;
+      }
+    }
+
+    final hojasLibExistentes = _cacheLibertades!.map((e) => e.hojaIngresoNro.trim()).toSet();
+    for (final lib in historicosLib) {
+      final h = lib.hojaIngresoNro.trim();
+      if (!hojasLibExistentes.contains(h)) {
+        _cacheLibertades!.add(lib);
+      }
+    }
+
+    await _guardarIngresosEnDisco();
+    await _guardarLibertadesEnDisco();
+    return nuevos;
+  }
+
   static Future<List<CasoIngreso>> obtenerIngresos() async {
+    await _asegurarCargadoLocal();
     final patio = await _patioDelUsuario();
     if (patio.isNotEmpty) {
       try {
         final desdeNube = await FirestoreSyncService().obtenerIngresos(patio);
-        _cacheIngresos = desdeNube;
-        await _guardarIngresosEnDisco();
-        return List<CasoIngreso>.from(desdeNube);
+        if (desdeNube.isNotEmpty) {
+          final placasLocales = _cacheIngresos!.map((e) => e.placa.trim().toUpperCase()).toSet();
+          for (final n in desdeNube) {
+            if (!placasLocales.contains(n.placa.trim().toUpperCase())) {
+              _cacheIngresos!.add(n);
+            }
+          }
+          await _guardarIngresosEnDisco();
+          return List<CasoIngreso>.from(_cacheIngresos!);
+        }
       } catch (_) {}
     }
-    await _asegurarCargadoLocal();
     return List<CasoIngreso>.from(_cacheIngresos!);
   }
 
   static Future<List<CasoLibertad>> obtenerLibertades() async {
+    await _asegurarCargadoLocal();
     final patio = await _patioDelUsuario();
     if (patio.isNotEmpty) {
       try {
         final desdeNube = await FirestoreSyncService().obtenerLibertades(patio);
-        _cacheLibertades = desdeNube;
-        await _guardarLibertadesEnDisco();
-        return List<CasoLibertad>.from(desdeNube);
+        if (desdeNube.isNotEmpty) {
+          final hojasLocales = _cacheLibertades!.map((e) => e.hojaIngresoNro.trim()).toSet();
+          for (final n in desdeNube) {
+            if (!hojasLocales.contains(n.hojaIngresoNro.trim())) {
+              _cacheLibertades!.add(n);
+            }
+          }
+          await _guardarLibertadesEnDisco();
+          return List<CasoLibertad>.from(_cacheLibertades!);
+        }
       } catch (_) {}
     }
-    await _asegurarCargadoLocal();
     return List<CasoLibertad>.from(_cacheLibertades!);
   }
 
