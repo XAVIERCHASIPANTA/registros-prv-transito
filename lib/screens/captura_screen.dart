@@ -350,9 +350,7 @@ class _CapturaScreenState extends State<CapturaScreen> {
           placa: ingreso?.placa ?? datos['placa'] ?? '',
           tipoVehiculo: ingreso?.tipoVehiculo ?? '',
           crv: ingreso?.crv ?? '',
-          causa: ingreso != null
-              ? [ingreso.causaLegal, ingreso.detalleCausa].where((s) => s.trim().isNotEmpty).join(' - ')
-              : '',
+          causa: ingreso?.situacionLegalFormateada ?? '',
           fechaIngreso: ingreso?.fechaIngreso ?? datos['fechaIngreso'] ?? '',
           tipoServicioGaraje: datos['tipoServicioGaraje'] ?? '',
           // Genuinamente nuevo de Libertad: siempre viene de esta extracción.

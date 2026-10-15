@@ -145,6 +145,20 @@ class StorageService {
     _cacheLibertades = jsonLibertades == null
         ? MatrizHistoricaSeed.obtenerLibertades()
         : (jsonDecode(jsonLibertades) as List).map((e) => CasoLibertad.fromJson(e)).toList();
+
+    // Saneamiento proactivo de datos para evitar que textos narrativos o causas corruptas persistan en caché
+    for (final ing in _cacheIngresos!) {
+      if (ing.causaLegal.toUpperCase().contains('ACCIDENTE') ||
+          ing.causaPrincipal.toUpperCase().contains('ACCIDENTE')) {
+        ing.causaLegal = 'ACCIDENTE DE TRANSITO';
+        ing.causaPrincipal = 'ACCIDENTE DE TRANSITO';
+        if (ing.detalleCausa.length > 50 ||
+            ing.detalleCausa.toUpperCase().contains('CIRCUNSTANCIAS') ||
+            ing.detalleCausa.toUpperCase().contains('ACCIDENTE')) {
+          ing.detalleCausa = '';
+        }
+      }
+    }
   }
 
   static Future<void> _guardarIngresosEnDisco() async {

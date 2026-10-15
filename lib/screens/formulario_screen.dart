@@ -408,7 +408,7 @@ class _FormularioIngresoScreenState extends State<FormularioIngresoScreen> {
       ..tipoCobroParqueo = _tipoCobroParqueo ?? ''
       ..causaLegal = _causaLegal
       ..detalleCausa = _causaLegal == CausaLegalCatalogo.causaAccidenteTransito
-          ? _causaLegal
+          ? ''
           : (CausaLegalCatalogo.tieneDesplegable(_causaLegal)
               ? (_detalleCausaSeleccionado ?? '')
               : _detalleCausaCtrl.text.trim())

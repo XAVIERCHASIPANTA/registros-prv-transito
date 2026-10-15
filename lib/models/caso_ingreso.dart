@@ -122,6 +122,116 @@ class CasoIngreso {
   bool get esDeExcel => origen == 'excel' || id.startsWith('seed_') || id.startsWith('import_');
   bool get esDeApp => !esDeExcel;
 
+  /// Retorna la situación legal estandarizada para la Matriz Excel y vistas oficiales.
+  /// Para accidentes devuelve estrictamente "ACCIDENTE DE TRANSITO" sin guiones ni párrafos.
+  /// Para contravenciones extrae el artículo de ley (ej. "ART. 385.1", "ART. 160").
+  String get situacionLegalFormateada => formatearSituacionLegal(
+        causaLegal: causaLegal,
+        detalleCausa: detalleCausa,
+        causaPrincipal: causaPrincipal,
+      );
+
+  static String formatearSituacionLegal({
+    required String causaLegal,
+    required String detalleCausa,
+    required String causaPrincipal,
+  }) {
+    final cl = _limpiarTextoBasico(causaLegal);
+    final dc = _limpiarTextoBasico(detalleCausa);
+    final cp = _limpiarTextoBasico(causaPrincipal);
+
+    final combinada = '$cl $dc $cp'.toUpperCase();
+
+    // 1. Accidente de Tránsito: NUNCA añadir guiones ni textos de partes policiales
+    if (combinada.contains('ACCIDENTE') ||
+        combinada.contains('CHOQUE') ||
+        combinada.contains('SINIESTRO') ||
+        combinada.contains('COLISI') ||
+        combinada.contains('VOLCAMIENTO') ||
+        combinada.contains('ESTRELLAMIENTO') ||
+        combinada.contains('ATROPELLO') ||
+        combinada.contains('PERDIDA DE CARRIL')) {
+      return 'ACCIDENTE DE TRANSITO';
+    }
+
+    // 2. Artículos del COIP / LTTTSV
+    final regexArt = RegExp(
+      r'(?:ART[ÍI]?CULOS?|ART\.?)\s*(\d+(?:\.\d+)?(?:\s*(?:INCISO|NUMERAL|INC|NUM)?\s*#?\s*\d+(?:\.\d+)?)?)',
+      caseSensitive: false,
+    );
+    final match = regexArt.firstMatch('$dc $cl $cp');
+    if (match != null) {
+      final artNum = match.group(1)!.trim().replaceAll(RegExp(r'\s+'), ' ');
+      return 'ART. $artNum'.toUpperCase();
+    }
+
+    // 3. Orden Judicial
+    if (combinada.contains('ORDEN JUDICIAL') ||
+        combinada.contains('DISPOSICION JUDICIAL') ||
+        combinada.contains('OFICIO JUDICIAL')) {
+      if (dc.isNotEmpty && dc.length <= 30 && !_esRelatoNarrativo(dc)) {
+        return 'ORDEN JUDICIAL - ${dc.toUpperCase()}';
+      }
+      return 'ORDEN JUDICIAL';
+    }
+
+    // 4. Acuerdo Ministerial
+    if (combinada.contains('ACUERDO MINISTERIAL')) {
+      if (dc.isNotEmpty && dc.length <= 30 && !_esRelatoNarrativo(dc)) {
+        return 'ACUERDO MINISTERIAL - ${dc.toUpperCase()}';
+      }
+      return 'ACUERDO MINISTERIAL 00004';
+    }
+
+    // 5. Reglamento a la LTTTSV
+    if (combinada.contains('REGLAMENTO') || combinada.contains('LTTTSV')) {
+      if (dc.isNotEmpty && dc.length <= 30 && !_esRelatoNarrativo(dc)) {
+        return dc.toUpperCase();
+      }
+      return 'REGLAMENTO LTTTSV';
+    }
+
+    // 6. Texto base no narrativo
+    String base = cl.isNotEmpty ? cl : cp;
+    if (base.contains('/')) {
+      base = base.split('/').first.trim();
+    }
+    if (_esRelatoNarrativo(base) || base.length > 50) {
+      return 'CONTRAVENCION DE TRANSITO';
+    }
+    if (base.isNotEmpty) {
+      return base.toUpperCase();
+    }
+
+    return 'N/A';
+  }
+
+  static bool _esRelatoNarrativo(String texto) {
+    final t = texto.toUpperCase();
+    return t.contains('CIRCUNSTANCIAS DEL HECHO') ||
+        t.contains('POR MEDIO DEL PRESENTE') ||
+        t.contains('PARTE WEB') ||
+        t.contains('SE TRASLADA') ||
+        t.contains('AVANZO') ||
+        t.contains('ORDEN DE SERVICIO') ||
+        t.contains('PERSONAL POLICIAL') ||
+        texto.length > 50;
+  }
+
+  static String _limpiarTextoBasico(String texto) {
+    if (texto.isEmpty) return '';
+    return texto
+        .replaceAll('“', '"')
+        .replaceAll('”', '"')
+        .replaceAll('‘', "'")
+        .replaceAll('’', "'")
+        .replaceAll('–', '-')
+        .replaceAll('—', '-')
+        .replaceAll(RegExp(r'[\x00-\x1F\x7F-\x9F]'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+  }
+
   CasoIngreso({
     required this.id,
     this.origen = 'app',

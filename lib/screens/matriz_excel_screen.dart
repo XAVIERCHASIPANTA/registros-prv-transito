@@ -505,7 +505,7 @@ class _MatrizExcelScreenState extends State<MatrizExcelScreen> with SingleTicker
                   _itemDetalle('Propietario / Responsable', ing.propietario),
 
                   _seccionTitulo('3. SITUACIÓN LEGAL Y TRASLADO'),
-                  _itemDetalle('Situación Legal', ing.causaLegal.isNotEmpty ? '${ing.causaLegal} - ${ing.detalleCausa}' : ing.causaPrincipal),
+                  _itemDetalle('Situación Legal', ing.situacionLegalFormateada),
                   _itemDetalle('Autoridad que Conoce', ing.autoridadRequirente.isNotEmpty ? ing.autoridadRequirente : 'NO APLICA'),
                   _itemDetalle('Placa Grúa', lib?.placaGrua.isNotEmpty == true ? lib!.placaGrua : (ing.placaGrua.isNotEmpty ? ing.placaGrua : 'N/A')),
                   _itemDetalle('Conductor Grúa', ing.conductorGrua.isNotEmpty ? ing.conductorGrua : (ing.nombreGruaParticular.isNotEmpty ? ing.nombreGruaParticular : 'N/A')),
@@ -957,9 +957,7 @@ class _MatrizExcelScreenState extends State<MatrizExcelScreen> with SingleTicker
             : primerPago.entidadFinanciera)
         : '';
 
-    final situacionLegal = ing.causaLegal.isNotEmpty
-        ? (ing.detalleCausa.isNotEmpty ? '${ing.causaLegal} - ${ing.detalleCausa}' : ing.causaLegal)
-        : ing.causaPrincipal;
+    final situacionLegal = ing.situacionLegalFormateada;
 
     final autoridad = ing.autoridadRequirente.isNotEmpty
         ? ing.autoridadRequirente

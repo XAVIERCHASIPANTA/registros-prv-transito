@@ -114,9 +114,7 @@ class _FormularioLibertadScreenState extends State<FormularioLibertadScreen> {
           hojaIngresoNro: ing.hojaIngresoNro,
           parteIngresoNro: ing.parteIngresoNro,
           fechaIngreso: ing.fechaIngreso,
-          causa: [ing.causaLegal, ing.detalleCausa]
-              .where((s) => s.trim().isNotEmpty)
-              .join(' - '),
+          causa: ing.situacionLegalFormateada,
           fechaSalida: _dateFmt.format(DateTime.now()),
         );
 

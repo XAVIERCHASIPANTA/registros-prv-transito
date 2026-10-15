@@ -83,16 +83,34 @@ class ExcelMatrizBuilder {
     return null;
   }
 
+  static String _sanitizarTexto(String texto) {
+    if (texto.isEmpty) return '';
+    return texto
+        .replaceAll('“', '"')
+        .replaceAll('”', '"')
+        .replaceAll('‘', "'")
+        .replaceAll('’', "'")
+        .replaceAll('–', '-')
+        .replaceAll('—', '-')
+        .replaceAll(RegExp(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]'), '')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+  }
+
+  static TextCellValue _celdaTexto(String texto) {
+    return TextCellValue(_sanitizarTexto(texto));
+  }
+
   static CellValue _celdaFecha(String texto) {
     final dt = _parseFecha(texto);
     if (dt != null) {
       return DateCellValue(year: dt.year, month: dt.month, day: dt.day);
     }
-    return TextCellValue(texto.trim());
+    return _celdaTexto(texto);
   }
 
   static CellValue _celdaNumeroOTexto(String val) {
-    final limpio = val.trim();
+    final limpio = _sanitizarTexto(val);
     if (limpio.isEmpty) return TextCellValue('');
     final n = int.tryParse(limpio);
     if (n != null && !limpio.startsWith('0')) {
@@ -173,9 +191,7 @@ class ExcelMatrizBuilder {
         final lib = _libertadDe(ing, libertades);
         final ord = i + 1;
 
-        final situacionLegal = ing.causaLegal.isNotEmpty
-            ? (ing.detalleCausa.isNotEmpty ? '${ing.causaLegal} - ${ing.detalleCausa}' : ing.causaLegal)
-            : ing.causaPrincipal;
+        final situacionLegal = ing.situacionLegalFormateada;
 
         final autoridad = ing.autoridadRequirente.isNotEmpty
             ? ing.autoridadRequirente
@@ -245,35 +261,35 @@ class ExcelMatrizBuilder {
         }
 
         setCell(0, IntCellValue(ord));
-        setCell(1, TextCellValue(ing.subzona.isNotEmpty ? ing.subzona : 'SANTO DOMINGO'));
-        setCell(2, TextCellValue(ing.crv.isNotEmpty ? ing.crv : tituloPatio));
+        setCell(1, _celdaTexto(ing.subzona.isNotEmpty ? ing.subzona : 'SANTO DOMINGO'));
+        setCell(2, _celdaTexto(ing.crv.isNotEmpty ? ing.crv : tituloPatio));
         setCell(3, _celdaFecha(ing.fechaIngreso));
         setCell(4, _celdaNumeroOTexto(ing.hojaIngresoNro));
-        setCell(5, TextCellValue(ing.placa.trim().toUpperCase()));
-        setCell(6, TextCellValue(ing.marca.trim()));
-        setCell(7, TextCellValue(ing.tipoVehiculo.trim()));
-        setCell(8, TextCellValue(ing.modelo.trim()));
-        setCell(9, TextCellValue(ing.color.trim()));
+        setCell(5, _celdaTexto(ing.placa.trim().toUpperCase()));
+        setCell(6, _celdaTexto(ing.marca.trim()));
+        setCell(7, _celdaTexto(ing.tipoVehiculo.trim()));
+        setCell(8, _celdaTexto(ing.modelo.trim()));
+        setCell(9, _celdaTexto(ing.color.trim()));
         setCell(10, _celdaNumeroOTexto(ing.anioFabricacion));
-        setCell(11, TextCellValue(ing.chasis.trim()));
-        setCell(12, TextCellValue(ing.motor.trim()));
-        setCell(13, TextCellValue(ing.parteIngresoNro.trim()));
-        setCell(14, TextCellValue(ing.policiaNombre.trim()));
-        setCell(15, TextCellValue(ing.propietario.trim()));
-        setCell(16, TextCellValue(situacionLegal));
-        setCell(17, TextCellValue(autoridad));
-        setCell(18, TextCellValue(placaGrua));
-        setCell(19, TextCellValue(conductorGrua));
-        setCell(20, TextCellValue(ing.custodioRecibeNombre.trim().isNotEmpty ? ing.custodioRecibeNombre.trim() : 'SGOS. CHASIPANTA XAVIER'));
+        setCell(11, _celdaTexto(ing.chasis.trim()));
+        setCell(12, _celdaTexto(ing.motor.trim()));
+        setCell(13, _celdaTexto(ing.parteIngresoNro.trim()));
+        setCell(14, _celdaTexto(ing.policiaNombre.trim()));
+        setCell(15, _celdaTexto(ing.propietario.trim()));
+        setCell(16, _celdaTexto(situacionLegal));
+        setCell(17, _celdaTexto(autoridad));
+        setCell(18, _celdaTexto(placaGrua));
+        setCell(19, _celdaTexto(conductorGrua));
+        setCell(20, _celdaTexto(ing.custodioRecibeNombre.trim().isNotEmpty ? ing.custodioRecibeNombre.trim() : 'SGOS. CHASIPANTA XAVIER'));
 
         if (lib != null && lib.fechaSalida.isNotEmpty) {
           setCell(21, _celdaFecha(lib.fechaSalida));
-          setCell(22, TextCellValue(lib.oficioDevolucionNro.trim()));
-          setCell(23, TextCellValue(lib.firmadoPor.trim()));
-          setCell(24, TextCellValue(lib.retiradoPor.trim()));
-          setCell(25, TextCellValue(lib.cedulaRetira.trim()));
+          setCell(22, _celdaTexto(lib.oficioDevolucionNro.trim()));
+          setCell(23, _celdaTexto(lib.firmadoPor.trim()));
+          setCell(24, _celdaTexto(lib.retiradoPor.trim()));
+          setCell(25, _celdaTexto(lib.cedulaRetira.trim()));
           setCell(26, _celdaNumeroOTexto(ordenPagoGaraje));
-          setCell(27, TextCellValue(etiquetaLargaTarifa));
+          setCell(27, _celdaTexto(etiquetaLargaTarifa));
           setCell(28, dias != null ? IntCellValue(dias) : TextCellValue(''));
           setCell(29, IntCellValue(tarifa.toInt()));
           setCell(30, valorCalculado != null ? IntCellValue(valorCalculado.toInt()) : TextCellValue(''));
@@ -284,27 +300,27 @@ class ExcelMatrizBuilder {
             setCell(32, TextCellValue(''));
           }
           setCell(33, _celdaNumeroOTexto(comprobanteGaraje));
-          setCell(34, TextCellValue(bancoGaraje));
-          setCell(35, TextCellValue(bancoGaraje));
+          setCell(34, _celdaTexto(bancoGaraje));
+          setCell(35, _celdaTexto(bancoGaraje));
           setCell(36, _celdaNumeroOTexto(ing.hojaIngresoNro));
-          setCell(37, TextCellValue(lib.custodioEntregaNombre.trim()));
+          setCell(37, _celdaTexto(lib.custodioEntregaNombre.trim()));
         } else {
           for (int c = 21; c <= 37; c++) {
             setCell(c, TextCellValue(''));
           }
         }
 
-        setCell(38, TextCellValue(ordenPagoAlcoho));
-        setCell(39, TextCellValue(valorAlcoho));
-        setCell(40, TextCellValue(pericia));
-        setCell(41, TextCellValue(perito));
+        setCell(38, _celdaTexto(ordenPagoAlcoho));
+        setCell(39, _celdaTexto(valorAlcoho));
+        setCell(40, _celdaTexto(pericia));
+        setCell(41, _celdaTexto(perito));
         if (fechaPagoPericia.isNotEmpty && fechaPagoPericia != 'N/A') {
           setCell(42, _celdaFecha(fechaPagoPericia));
         } else {
           setCell(42, TextCellValue(''));
         }
         setCell(43, _celdaNumeroOTexto(compPagoPericia));
-        setCell(44, TextCellValue(bancoPericia));
+        setCell(44, _celdaTexto(bancoPericia));
 
         rowVehIndex++;
       }
@@ -328,9 +344,7 @@ class ExcelMatrizBuilder {
         final lib = _libertadDe(ing, libertades);
         final ord = i + 1;
 
-        final situacionLegal = ing.causaLegal.isNotEmpty
-            ? (ing.detalleCausa.isNotEmpty ? '${ing.causaLegal} - ${ing.detalleCausa}' : ing.causaLegal)
-            : ing.causaPrincipal;
+        final situacionLegal = ing.situacionLegalFormateada;
 
         final autoridad = ing.autoridadRequirente.isNotEmpty
             ? ing.autoridadRequirente
@@ -389,54 +403,54 @@ class ExcelMatrizBuilder {
         }
 
         setCell(0, IntCellValue(ord));
-        setCell(1, TextCellValue(ing.subzona.isNotEmpty ? ing.subzona : 'SANTO DOMINGO'));
-        setCell(2, TextCellValue(ing.crv.isNotEmpty ? ing.crv : tituloPatio));
+        setCell(1, _celdaTexto(ing.subzona.isNotEmpty ? ing.subzona : 'SANTO DOMINGO'));
+        setCell(2, _celdaTexto(ing.crv.isNotEmpty ? ing.crv : tituloPatio));
         setCell(3, _celdaFecha(ing.fechaIngreso));
         setCell(4, _celdaNumeroOTexto(ing.hojaIngresoNro));
-        setCell(5, TextCellValue(ing.placa.trim().toUpperCase()));
-        setCell(6, TextCellValue(ing.marca.trim()));
-        setCell(7, TextCellValue(ing.modelo.trim()));
-        setCell(8, TextCellValue(ing.color.trim()));
+        setCell(5, _celdaTexto(ing.placa.trim().toUpperCase()));
+        setCell(6, _celdaTexto(ing.marca.trim()));
+        setCell(7, _celdaTexto(ing.modelo.trim()));
+        setCell(8, _celdaTexto(ing.color.trim()));
         setCell(9, _celdaNumeroOTexto(ing.anioFabricacion));
-        setCell(10, TextCellValue(ing.chasis.trim()));
-        setCell(11, TextCellValue(ing.motor.trim()));
-        setCell(12, TextCellValue(ing.parteIngresoNro.trim()));
-        setCell(13, TextCellValue(ing.policiaNombre.trim()));
-        setCell(14, TextCellValue(ing.propietario.trim()));
-        setCell(15, TextCellValue(situacionLegal));
-        setCell(16, TextCellValue(autoridad));
-        setCell(17, TextCellValue(placaGrua));
-        setCell(18, TextCellValue(conductorGrua));
-        setCell(19, TextCellValue(ing.custodioRecibeNombre.trim().isNotEmpty ? ing.custodioRecibeNombre.trim() : 'SGOS. CHASIPANTA XAVIER'));
+        setCell(10, _celdaTexto(ing.chasis.trim()));
+        setCell(11, _celdaTexto(ing.motor.trim()));
+        setCell(12, _celdaTexto(ing.parteIngresoNro.trim()));
+        setCell(13, _celdaTexto(ing.policiaNombre.trim()));
+        setCell(14, _celdaTexto(ing.propietario.trim()));
+        setCell(15, _celdaTexto(situacionLegal));
+        setCell(16, _celdaTexto(autoridad));
+        setCell(17, _celdaTexto(placaGrua));
+        setCell(18, _celdaTexto(conductorGrua));
+        setCell(19, _celdaTexto(ing.custodioRecibeNombre.trim().isNotEmpty ? ing.custodioRecibeNombre.trim() : 'SGOS. CHASIPANTA XAVIER'));
 
         if (lib != null && lib.fechaSalida.isNotEmpty) {
           setCell(20, _celdaFecha(lib.fechaSalida));
-          setCell(21, TextCellValue(lib.oficioDevolucionNro.trim()));
-          setCell(22, TextCellValue(lib.firmadoPor.trim()));
-          setCell(23, TextCellValue(lib.retiradoPor.trim()));
-          setCell(24, TextCellValue(lib.cedulaRetira.trim()));
+          setCell(21, _celdaTexto(lib.oficioDevolucionNro.trim()));
+          setCell(22, _celdaTexto(lib.firmadoPor.trim()));
+          setCell(23, _celdaTexto(lib.retiradoPor.trim()));
+          setCell(24, _celdaTexto(lib.cedulaRetira.trim()));
           setCell(25, _celdaNumeroOTexto(ordenPagoGaraje));
           setCell(26, dias != null ? IntCellValue(dias) : TextCellValue(''));
           setCell(27, valorCanceladoMoto != null ? IntCellValue(valorCanceladoMoto) : TextCellValue(''));
           setCell(28, _celdaNumeroOTexto(ing.hojaIngresoNro));
-          setCell(29, TextCellValue(lib.custodioEntregaNombre.trim()));
+          setCell(29, _celdaTexto(lib.custodioEntregaNombre.trim()));
         } else {
           for (int c = 20; c <= 29; c++) {
             setCell(c, TextCellValue(''));
           }
         }
 
-        setCell(30, TextCellValue(ordenPagoAlcoho));
-        setCell(31, TextCellValue(valorAlcoho));
-        setCell(32, TextCellValue(pericia));
-        setCell(33, TextCellValue(perito));
+        setCell(30, _celdaTexto(ordenPagoAlcoho));
+        setCell(31, _celdaTexto(valorAlcoho));
+        setCell(32, _celdaTexto(pericia));
+        setCell(33, _celdaTexto(perito));
         if (fechaPagoPericia.isNotEmpty && fechaPagoPericia != 'N/A') {
           setCell(34, _celdaFecha(fechaPagoPericia));
         } else {
           setCell(34, TextCellValue(''));
         }
         setCell(35, _celdaNumeroOTexto(compPagoPericia));
-        setCell(36, TextCellValue(bancoPericia));
+        setCell(36, _celdaTexto(bancoPericia));
 
         rowMotoIndex++;
       }
