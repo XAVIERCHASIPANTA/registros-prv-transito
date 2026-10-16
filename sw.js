@@ -1,6 +1,6 @@
 // Service Worker para REGISTROS PRV TRANSITO PWA
 // Versión de caché dinámica: se incrementa en cada despliegue para forzar actualización en celulares
-const CACHE_VERSION = 'v1.1.22';
+const CACHE_VERSION = 'v1.1.23';
 const CACHE_NAME = `registros-prv-${CACHE_VERSION}`;
 
 self.addEventListener('install', (event) => {

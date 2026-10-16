@@ -112,7 +112,7 @@
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
-        navigator.serviceWorker.register('sw.js?v=1.1.22')
+        navigator.serviceWorker.register('sw.js?v=1.1.23')
           .then(function (reg) {
             reg.onupdatefound = function () {
               var installingWorker = reg.installing;
@@ -132,6 +132,6 @@
       });
     }
   </script>
-  <script src="flutter_bootstrap.js?v=1.1.22" async></script>
+  <script src="flutter_bootstrap.js?v=1.1.23" async></script>
 </body>
 </html>
