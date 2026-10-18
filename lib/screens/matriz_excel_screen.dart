@@ -300,7 +300,18 @@ class _MatrizExcelScreenState extends State<MatrizExcelScreen> with SingleTicker
     }
   }
 
+  String _etiquetaTarifarioCorto(String tipoCobro) {
+    final t = tipoCobro.trim().toUpperCase();
+    if (t.contains('MOTOCICLETA')) return 'MOTOCICLETA';
+    if (t.contains('EXTRA') || t.contains('EXTRAPESADO')) return 'EXTRA PESADO';
+    if (t.contains('PESAD')) return 'PESADO';
+    if (t.contains('LIVIANO') || t.contains('LIVIANOS')) return 'LIVIANO';
+    if (tipoCobro.trim().isEmpty) return '-';
+    return tipoCobro;
+  }
+
   Future<void> _exportarOCompartirExcel({required bool descargarDirecto}) async {
+
     try {
       final bytes = await StorageService.generarExcelConsolidado();
       if (bytes == null || bytes.isEmpty) {
@@ -840,7 +851,6 @@ class _MatrizExcelScreenState extends State<MatrizExcelScreen> with SingleTicker
         const DataColumn(label: Text('PROPIETARIO')),
         const DataColumn(label: Text('F. EGRESO')),
         const DataColumn(label: Text('DÍAS')),
-        if (!esMoto) const DataColumn(label: Text('TARIFA')),
         const DataColumn(label: Text('TOTAL')),
         const DataColumn(label: Text('ORD. PAGO')),
         const DataColumn(label: Text('BANCO')),
@@ -877,9 +887,8 @@ class _MatrizExcelScreenState extends State<MatrizExcelScreen> with SingleTicker
         DataColumn(label: Text('ENTREGADO A')),
         DataColumn(label: Text('CÉDULA RETIRA')),
         DataColumn(label: Text('ORD. PAGO')),
-        DataColumn(label: Text('TRÁMITE')),
+        DataColumn(label: Text('TARIFARIO')),
         DataColumn(label: Text('DÍAS')),
-        DataColumn(label: Text('TARIFA')),
         DataColumn(label: Text('VALOR')),
         DataColumn(label: Text('ORD. PAGO G.')),
         DataColumn(label: Text('F. PAGO')),
@@ -1058,7 +1067,6 @@ class _MatrizExcelScreenState extends State<MatrizExcelScreen> with SingleTicker
           DataCell(_celdaCorta(ing.propietario, ancho: 130)),
           DataCell(Text(lib?.fechaSalida ?? '-')),
           DataCell(Text(dias != null ? '$dias' : '-')),
-          if (!esMoto) DataCell(Text(tarifa > 0 ? '\$$tarifa' : '-')),
           DataCell(Text(valorTotal != null ? '\$${valorTotal.toStringAsFixed(0)}' : '-')),
           DataCell(Text(primerPago?.ordenPagoNro ?? '-')),
           DataCell(_celdaCorta(banco, ancho: 90)),
@@ -1108,9 +1116,8 @@ class _MatrizExcelScreenState extends State<MatrizExcelScreen> with SingleTicker
           DataCell(_celdaCorta(lib?.retiradoPor ?? '-', ancho: 120)),
           DataCell(Text(lib?.cedulaRetira ?? '-')),
           DataCell(Text(ordenPagoGaraje.isNotEmpty ? ordenPagoGaraje : '-')),
-          DataCell(_celdaCorta(tipoCobro, ancho: 80)),
+          DataCell(_celdaCorta(_etiquetaTarifarioCorto(tipoCobro), ancho: 80)),
           DataCell(Text(dias != null ? '$dias' : '-')),
-          DataCell(Text(tarifa > 0 ? '\$$tarifa' : '-')),
           DataCell(Text(valorTotal != null ? '\$${valorTotal.toStringAsFixed(2)}' : (lib != null ? '\$${lib.valorTotalGaraje}' : '-'))),
           DataCell(Text(ordenPagoGaraje.isNotEmpty ? ordenPagoGaraje : '-')),
           DataCell(Text(fechaPagoGaraje.isNotEmpty ? fechaPagoGaraje : '-')),
