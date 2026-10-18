@@ -360,7 +360,32 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
     await StorageService.guardarInformeSemanalRecord(record);
   }
 
+  /// 18/oct: envoltorio que muestra en pantalla cualquier error al generar o
+  /// firmar el PDF. Antes, si algo fallaba (sobre todo en el celular), el botón
+  /// "no hacía nada" y no había forma de saber por qué.
   Future<void> _generarYCompartirPdf({
+    String? asuntoPersonalizado,
+    String? correoDestino,
+  }) async {
+    try {
+      await _generarYCompartirPdfInterno(
+        asuntoPersonalizado: asuntoPersonalizado,
+        correoDestino: correoDestino,
+      );
+    } catch (e, st) {
+      debugPrint('Error generando/firmando el informe PDF: $e\n$st');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red.shade700,
+          duration: const Duration(seconds: 15),
+          content: Text('No se pudo generar/firmar el informe: $e'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _generarYCompartirPdfInterno({
     String? asuntoPersonalizado,
     String? correoDestino,
   }) async {
@@ -387,30 +412,29 @@ class _InformeSemanalScreenState extends State<InformeSemanalScreen> {
       incluirEstampaFirma: false,
     );
 
-    Uint8List? finalPdfBytes = pdfUnsignedBytes;
-    bool firmadoDigital = false;
-
-    if (mounted) {
-      final resBytes = await ModalPasswordFirmaDialog.solicitarYFirmar(
-        context,
-        pdfUnsignedBytes: pdfUnsignedBytes,
-        nombreFirmante: _firmanteNombreController.text.trim(),
-      );
-      if (resBytes != null) {
-        finalPdfBytes = resBytes;
-        firmadoDigital = true;
-      } else {
-        return;
-      }
-    }
-
-    // Compilar con anexos SIIPNE 3W si existen
+    // 18/oct: PRIMERO se une el informe con los anexos SIIPNE 3W y DESPUÉS se
+    // firma el PDF completo. Antes se firmaba primero y al unir los anexos se
+    // volvía a guardar el documento, lo que borraba/invalidaba la firma.
+    Uint8List pdfParaFirmar = pdfUnsignedBytes;
     if (_anexosAdjuntos.isNotEmpty) {
-      finalPdfBytes = PdfInformeSemanalBuilder.compilarConAnexos(
-        informePdfBytes: finalPdfBytes,
+      pdfParaFirmar = PdfInformeSemanalBuilder.compilarConAnexos(
+        informePdfBytes: pdfUnsignedBytes,
         anexosPdfBytes: _anexosAdjuntos.map((e) => e.bytes).toList(),
       );
     }
+
+    if (!mounted) return;
+    final resBytes = await ModalPasswordFirmaDialog.solicitarYFirmar(
+      context,
+      pdfUnsignedBytes: pdfParaFirmar,
+      nombreFirmante: _firmanteNombreController.text.trim(),
+    );
+    if (resBytes == null) return;
+
+    final Uint8List finalPdfBytes = resBytes;
+    // Si el usuario eligió "Omitir firma" el diálogo devuelve el mismo PDF que
+    // recibió; solo se marca como firmado si de verdad es un PDF nuevo.
+    final bool firmadoDigital = !identical(resBytes, pdfParaFirmar);
 
     await _registrarEnHistorial(firmadoDigitalmente: firmadoDigital);
 

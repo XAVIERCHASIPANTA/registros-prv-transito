@@ -79,37 +79,99 @@ class FirmaDigitalService {
     }
   }
 
-  /// Firma digitalmente el documento PDF con el certificado PKCS#12 (.p12)
+  static String _dos(int n) => n.toString().padLeft(2, '0');
+
+  /// Firma digitalmente el PDF con el certificado PKCS#12 (.p12) y dibuja un
+  /// sello VISIBLE (estilo FirmaEC) justo encima del nombre del firmante.
+  ///
+  /// 18/oct: antes el campo de firma se creaba SIN apariencia (por eso la firma
+  /// era invisible en el documento) y cualquier error se tragaba en silencio y
+  /// se devolvía el PDF sin firmar como si estuviera firmado. Ahora, si algo
+  /// falla, la excepción sube hasta el diálogo y se muestra el motivo real.
   static Future<Uint8List> firmarDocumentoPdf({
     required Uint8List pdfInputBytes,
     required Uint8List bytesP12,
     required String password,
     required String nombreFirmante,
   }) async {
+    final document = PdfDocument(inputBytes: pdfInputBytes);
     try {
-      final document = PdfDocument(inputBytes: pdfInputBytes);
       if (document.pages.count == 0) {
-        document.dispose();
-        return pdfInputBytes;
+        throw StateError('El PDF no tiene páginas para firmar.');
       }
 
-      final page = document.pages[0];
-      final certificate = PdfCertificate(bytesP12, password);
+      final datos = await obtenerDatosFirmante();
+      final nombre = (datos['nombre'] ?? '').isNotEmpty
+          ? datos['nombre']!
+          : nombreFirmante.trim().toUpperCase();
 
-      final signatureField = PdfSignatureField(
+      // Ubicar el espacio en blanco que deja el informe entre
+      // "VALOR, DISCIPLINA Y LEALTAD" y el nombre del firmante. Si no se
+      // encuentra el texto, se usa una posición fija como respaldo.
+      int paginaIdx = 0;
+      Rect rect = const Rect.fromLTWH(45, 600, 255, 40);
+      try {
+        final ultimaPagina = document.pages.count > 3 ? 2 : document.pages.count - 1;
+        final encontrados = PdfTextExtractor(document).findText(
+          <String>['LEALTAD'],
+          startPageIndex: 0,
+          endPageIndex: ultimaPagina,
+        );
+        if (encontrados.isNotEmpty) {
+          final m = encontrados.first;
+          paginaIdx = m.pageIndex;
+          rect = Rect.fromLTWH(45, m.bounds.bottom + 3, 255, 40);
+        }
+      } catch (_) {
+        // Si la búsqueda de texto falla, se queda la posición de respaldo.
+      }
+
+      final certificate = PdfCertificate(bytesP12, password);
+      final page = document.pages[paginaIdx];
+
+      final campo = PdfSignatureField(
         page,
-        'FirmaEC_${nombreFirmante.replaceAll(' ', '_')}',
-        bounds: const Rect.fromLTWH(45, 580, 240, 50),
-        signature: PdfSignature(certificate: certificate),
+        'FirmaEC_${nombre.replaceAll(RegExp(r'[^A-Za-z0-9]'), '_')}',
+        bounds: rect,
+        signature: PdfSignature(
+          certificate: certificate,
+          signedName: nombre,
+        ),
       );
-      document.form.fields.add(signatureField);
+
+      // Sello visible dentro del campo de firma.
+      final g = campo.appearance.normal.graphics!;
+      final fuente = PdfStandardFont(PdfFontFamily.helvetica, 8);
+      final fuenteNegrita =
+          PdfStandardFont(PdfFontFamily.helvetica, 8, style: PdfFontStyle.bold);
+      final ahora = DateTime.now();
+      final fecha = '${_dos(ahora.day)}/${_dos(ahora.month)}/${ahora.year} '
+          '${_dos(ahora.hour)}:${_dos(ahora.minute)}';
+      g.drawString(
+        'Firmado electrónicamente por:',
+        fuente,
+        brush: PdfBrushes.black,
+        bounds: Rect.fromLTWH(0, 0, rect.width, 11),
+      );
+      g.drawString(
+        nombre,
+        fuenteNegrita,
+        brush: PdfBrushes.black,
+        bounds: Rect.fromLTWH(0, 11, rect.width, 11),
+      );
+      g.drawString(
+        'Fecha: $fecha',
+        fuente,
+        brush: PdfBrushes.black,
+        bounds: Rect.fromLTWH(0, 22, rect.width, 11),
+      );
+
+      document.form.fields.add(campo);
 
       final List<int> signedBytes = await document.save();
-      document.dispose();
       return Uint8List.fromList(signedBytes);
-    } catch (e) {
-      debugPrint('Firma criptográfica nativa procesada: $e');
-      return pdfInputBytes;
+    } finally {
+      document.dispose();
     }
   }
 
