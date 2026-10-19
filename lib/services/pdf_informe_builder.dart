@@ -87,14 +87,19 @@ class PdfInformeSemanalBuilder {
     } catch (_) {}
 
     // Color de los datos variables (en la plantilla oficial van en rojo).
-    const rojo = PdfColor.fromInt(0xFFED0000);
+    const rojo = PdfColors.black; // datos variables: todo en negro
     const negro = PdfColors.black;
     const gris = PdfColor.fromInt(0xFF5A5A5A);
 
-    pw.TextSpan sp(String t, double size, {bool bold = false, PdfColor color = negro}) =>
+    pw.TextSpan sp(String t, double size,
+            {bool bold = false, PdfColor color = negro, double ls = 0}) =>
         pw.TextSpan(
           text: t,
-          style: pw.TextStyle(font: bold ? serifB : serif, fontSize: size, color: color),
+          style: pw.TextStyle(
+              font: bold ? serifB : serif,
+              fontSize: size,
+              color: color,
+              letterSpacing: ls),
         );
 
     pw.Widget linea(List<pw.TextSpan> spans,
@@ -172,10 +177,10 @@ class PdfInformeSemanalBuilder {
               ),
               rect(110.05, 86.6, 378.72, 1.4, negro),
               pw.Positioned(
-                left: 110.05,
+                left: 79.4,
                 top: 101.5,
                 child: pw.SizedBox(
-                  width: 378.72,
+                  width: 440,
                   child: pw.Column(
                     children: [
                       linea([
@@ -196,21 +201,21 @@ class PdfInformeSemanalBuilder {
 
               // ── Oficio y fecha (alineados a la derecha) ──
               pw.Positioned(
-                left: 300,
+                left: 0,
                 top: 146.2,
                 child: pw.SizedBox(
-                  width: 215.9,
+                  width: 515.9,
                   child: linea([
                     sp('Oficio, ', 11),
-                    sp(oficioNro, 11, color: rojo),
+                    sp(oficioNro, 11, color: rojo, ls: -0.75),
                   ], align: pw.TextAlign.right),
                 ),
               ),
               pw.Positioned(
-                left: 300,
+                left: 0,
                 top: 171.6,
                 child: pw.SizedBox(
-                  width: 214.5,
+                  width: 514.5,
                   child: linea([
                     sp('Fecha, ', 11),
                     sp(fechaOficio, 11, color: rojo),
@@ -223,11 +228,11 @@ class PdfInformeSemanalBuilder {
                 left: mIzq,
                 top: 209.4,
                 child: pw.SizedBox(
-                  width: anchoTexto,
+                  width: 480,
                   child: linea([
                     sp('ASUNTO: ', 11),
-                    sp('EN CUMPLIMIENTO AL  OFICIO Nro. ', 11, bold: true),
-                    sp(asuntoOficioNro, 11, bold: true, color: rojo),
+                    sp('EN CUMPLIMIENTO AL  OFICIO Nro. ', 11, bold: true, ls: -0.2),
+                    sp(asuntoOficioNro, 11, bold: true, color: rojo, ls: -0.5),
                   ]),
                 ),
               ),
@@ -242,9 +247,8 @@ class PdfInformeSemanalBuilder {
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
                       linea([sp('Señor', 11)], spacing: sp11),
-                      linea([sp(destinatarioNombre, 11, color: rojo)], spacing: sp11),
                       linea([
-                        sp(destinatarioRango, 11, color: rojo),
+                        sp('$destinatarioNombre $destinatarioRango', 11, color: rojo),
                       ], spacing: sp11),
                       linea([
                         sp('DIRECTOR NACIONAL DE CONTROL DE TRÁNSITO Y SEGURIDAD VIAL POLICÍA NACIONAL', 11),
