@@ -148,42 +148,41 @@ class FirmaDigitalService {
       final ahora = DateTime.now();
       final fecha = '${_dos(ahora.day)}/${_dos(ahora.month)}/${ahora.year} '
           '${_dos(ahora.hour)}:${_dos(ahora.minute)}';
-      g.drawString(
-        'Firmado electrónicamente por:',
-        fuente,
-        brush: PdfBrushes.black,
-        bounds: Rect.fromLTWH(0, 0, rect.width, 11),
-      );
-      g.drawString(
-        nombre,
-        fuenteNegrita,
-        brush: PdfBrushes.black,
-        bounds: Rect.fromLTWH(0, 11, rect.width, 11),
-      );
-      g.drawString(
-        'Fecha: $fecha',
-        fuente,
-        brush: PdfBrushes.black,
-        bounds: Rect.fromLTWH(0, 22, rect.width, 11),
-      );
+      // Formato análogo a FirmaEC: QR a la izquierda y texto a su derecha.
+      const double ladoQr = 40;
+      const double sep = 5;
+      final double tx = ladoQr + sep;
+      final double tw = rect.width - tx;
+      final fPeq = PdfStandardFont(PdfFontFamily.courier, 6);
+      final fPeqNeg =
+          PdfStandardFont(PdfFontFamily.courier, 7, style: PdfFontStyle.bold);
+      g.drawString('Validar únicamente con FirmaEC.', fPeq,
+          brush: PdfBrushes.black, bounds: Rect.fromLTWH(tx, 0, tw, 8));
+      g.drawString('Firmado electrónicamente por:', fPeq,
+          brush: PdfBrushes.black, bounds: Rect.fromLTWH(tx, 8, tw, 8));
+      g.drawString(nombre, fPeqNeg,
+          brush: PdfBrushes.black, bounds: Rect.fromLTWH(tx, 16, tw, 16));
+      g.drawString('Fecha: $fecha', fPeq,
+          brush: PdfBrushes.black, bounds: Rect.fromLTWH(tx, 32, tw, 8));
 
-      // Código QR con los datos de la firma, a la derecha del sello (pegado al
-      // margen derecho). Se dibuja sobre la página ANTES de guardar, así queda
-      // cubierto por la firma criptográfica. El QR es informativo: la validez
-      // real de la firma se comprueba abriendo el PDF en un lector (Adobe) o en
-      // FirmaEC.
+      // QR con los datos de la firma (formato similar al oficial), dibujado en
+      // la página antes de guardar para que quede cubierto por la firma.
+      final iso = ahora.toIso8601String().split('.').first;
+      final off = ahora.timeZoneOffset;
+      final offStr = '${off.isNegative ? '-' : '+'}'
+          '${_dos(off.inHours.abs())}:${_dos(off.inMinutes.abs() % 60)}';
       final datosQr = 'FIRMADO POR: $nombre\n'
-          'FECHA: $fecha\n'
-          'FIRMA ELECTRONICA (.p12)\n'
-          'VALIDAR EL PDF CON FIRMAEC';
-      const double ladoQr = 62;
-      final double qrX = page.size.width - 45 - ladoQr;
+          'RAZON: Firma de informe PRV\n'
+          'LOCALIZACION: Ecuador\n'
+          'FECHA: $iso$offStr\n'
+          'VALIDAR CON: https://www.firmadigital.gob.ec\n'
+          'Generado con REGISTROS PRV';
       final qr = Barcode.qrCode(errorCorrectLevel: BarcodeQRCorrectionLevel.medium);
       for (final e in qr.make(datosQr, width: ladoQr, height: ladoQr)) {
         if (e is BarcodeBar && e.black) {
           page.graphics.drawRectangle(
             brush: PdfBrushes.black,
-            bounds: Rect.fromLTWH(qrX + e.left, rect.top + e.top, e.width + 0.2, e.height + 0.2),
+            bounds: Rect.fromLTWH(rect.left + e.left, rect.top + e.top, e.width + 0.2, e.height + 0.2),
           );
         }
       }

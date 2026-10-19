@@ -77,7 +77,7 @@ class PdfInformeSemanalBuilder {
 
     pdf.addPage(
       pw.Page(
-        pageFormat: PdfPageFormat.letter,
+        pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.symmetric(horizontal: 45, vertical: 40),
         build: (pw.Context context) {
           return pw.Column(
@@ -234,7 +234,7 @@ class PdfInformeSemanalBuilder {
               ),
               
               // Espacio limpio sin QR ni estampas ficticias para FirmaEC
-              pw.SizedBox(height: 45),
+              pw.SizedBox(height: 100),
 
               // Pie de Firma
               pw.Text(
