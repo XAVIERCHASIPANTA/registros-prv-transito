@@ -67,7 +67,7 @@
     <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 6px;">Cargando aplicación PWA...</div>
   </div>
   <script>
-    const APP_VERSION = '1.1.25';
+    const APP_VERSION = '1.1.26';
     const lastVersion = localStorage.getItem('prv_app_version');
     if (lastVersion !== APP_VERSION) {
       localStorage.setItem('prv_app_version', APP_VERSION);
@@ -112,7 +112,7 @@
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
-        navigator.serviceWorker.register('sw.js?v=1.1.25')
+        navigator.serviceWorker.register('sw.js?v=1.1.26')
           .then(function (reg) {
             reg.onupdatefound = function () {
               var installingWorker = reg.installing;
@@ -132,6 +132,6 @@
       });
     }
   </script>
-  <script src="flutter_bootstrap.js?v=1.1.25" async></script>
+  <script src="flutter_bootstrap.js?v=1.1.26" async></script>
 </body>
 </html>
