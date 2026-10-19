@@ -110,7 +110,7 @@ class FirmaDigitalService {
       // "VALOR, DISCIPLINA Y LEALTAD" y el nombre del firmante. Si no se
       // encuentra el texto, se usa una posición fija como respaldo.
       int paginaIdx = 0;
-      Rect rect = const Rect.fromLTWH(45, 600, 255, 40);
+      Rect rect = const Rect.fromLTWH(85.05, 600, 255, 40);
       try {
         final ultimaPagina = document.pages.count > 3 ? 2 : document.pages.count - 1;
         final encontrados = PdfTextExtractor(document).findText(
@@ -121,7 +121,7 @@ class FirmaDigitalService {
         if (encontrados.isNotEmpty) {
           final m = encontrados.first;
           paginaIdx = m.pageIndex;
-          rect = Rect.fromLTWH(45, m.bounds.bottom + 3, 255, 40);
+          rect = Rect.fromLTWH(85.05, m.bounds.bottom + 3, 255, 40);
         }
       } catch (_) {
         // Si la búsqueda de texto falla, se queda la posición de respaldo.
