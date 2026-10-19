@@ -1,7 +1,7 @@
 name: registros_prv_transito
 description: "Registros PRV Tránsito - App para digitalizar partes de ingreso y libertad de vehículos en el CRV mediante OCR"
 publish_to: 'none'
-version: 1.1.25+1
+version: 1.1.26+1
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -33,6 +33,10 @@ dependencies:
   # lectura de un parte digital ya no depende de que el texto interno
   # del PDF venga en un orden predecible (varía de patio en patio).
   printing: ^5.13.4
+
+  # Código QR que se imprime junto a la firma electrónica del informe
+  # (ya venía incluido de forma indirecta con el paquete "pdf").
+  barcode: ^2.2.9
 
   # Llamadas a la API de Gemini (lee las fotos con IA en vez de OCR local)
   http: ^1.2.0

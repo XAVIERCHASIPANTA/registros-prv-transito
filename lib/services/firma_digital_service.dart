@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:barcode/barcode.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -165,6 +166,27 @@ class FirmaDigitalService {
         brush: PdfBrushes.black,
         bounds: Rect.fromLTWH(0, 22, rect.width, 11),
       );
+
+      // Código QR con los datos de la firma, a la derecha del sello (pegado al
+      // margen derecho). Se dibuja sobre la página ANTES de guardar, así queda
+      // cubierto por la firma criptográfica. El QR es informativo: la validez
+      // real de la firma se comprueba abriendo el PDF en un lector (Adobe) o en
+      // FirmaEC.
+      final datosQr = 'FIRMADO POR: $nombre\n'
+          'FECHA: $fecha\n'
+          'FIRMA ELECTRONICA (.p12)\n'
+          'VALIDAR EL PDF CON FIRMAEC';
+      const double ladoQr = 62;
+      final double qrX = page.size.width - 45 - ladoQr;
+      final qr = Barcode.qrCode(errorCorrectLevel: BarcodeQRCorrectionLevel.medium);
+      for (final e in qr.make(datosQr, width: ladoQr, height: ladoQr)) {
+        if (e is BarcodeBar && e.black) {
+          page.graphics.drawRectangle(
+            brush: PdfBrushes.black,
+            bounds: Rect.fromLTWH(qrX + e.left, rect.top + e.top, e.width + 0.2, e.height + 0.2),
+          );
+        }
+      }
 
       document.form.fields.add(campo);
 
