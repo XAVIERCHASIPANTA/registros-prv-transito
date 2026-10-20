@@ -108,67 +108,56 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (ctx) {
-        return _SubmenuModal(
-          titulo: 'Apartados Web',
-          subtitulo: 'Accesos directos a plataformas policiales y de tránsito',
-          icono: Icons.language_outlined,
-          colorIcono: Colors.cyanAccent,
-          opciones: [
-            _OpcionSubmenu(
+        // Primero se reproduce el efecto (inflar + desaparecer) dentro del
+        // propio círculo; recién después se cierra el panel y se abre el enlace.
+        void abrir(String url, String nombre) {
+          Navigator.pop(ctx);
+          _abrirEnlaceWeb(context, url, nombre: nombre);
+        }
+
+        return _ApartadosRadialModal(
+          centro: _EnlaceRadial(
+            titulo: 'Tonelaje de vehículo',
+            icono: Icons.travel_explore,
+            color: Colors.tealAccent,
+            onTap: () => abrir(_urlConsultaVehiculos, 'Consulta de Vehículos'),
+          ),
+          alrededor: [
+            _EnlaceRadial(
               titulo: 'PARTE WEB',
-              descripcion: 'https://partepolicial.ministeriodelinterior.gob.ec/',
               icono: Icons.shield_outlined,
-              colorIcono: const Color(0xFF5BA3F5),
-              onTap: () {
-                Navigator.pop(ctx);
-                _abrirEnlaceWeb(
-                  context,
-                  'https://partepolicial.ministeriodelinterior.gob.ec/',
-                  nombre: 'PARTE WEB',
-                );
-              },
+              color: const Color(0xFF5BA3F5),
+              onTap: () => abrir(
+                'https://partepolicial.ministeriodelinterior.gob.ec/',
+                'PARTE WEB',
+              ),
             ),
-            _OpcionSubmenu(
+            _EnlaceRadial(
               titulo: 'SIIPNE 3W',
-              descripcion: 'https://siipne.policia.gob.ec/indexSiipne.php',
               icono: Icons.local_police_outlined,
-              colorIcono: Colors.tealAccent,
-              onTap: () {
-                Navigator.pop(ctx);
-                _abrirEnlaceWeb(
-                  context,
-                  'https://siipne.policia.gob.ec/indexSiipne.php',
-                  nombre: 'SIIPNE 3W',
-                );
-              },
+              color: Colors.tealAccent,
+              onTap: () => abrir(
+                'https://siipne.policia.gob.ec/indexSiipne.php',
+                'SIIPNE 3W',
+              ),
             ),
-            _OpcionSubmenu(
+            _EnlaceRadial(
               titulo: 'DOCPOL',
-              descripcion: 'https://docpol.policia.gob.ec/login.php',
               icono: Icons.folder_shared_outlined,
-              colorIcono: Colors.amberAccent,
-              onTap: () {
-                Navigator.pop(ctx);
-                _abrirEnlaceWeb(
-                  context,
-                  'https://docpol.policia.gob.ec/login.php',
-                  nombre: 'DOCPOL',
-                );
-              },
+              color: Colors.amberAccent,
+              onTap: () => abrir(
+                'https://docpol.policia.gob.ec/login.php',
+                'DOCPOL',
+              ),
             ),
-            _OpcionSubmenu(
+            _EnlaceRadial(
               titulo: 'MULTAS AMT',
-              descripcion: 'https://servicios.axiscloud.ec/AutoServicio/inicio.jsp?ps_empresa=03&ps_accion=P55',
               icono: Icons.receipt_long_outlined,
-              colorIcono: const Color(0xFFFF6B6B),
-              onTap: () {
-                Navigator.pop(ctx);
-                _abrirEnlaceWeb(
-                  context,
-                  'https://servicios.axiscloud.ec/AutoServicio/inicio.jsp?ps_empresa=03&ps_accion=P55',
-                  nombre: 'MULTAS AMT',
-                );
-              },
+              color: const Color(0xFFFF6B6B),
+              onTap: () => abrir(
+                'https://servicios.axiscloud.ec/AutoServicio/inicio.jsp?ps_empresa=03&ps_accion=P55',
+                'MULTAS AMT',
+              ),
             ),
           ],
         );
@@ -914,6 +903,351 @@ class _SubmenuModal extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// APARTADOS WEB — menú radial: 1 enlace al centro + 4 alrededor.
+// Al tocar un círculo: se infla, se desvanece y recién entonces se abre el enlace.
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _EnlaceRadial {
+  final String titulo;
+  final IconData icono;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _EnlaceRadial({
+    required this.titulo,
+    required this.icono,
+    required this.color,
+    required this.onTap,
+  });
+}
+
+class _ApartadosRadialModal extends StatelessWidget {
+  final _EnlaceRadial centro;
+  final List<_EnlaceRadial> alrededor; // se espera 4
+
+  const _ApartadosRadialModal({
+    required this.centro,
+    required this.alrededor,
+  });
+
+  static const double _ancho = 300;
+  static const double _alto = 300;
+  static const double _tamCentro = 108;
+  static const double _tamSatelite = 66;
+  static const double _anchoNodo = 92;
+  static const double _desplazamiento = 78; // en X e Y desde el centro (diagonales)
+
+  @override
+  Widget build(BuildContext context) {
+    const cx = _ancho / 2;
+    const cy = _alto / 2;
+
+    // Esquinas: arriba-izq, arriba-der, abajo-izq, abajo-der
+    const posiciones = <Offset>[
+      Offset(-_desplazamiento, -_desplazamiento),
+      Offset(_desplazamiento, -_desplazamiento),
+      Offset(-_desplazamiento, _desplazamiento),
+      Offset(_desplazamiento, _desplazamiento),
+    ];
+
+    final satelites = <Widget>[];
+    for (var i = 0; i < alrededor.length && i < posiciones.length; i++) {
+      final p = posiciones[i];
+      satelites.add(
+        Positioned(
+          left: cx + p.dx - _anchoNodo / 2,
+          top: cy + p.dy - _tamSatelite / 2,
+          width: _anchoNodo,
+          child: _NodoInflable(
+            enlace: alrededor[i],
+            tam: _tamSatelite,
+            etiquetaDentro: false,
+          ),
+        ),
+      );
+    }
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 520),
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF132B59),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.5),
+                blurRadius: 20,
+                offset: const Offset(0, -4),
+              ),
+            ],
+          ),
+          padding: EdgeInsets.fromLTRB(
+            20,
+            14,
+            20,
+            20 + MediaQuery.of(context).padding.bottom,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 44,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(9),
+                    decoration: BoxDecoration(
+                      color: Colors.cyanAccent.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.3)),
+                    ),
+                    child: const Icon(Icons.language_outlined, color: Colors.cyanAccent, size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Apartados Web',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          'Toca un círculo para abrir la plataforma',
+                          style: TextStyle(color: Colors.white70, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white70),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: _ancho,
+                height: _alto,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: CustomPaint(
+                          painter: _LineasRadialPainter(
+                            centro: const Offset(cx, cy),
+                            destinos: [
+                              for (final p in posiciones) Offset(cx + p.dx, cy + p.dy),
+                            ],
+                            colorCentro: centro.color,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      left: cx - _tamCentro / 2,
+                      top: cy - _tamCentro / 2,
+                      width: _tamCentro,
+                      child: _NodoInflable(
+                        enlace: centro,
+                        tam: _tamCentro,
+                        etiquetaDentro: true,
+                      ),
+                    ),
+                    ...satelites,
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LineasRadialPainter extends CustomPainter {
+  final Offset centro;
+  final List<Offset> destinos;
+  final Color colorCentro;
+
+  _LineasRadialPainter({
+    required this.centro,
+    required this.destinos,
+    required this.colorCentro,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final linea = Paint()
+      ..color = Colors.white.withValues(alpha: 0.14)
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+    for (final d in destinos) {
+      canvas.drawLine(centro, d, linea);
+    }
+    final anillo = Paint()
+      ..color = colorCentro.withValues(alpha: 0.12)
+      ..strokeWidth = 1.2
+      ..style = PaintingStyle.stroke;
+    canvas.drawCircle(centro, 68, anillo);
+  }
+
+  @override
+  bool shouldRepaint(covariant _LineasRadialPainter old) =>
+      old.centro != centro || old.colorCentro != colorCentro || old.destinos != destinos;
+}
+
+class _NodoInflable extends StatefulWidget {
+  final _EnlaceRadial enlace;
+  final double tam;
+  final bool etiquetaDentro;
+
+  const _NodoInflable({
+    required this.enlace,
+    required this.tam,
+    required this.etiquetaDentro,
+  });
+
+  @override
+  State<_NodoInflable> createState() => _NodoInflableState();
+}
+
+class _NodoInflableState extends State<_NodoInflable> with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 380),
+  );
+  bool _activo = false;
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  Future<void> _tocar() async {
+    if (_activo) return;
+    _activo = true;
+    await _c.forward();
+    if (!mounted) return;
+    widget.enlace.onTap();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final e = widget.enlace;
+    final dentro = widget.etiquetaDentro;
+
+    return AnimatedBuilder(
+      animation: _c,
+      builder: (context, _) {
+        final escala = 1 + 0.9 * Curves.easeOut.transform(_c.value);
+        final opacidad = 1 - Curves.easeIn.transform(_c.value);
+
+        final circulo = Transform.scale(
+          scale: escala,
+          child: Opacity(
+            opacity: opacidad,
+            child: Material(
+              color: Colors.transparent,
+              shape: const CircleBorder(),
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                splashColor: e.color.withValues(alpha: 0.3),
+                onTap: _tocar,
+                child: Container(
+                  width: widget.tam,
+                  height: widget.tam,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: e.color.withValues(alpha: dentro ? 0.22 : 0.16),
+                    border: Border.all(
+                      color: e.color.withValues(alpha: dentro ? 0.9 : 0.6),
+                      width: dentro ? 2 : 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: e.color.withValues(alpha: dentro ? 0.35 : 0.18),
+                        blurRadius: dentro ? 18 : 10,
+                      ),
+                    ],
+                  ),
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.all(6),
+                  child: dentro
+                      ? Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(e.icono, color: e.color, size: 34),
+                            const SizedBox(height: 4),
+                            Text(
+                              e.titulo,
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 10.5,
+                                height: 1.1,
+                              ),
+                            ),
+                          ],
+                        )
+                      : Icon(e.icono, color: e.color, size: 30),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        if (dentro) return Center(child: circulo);
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            circulo,
+            const SizedBox(height: 4),
+            Opacity(
+              opacity: opacidad,
+              child: Text(
+                e.titulo,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 11,
+                  height: 1.1,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
