@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'acceso_service.dart';
+import 'terminos_service.dart';
 
 /// Maneja el inicio de sesión con Google y el estado de aprobación del
 /// usuario dentro de Firestore (colección "usuarios").
@@ -42,6 +44,8 @@ class AuthService {
   }
 
   Future<void> cerrarSesion() async {
+    AccesoService.reiniciar();
+    TerminosService.aceptadoEnLogin = false;
     if (!kIsWeb) {
       await _googleSignIn?.signOut();
     }
@@ -90,6 +94,13 @@ class AuthService {
       'subjefaturaTransito': subjefaturaTransito,
       'aprobado': false,
       'creado': FieldValue.serverTimestamp(),
+      // Si la persona marcó la casilla de términos en el login, se guarda la
+      // aceptación desde el primer momento.
+      if (TerminosService.aceptadoEnLogin) ...{
+        'terminosAceptados': true,
+        'terminosVersion': TerminosService.version,
+        'terminosFecha': FieldValue.serverTimestamp(),
+      },
     });
   }
 

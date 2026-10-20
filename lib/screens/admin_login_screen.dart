@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'admin_acceso.dart';
 import 'admin_home_screen.dart';
 
 /// Login exclusivo de administrador. Se llega aquí solo por la ruta
@@ -47,11 +48,11 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
         return;
       }
 
-      final esAdmin = doc.data()?['esAdmin'] == true;
+      final esAdmin = AdminAcceso.aplicar(doc.data());
       if (!esAdmin) {
         await FirebaseAuth.instance.signOut();
         setState(() {
-          _error = 'esAdmin no es true. Datos leídos: ${doc.data()}\n(UID: $uid)';
+          _error = 'Esta cuenta no tiene permisos de administrador.';
         });
         return;
       }

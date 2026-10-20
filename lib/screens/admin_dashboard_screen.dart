@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'admin_acceso.dart';
 
 /// Dashboard de productividad nacional: cuántos casos ha registrado
 /// cada patio (CRV), con alerta si un patio lleva varios días sin
@@ -58,10 +59,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   void _cargar() {
-    _futureCasos = FirebaseFirestore.instance
-        .collection(coleccion)
-        .get()
-        .then((snap) => snap.docs);
+    Query<Map<String, dynamic>> q = FirebaseFirestore.instance.collection(coleccion);
+    // El administrador de zona solo puede consultar los casos de su zona.
+    if (!AdminAcceso.esNacional) q = q.where('zona', isEqualTo: AdminAcceso.zona);
+    _futureCasos = q.get().then((snap) => snap.docs);
   }
 
   Future<void> _refrescar() async {
@@ -191,10 +192,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         }
       }
 
-      final fecha = data[campoFecha];
+      // "creado" se guarda como texto ISO; "actualizado" como Timestamp.
+      final fecha = data['actualizado'] ?? data[campoFecha];
       DateTime? fechaCaso;
       if (fecha is Timestamp) {
         fechaCaso = fecha.toDate();
+      } else if (fecha is String) {
+        fechaCaso = DateTime.tryParse(fecha);
       }
       if (fechaCaso != null &&
           (r.ultimaActividad == null || fechaCaso.isAfter(r.ultimaActividad!))) {

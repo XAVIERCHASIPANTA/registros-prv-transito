@@ -1,0 +1,144 @@
+rules_version = '2';
+
+// ============================================================================
+// REGLAS DE SEGURIDAD — REGISTROS PRV TRANSITO
+// Principio: todo está DENEGADO salvo lo que se permite aquí explícitamente.
+//
+// Roles (se leen del documento usuarios/{uid}):
+//   - Administrador nacional : esAdmin == true            -> ve y gestiona todo
+//   - Administrador de zona  : rol == 'admin_zona'
+//                              (+ campo "zona")           -> solo su zona
+//   - Policía (operador)     : aprobado == true           -> solo su patio
+// ============================================================================
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------------------------- Funciones ---------------------------------
+    function sesion() {
+      return request.auth != null;
+    }
+    function perfilRef() {
+      return /databases/$(database)/documents/usuarios/$(request.auth.uid);
+    }
+    function tienePerfil() {
+      return sesion() && exists(perfilRef());
+    }
+    function perfil() {
+      return get(perfilRef()).data;
+    }
+    function esAdminNacional() {
+      return tienePerfil() && perfil().get('esAdmin', false) == true;
+    }
+    function esAdminZona() {
+      return tienePerfil()
+        && perfil().get('rol', '') == 'admin_zona'
+        && perfil().get('aprobado', false) == true
+        && perfil().get('zona', '') != '';
+    }
+    function aprobado() {
+      return tienePerfil()
+        && perfil().get('aprobado', false) == true
+        && perfil().get('bloqueado', false) == false;
+    }
+    function esDeMiPatio(d) {
+      // Acceso directo al campo (sin .get) para que las CONSULTAS filtradas por
+      // patio se puedan validar contra estas reglas.
+      return aprobado() && perfil().get('patio', '') != '' && d.patio == perfil().patio;
+    }
+    function esDeMiZonaAdmin(d) {
+      return esAdminZona() && d.zona == perfil().zona;
+    }
+
+    // ------------------------------ Usuarios --------------------------------
+    match /usuarios/{uid} {
+      // Cada quien lee su perfil; el admin nacional todos; el admin de zona los de su zona.
+      allow read: if sesion() && (
+        request.auth.uid == uid
+        || esAdminNacional()
+        || esDeMiZonaAdmin(resource.data)
+      );
+
+      // Primer registro: solo el propio usuario, siempre NO aprobado y sin
+      // poder auto-asignarse permisos.
+      allow create: if sesion()
+        && request.auth.uid == uid
+        && request.resource.data.get('aprobado', false) == false
+        && !('esAdmin' in request.resource.data)
+        && !('rol' in request.resource.data)
+        && !('bloqueado' in request.resource.data);
+
+      // El propio usuario solo puede tocar datos de aceptación de términos y
+      // de su último acceso; NUNCA aprobado / esAdmin / rol / patio / zona.
+      allow update: if sesion()
+        && request.auth.uid == uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'terminosAceptados', 'terminosVersion', 'terminosFecha',
+          'ultimoAcceso', 'ultimaIp', 'appVersion', 'plataforma'
+        ]);
+
+      // Admin nacional: gestión total.
+      allow update, delete: if esAdminNacional();
+
+      // Admin de zona: solo aprobar/bloquear/cambiar patio dentro de su zona.
+      allow update: if esDeMiZonaAdmin(resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'aprobado', 'bloqueado', 'patio'
+        ]);
+    }
+
+    // ------------------------ Base maestra de casos -------------------------
+    match /casos_nacionales/{casoId} {
+      allow read: if esAdminNacional()
+        || esDeMiZonaAdmin(resource.data)
+        || esDeMiPatio(resource.data);
+
+      // Un policía solo crea/edita casos de SU patio, y no puede reasignarlos.
+      allow create: if esDeMiPatio(request.resource.data)
+        && request.resource.data.get('tipo', '') in ['ingreso', 'libertad'];
+      allow update: if esDeMiPatio(resource.data)
+        && esDeMiPatio(request.resource.data)
+        && request.resource.data.get('tipo', '') in ['ingreso', 'libertad'];
+
+      // Nadie borra casos desde la app; solo el admin nacional.
+      allow delete: if esAdminNacional();
+      allow write: if esAdminNacional();
+    }
+
+    // --------------------- Estado público de cada placa ---------------------
+    match /consulta_publica/{placa} {
+      allow read: if esAdminNacional() || esAdminZona() || aprobado();
+      allow create: if esDeMiPatio(request.resource.data);
+      // La placa pasa de un patio a otro en el tiempo (ingreso -> libertad en
+      // otro CRV), así que solo se exige que el NUEVO dato sea de mi patio.
+      allow update: if esDeMiPatio(request.resource.data);
+      allow delete: if esAdminNacional();
+    }
+
+    // -------------------------- Informes semanales --------------------------
+    match /informes_semanales_nacionales/{id} {
+      allow read: if esAdminNacional()
+        || esDeMiZonaAdmin(resource.data)
+        || esDeMiPatio(resource.data);
+      allow create: if esDeMiPatio(request.resource.data);
+      allow update: if esDeMiPatio(resource.data) && esDeMiPatio(request.resource.data);
+      allow delete: if esAdminNacional();
+    }
+
+    // ------------------- Historial de ediciones (auditoría) -----------------
+    match /historial_ediciones/{id} {
+      allow create: if esDeMiPatio(request.resource.data);
+      allow read: if esAdminNacional() || esDeMiZonaAdmin(resource.data);
+      allow update, delete: if false; // inmutable
+    }
+
+    // ------------------- Registro de accesos (inicios de sesión) ------------
+    match /registro_accesos/{id} {
+      allow create: if tienePerfil()
+        && request.resource.data.get('uid', '') == request.auth.uid;
+      allow read: if esAdminNacional() || esDeMiZonaAdmin(resource.data);
+      allow update, delete: if false; // inmutable
+    }
+
+    // Todo lo demás: denegado por defecto.
+  }
+}

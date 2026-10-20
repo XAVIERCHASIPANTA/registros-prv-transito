@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/caso_ingreso.dart';
 import '../models/caso_libertad.dart';
 import '../models/informe_semanal_record.dart';
@@ -7,11 +8,26 @@ import '../models/informe_semanal_record.dart';
 class FirestoreSyncService {
   final _firestore = FirebaseFirestore.instance;
 
+  /// Zona del usuario actual (se agrega a cada caso para que el administrador
+  /// de zona pueda filtrar). Si falla, devuelve ''.
+  Future<String> _zonaDelUsuario() async {
+    try {
+      final uid = FirebaseAuth.instance.currentUser?.uid;
+      if (uid == null) return '';
+      final doc = await _firestore.collection('usuarios').doc(uid).get();
+      return (doc.data()?['zona'] ?? '').toString();
+    } catch (_) {
+      return '';
+    }
+  }
+
   Future<void> subirIngreso(CasoIngreso c, {required String patio}) async {
     try {
+      final zona = await _zonaDelUsuario();
       await _firestore.collection('casos_nacionales').doc('ingreso_${c.id}').set({
         'tipo': 'ingreso',
         'patio': patio,
+        'zona': zona,
         ...c.toJson(),
         'actualizado': FieldValue.serverTimestamp(),
       });
@@ -31,9 +47,11 @@ class FirestoreSyncService {
 
   Future<void> subirLibertad(CasoLibertad c, {required String patio}) async {
     try {
+      final zona = await _zonaDelUsuario();
       await _firestore.collection('casos_nacionales').doc('libertad_${c.id}').set({
         'tipo': 'libertad',
         'patio': patio,
+        'zona': zona,
         ...c.toJson(),
         'actualizado': FieldValue.serverTimestamp(),
       });
@@ -53,8 +71,10 @@ class FirestoreSyncService {
 
   Future<void> subirInformeSemanal(InformeSemanalRecord record, {required String patio}) async {
     try {
+      final zona = await _zonaDelUsuario();
       await _firestore.collection('informes_semanales_nacionales').doc(record.id).set({
         'patio': patio,
+        'zona': zona,
         ...record.toJson(),
         'actualizado': FieldValue.serverTimestamp(),
       });
@@ -90,7 +110,9 @@ class FirestoreSyncService {
     required String patio,
   }) async {
     try {
+      final zona = await _zonaDelUsuario();
       await _firestore.collection('historial_ediciones').add({
+        'zona': zona,
         'tipo': tipo,
         'casoId': casoId,
         'placa': placa,

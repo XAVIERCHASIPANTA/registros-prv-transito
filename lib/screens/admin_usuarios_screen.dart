@@ -1,157 +1,242 @@
+// RUTA DE ARCHIVO: lib/screens/admin_usuarios_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'admin_acceso.dart';
 
-/// Pantalla de administración de usuarios.
+/// Administración de usuarios: aprobar, bloquear, cambiar patio y rol, y ver
+/// último acceso / IP / versión / aceptación de términos.
 ///
-/// Solo debe ser accesible si el usuario logueado tiene `esAdmin == true`
-/// en su documento de la colección `usuarios` (ver nota al final sobre
-/// cómo enlazarla desde home_screen.dart).
-///
-/// Supone la siguiente estructura en la colección `usuarios` (Firestore):
-///   {
-///     "email": "policia@ejemplo.com",
-///     "nombre": "Juan Pérez",
-///     "patio": "CRV Quitumbe",       // texto libre por ahora
-///     "aprobado": false,
-///     "esAdmin": false,
-///     "fechaRegistro": Timestamp,
-///   }
-///
-/// Si tus nombres de campo son distintos, ajusta las referencias abajo
-/// (están todas agrupadas en la sección "CAMPOS FIRESTORE").
-class AdminUsuariosScreen extends StatelessWidget {
+/// Campos reales del documento usuarios/{uid}: nombre, correo, patio, zona,
+/// aprobado, bloqueado, esAdmin, rol ('admin_zona' o vacío), creado,
+/// ultimoAcceso, ultimaIp, appVersion, plataforma, terminosVersion/Fecha.
+class AdminUsuariosScreen extends StatefulWidget {
   const AdminUsuariosScreen({super.key});
 
-  // ---------- CAMPOS FIRESTORE (ajustar aquí si difieren) ----------
-  static const String coleccion = 'usuarios';
-  static const String campoAprobado = 'aprobado';
-  static const String campoEsAdmin = 'esAdmin';
-  static const String campoPatio = 'patio';
-  static const String campoNombre = 'nombre';
-  static const String campoEmail = 'email';
-  static const String campoFecha = 'fechaRegistro';
-  // -------------------------------------------------------------
+  @override
+  State<AdminUsuariosScreen> createState() => _AdminUsuariosScreenState();
+}
 
-  CollectionReference<Map<String, dynamic>> get _usuariosRef =>
-      FirebaseFirestore.instance.collection(coleccion);
+class _AdminUsuariosScreenState extends State<AdminUsuariosScreen> {
+  final _busquedaCtrl = TextEditingController();
+  String _filtro = '';
 
-  Future<void> _aprobar(BuildContext context, String docId) async {
-    await _usuariosRef.doc(docId).update({campoAprobado: true});
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Usuario aprobado')),
-      );
+  Query<Map<String, dynamic>> get _consulta {
+    final col = FirebaseFirestore.instance.collection('usuarios');
+    // El administrador de zona solo puede consultar usuarios de su zona.
+    if (!AdminAcceso.esNacional) {
+      return col.where('zona', isEqualTo: AdminAcceso.zona);
     }
+    return col;
   }
 
-  Future<void> _rechazar(BuildContext context, String docId) async {
-    final confirmar = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Rechazar usuario'),
-        content: const Text(
-          '¿Seguro que deseas rechazar el acceso de este usuario? '
-          'Podrás aprobarlo más tarde si vuelve a solicitarlo.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Rechazar'),
-          ),
-        ],
-      ),
-    );
-    if (confirmar == true) {
-      await _usuariosRef.doc(docId).update({campoAprobado: false});
-      if (context.mounted) {
+  @override
+  void dispose() {
+    _busquedaCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _actualizar(String uid, Map<String, dynamic> cambios, String mensaje) async {
+    try {
+      await FirebaseFirestore.instance.collection('usuarios').doc(uid).update(cambios);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(mensaje)));
+      }
+    } catch (e) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Usuario rechazado')),
+          SnackBar(content: Text('No se pudo guardar: $e'), backgroundColor: Colors.red),
         );
       }
     }
   }
 
-  Future<void> _revocar(BuildContext context, String docId) async {
-    final confirmar = await showDialog<bool>(
+  Future<bool> _confirmar(String titulo, String texto, String boton) async {
+    final r = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Revocar acceso'),
-        content: const Text(
-          '¿Revocar el acceso de este usuario ya aprobado? '
-          'Dejará de poder ingresar a la app hasta que lo apruebes de nuevo.',
-        ),
+        title: Text(titulo),
+        content: Text(texto),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Revocar'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(boton)),
         ],
       ),
     );
-    if (confirmar == true) {
-      await _usuariosRef.doc(docId).update({campoAprobado: false});
-      if (context.mounted) {
+    return r == true;
+  }
+
+  Future<void> _cambiarPatio(String uid, String actual) async {
+    final ctrl = TextEditingController(text: actual);
+    final nuevo = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Cambiar patio asignado'),
+        content: TextField(
+          controller: ctrl,
+          decoration: const InputDecoration(
+            labelText: 'Patio (CRV)',
+            helperText: 'Escríbelo igual que aparece en los casos (ej. CONTROL 120).',
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar')),
+          FilledButton(onPressed: () => Navigator.pop(ctx, ctrl.text.trim()), child: const Text('Guardar')),
+        ],
+      ),
+    );
+    if (nuevo != null && nuevo.isNotEmpty && nuevo != actual) {
+      await _actualizar(uid, {'patio': nuevo}, 'Patio actualizado');
+    }
+  }
+
+  Future<void> _cambiarRol(String uid, Map<String, dynamic> d) async {
+    final zonaCtrl = TextEditingController(text: (d['zona'] ?? '').toString());
+    String rol = d['esAdmin'] == true
+        ? 'admin_nacional'
+        : (d['rol'] == 'admin_zona' ? 'admin_zona' : 'operador');
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSt) => AlertDialog(
+          title: const Text('Rol del usuario'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RadioListTile<String>(
+                value: 'operador',
+                groupValue: rol,
+                title: const Text('Policía (operador)'),
+                subtitle: const Text('Solo ve y registra casos de su patio'),
+                onChanged: (v) => setSt(() => rol = v!),
+              ),
+              RadioListTile<String>(
+                value: 'admin_zona',
+                groupValue: rol,
+                title: const Text('Administrador de zona'),
+                subtitle: const Text('Ve los casos y usuarios de su zona'),
+                onChanged: (v) => setSt(() => rol = v!),
+              ),
+              RadioListTile<String>(
+                value: 'admin_nacional',
+                groupValue: rol,
+                title: const Text('Administrador nacional'),
+                subtitle: const Text('Ve y gestiona TODO'),
+                onChanged: (v) => setSt(() => rol = v!),
+              ),
+              if (rol == 'admin_zona')
+                TextField(
+                  controller: zonaCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Zona',
+                    helperText: 'Igual que en el perfil del usuario (ej. ZONA 4).',
+                  ),
+                ),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
+            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Guardar')),
+          ],
+        ),
+      ),
+    );
+    if (ok != true) return;
+    if (rol == 'admin_zona' && zonaCtrl.text.trim().isEmpty) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Acceso revocado')),
+          const SnackBar(content: Text('Indica la zona del administrador de zona.')),
         );
       }
+      return;
     }
+    await _actualizar(
+      uid,
+      {
+        'esAdmin': rol == 'admin_nacional',
+        'rol': rol == 'admin_zona' ? 'admin_zona' : '',
+        if (rol == 'admin_zona') 'zona': zonaCtrl.text.trim(),
+      },
+      'Rol actualizado',
+    );
+  }
+
+  String _fmt(dynamic v) {
+    if (v is Timestamp) {
+      final f = v.toDate();
+      String d2(int n) => n.toString().padLeft(2, '0');
+      return '${d2(f.day)}/${d2(f.month)}/${f.year} ${d2(f.hour)}:${d2(f.minute)}';
+    }
+    return '';
   }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Administración de usuarios'),
+          title: const Text('Usuarios'),
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Pendientes'),
               Tab(text: 'Aprobados'),
+              Tab(text: 'Bloqueados'),
             ],
           ),
         ),
-        body: TabBarView(
+        body: Column(
           children: [
-            _ListaUsuarios(
-              stream: _usuariosRef
-                  .where(campoAprobado, isEqualTo: false)
-                  .snapshots(),
-              emptyText: 'No hay usuarios pendientes de aprobación',
-              builderAcciones: (context, doc) => Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.check_circle, color: Colors.green),
-                    tooltip: 'Aprobar',
-                    onPressed: () => _aprobar(context, doc.id),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.cancel, color: Colors.red),
-                    tooltip: 'Rechazar',
-                    onPressed: () => _rechazar(context, doc.id),
-                  ),
-                ],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+              child: TextField(
+                controller: _busquedaCtrl,
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.search),
+                  hintText: 'Buscar por nombre, correo o patio...',
+                  border: OutlineInputBorder(),
+                  isDense: true,
+                ),
+                onChanged: (v) => setState(() => _filtro = v.trim().toLowerCase()),
               ),
             ),
-            _ListaUsuarios(
-              stream: _usuariosRef
-                  .where(campoAprobado, isEqualTo: true)
-                  .snapshots(),
-              emptyText: 'Todavía no hay usuarios aprobados',
-              builderAcciones: (context, doc) => TextButton.icon(
-                icon: const Icon(Icons.block, color: Colors.orange),
-                label: const Text('Revocar'),
-                onPressed: () => _revocar(context, doc.id),
+            Expanded(
+              child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                stream: _consulta.snapshots(),
+                builder: (context, snap) {
+                  if (snap.hasError) {
+                    return Center(child: Text('Error: ${snap.error}'));
+                  }
+                  if (!snap.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  final todos = snap.data!.docs.where((d) {
+                    if (_filtro.isEmpty) return true;
+                    final x = d.data();
+                    final texto = '${x['nombre']} ${x['correo']} ${x['patio']} ${x['zona']}'.toLowerCase();
+                    return texto.contains(_filtro);
+                  }).toList()
+                    ..sort((a, b) {
+                      final ta = a.data()['creado'];
+                      final tb = b.data()['creado'];
+                      if (ta is Timestamp && tb is Timestamp) return tb.compareTo(ta);
+                      return 0;
+                    });
+
+                  bool bloq(d) => d.data()['bloqueado'] == true;
+                  bool apro(d) => d.data()['aprobado'] == true && !bloq(d);
+                  final pendientes = todos.where((d) => !apro(d) && !bloq(d)).toList();
+                  final aprobados = todos.where(apro).toList();
+                  final bloqueados = todos.where(bloq).toList();
+
+                  return TabBarView(
+                    children: [
+                      _lista(pendientes, 'No hay usuarios pendientes', _accionesPendiente),
+                      _lista(aprobados, 'Todavía no hay usuarios aprobados', _accionesAprobado),
+                      _lista(bloqueados, 'No hay usuarios bloqueados', _accionesBloqueado),
+                    ],
+                  );
+                },
               ),
             ),
           ],
@@ -159,66 +244,118 @@ class AdminUsuariosScreen extends StatelessWidget {
       ),
     );
   }
-}
 
-class _ListaUsuarios extends StatelessWidget {
-  final Stream<QuerySnapshot<Map<String, dynamic>>> stream;
-  final String emptyText;
-  final Widget Function(BuildContext, QueryDocumentSnapshot<Map<String, dynamic>>)
-      builderAcciones;
-
-  const _ListaUsuarios({
-    required this.stream,
-    required this.emptyText,
-    required this.builderAcciones,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      stream: stream,
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        }
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        final docs = snapshot.data!.docs;
-        if (docs.isEmpty) {
-          return Center(child: Text(emptyText));
-        }
-        return ListView.separated(
-          padding: const EdgeInsets.all(12),
-          itemCount: docs.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 8),
-          itemBuilder: (context, index) {
-            final doc = docs[index];
-            final data = doc.data();
-            final nombre = data[AdminUsuariosScreen.campoNombre] ?? '(sin nombre)';
-            final email = data[AdminUsuariosScreen.campoEmail] ?? '';
-            final patio = data[AdminUsuariosScreen.campoPatio] ?? '(patio no indicado)';
-            final fecha = data[AdminUsuariosScreen.campoFecha];
-            String fechaTexto = '';
-            if (fecha is Timestamp) {
-              final f = fecha.toDate();
-              fechaTexto = '${f.day.toString().padLeft(2, '0')}/'
-                  '${f.month.toString().padLeft(2, '0')}/${f.year}';
-            }
-
-            return Card(
-              child: ListTile(
-                title: Text(nombre),
-                subtitle: Text(
-                  '$email\nPatio: $patio${fechaTexto.isNotEmpty ? '  •  Registrado: $fechaTexto' : ''}',
+  Widget _lista(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+    String vacio,
+    List<Widget> Function(QueryDocumentSnapshot<Map<String, dynamic>>) acciones,
+  ) {
+    if (docs.isEmpty) return Center(child: Text(vacio));
+    return ListView.builder(
+      padding: const EdgeInsets.all(12),
+      itemCount: docs.length,
+      itemBuilder: (context, i) {
+        final doc = docs[i];
+        final d = doc.data();
+        final esAdmin = d['esAdmin'] == true;
+        final rolTxt = esAdmin
+            ? 'Admin nacional'
+            : (d['rol'] == 'admin_zona' ? 'Admin de zona' : 'Policía');
+        final acepto = d['terminosVersion'] != null;
+        final ultimo = _fmt(d['ultimoAcceso']);
+        return Card(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        (d['nombre'] ?? '(sin nombre)').toString(),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                      ),
+                    ),
+                    Chip(
+                      label: Text(rolTxt, style: const TextStyle(fontSize: 11)),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ],
                 ),
-                isThreeLine: true,
-                trailing: builderAcciones(context, doc),
-              ),
-            );
-          },
+                Text((d['correo'] ?? '').toString(), style: const TextStyle(color: Colors.black54)),
+                const SizedBox(height: 6),
+                Text('Patio: ${d['patio'] ?? '-'}   •   Zona: ${(d['zona'] ?? '').toString().isEmpty ? '-' : d['zona']}'),
+                Text('Registrado: ${_fmt(d['creado'])}'),
+                Text(
+                  'Último acceso: ${ultimo.isEmpty ? 'sin registro' : ultimo}'
+                  '${(d['ultimaIp'] ?? '').toString().isNotEmpty ? '   •   IP: ${d['ultimaIp']}' : ''}',
+                ),
+                Text(
+                  'App: ${d['appVersion'] ?? '-'} (${d['plataforma'] ?? '-'})   •   '
+                  'Términos: ${acepto ? 'aceptados' : 'NO aceptados'}',
+                  style: TextStyle(color: acepto ? Colors.black87 : Colors.orange.shade800),
+                ),
+                const SizedBox(height: 4),
+                Wrap(spacing: 4, children: acciones(doc)),
+              ],
+            ),
+          ),
         );
       },
     );
   }
+
+  List<Widget> _accionesPendiente(QueryDocumentSnapshot<Map<String, dynamic>> doc) => [
+        FilledButton.icon(
+          icon: const Icon(Icons.check),
+          label: const Text('Aprobar'),
+          onPressed: () => _actualizar(doc.id, {'aprobado': true, 'bloqueado': false}, 'Usuario aprobado'),
+        ),
+        TextButton.icon(
+          icon: const Icon(Icons.edit_location_alt),
+          label: const Text('Patio'),
+          onPressed: () => _cambiarPatio(doc.id, (doc.data()['patio'] ?? '').toString()),
+        ),
+        TextButton.icon(
+          icon: const Icon(Icons.block, color: Colors.red),
+          label: const Text('Bloquear'),
+          onPressed: () async {
+            if (await _confirmar('Bloquear usuario', 'No podrá entrar a la app hasta que lo desbloquees.', 'Bloquear')) {
+              await _actualizar(doc.id, {'aprobado': false, 'bloqueado': true}, 'Usuario bloqueado');
+            }
+          },
+        ),
+      ];
+
+  List<Widget> _accionesAprobado(QueryDocumentSnapshot<Map<String, dynamic>> doc) => [
+        TextButton.icon(
+          icon: const Icon(Icons.edit_location_alt),
+          label: const Text('Patio'),
+          onPressed: () => _cambiarPatio(doc.id, (doc.data()['patio'] ?? '').toString()),
+        ),
+        if (AdminAcceso.esNacional)
+          TextButton.icon(
+            icon: const Icon(Icons.admin_panel_settings),
+            label: const Text('Rol'),
+            onPressed: () => _cambiarRol(doc.id, doc.data()),
+          ),
+        TextButton.icon(
+          icon: const Icon(Icons.block, color: Colors.red),
+          label: const Text('Bloquear'),
+          onPressed: () async {
+            if (await _confirmar('Bloquear usuario', 'Dejará de poder entrar a la app inmediatamente.', 'Bloquear')) {
+              await _actualizar(doc.id, {'aprobado': false, 'bloqueado': true}, 'Usuario bloqueado');
+            }
+          },
+        ),
+      ];
+
+  List<Widget> _accionesBloqueado(QueryDocumentSnapshot<Map<String, dynamic>> doc) => [
+        FilledButton.icon(
+          icon: const Icon(Icons.lock_open),
+          label: const Text('Desbloquear y aprobar'),
+          onPressed: () => _actualizar(doc.id, {'aprobado': true, 'bloqueado': false}, 'Usuario desbloqueado'),
+        ),
+      ];
 }

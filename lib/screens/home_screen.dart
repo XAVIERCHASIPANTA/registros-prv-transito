@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'admin_usuarios_screen.dart';
+import 'admin_home_screen.dart';
 import 'captura_screen.dart';
 import 'documento_screen.dart';
 import 'ajustes_screen.dart';
@@ -182,7 +182,9 @@ class HomeScreen extends StatelessWidget {
     return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
       stream: FirebaseFirestore.instance.collection('usuarios').doc(uid).snapshots(),
       builder: (context, snapshot) {
-        final esAdmin = snapshot.data?.data()?['esAdmin'] == true;
+        final d = snapshot.data?.data();
+        final esAdmin = d?['esAdmin'] == true ||
+            (d?['rol'] == 'admin_zona' && d?['aprobado'] == true);
         if (!esAdmin) return const SizedBox.shrink();
         return IconButton(
           icon: const Icon(Icons.admin_panel_settings),
@@ -190,7 +192,7 @@ class HomeScreen extends StatelessWidget {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const AdminUsuariosScreen()),
+              MaterialPageRoute(builder: (_) => const AdminHomeScreen()),
             );
           },
         );

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../services/terminos_service.dart';
+import 'terminos_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,6 +12,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _cargando = false;
+  bool _aceptoTerminos = false;
   String? _error;
 
   Future<void> _iniciarSesion() async {
@@ -17,6 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _cargando = true;
       _error = null;
     });
+    TerminosService.aceptadoEnLogin = _aceptoTerminos;
     try {
       final usuario = await AuthService().iniciarSesionConGoogle();
       if (usuario == null && mounted) {
@@ -62,13 +66,38 @@ class _LoginScreenState extends State<LoginScreen> {
                   Text(_error!, style: const TextStyle(color: Colors.red), textAlign: TextAlign.center),
                   const SizedBox(height: 16),
                 ],
+                CheckboxListTile(
+                  value: _aceptoTerminos,
+                  onChanged: _cargando ? null : (v) => setState(() => _aceptoTerminos = v ?? false),
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text(
+                    'Acepto los términos y condiciones de uso, incluido el registro de mi dirección IP y de mi actividad en la aplicación.',
+                    style: TextStyle(fontSize: 13),
+                  ),
+                  subtitle: GestureDetector(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const TerminosScreen()),
+                    ),
+                    child: const Text(
+                      'Leer términos y condiciones',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF1B4B8F),
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
                 FilledButton.icon(
                   icon: _cargando
                       ? const SizedBox(
                           width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                       : const Icon(Icons.login),
                   label: Text(_cargando ? 'Ingresando...' : 'Iniciar sesión con Google'),
-                  onPressed: _cargando ? null : _iniciarSesion,
+                  onPressed: (_cargando || !_aceptoTerminos) ? null : _iniciarSesion,
                 ),
               ],
             ),
