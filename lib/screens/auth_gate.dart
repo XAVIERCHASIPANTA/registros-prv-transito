@@ -40,8 +40,11 @@ class AuthGate extends StatelessWidget {
             // Cuenta bloqueada por un administrador.
             if (datos['bloqueado'] == true) return const _BloqueadoScreen();
 
-            // Debe haber aceptado la versión vigente de los términos.
-            if (datos['terminosVersion'] != TerminosService.version) {
+            // Los términos se aceptan UNA sola vez (no se vuelven a pedir al
+            // cambiar la versión de la app ni del texto).
+            final yaAcepto =
+                datos['terminosAceptados'] == true || datos['terminosVersion'] != null;
+            if (!yaAcepto) {
               return TerminosScreen(uid: usuario.uid);
             }
 

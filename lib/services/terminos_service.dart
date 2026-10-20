@@ -4,8 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// Términos y condiciones de uso de REGISTROS PRV TRANSITO.
 ///
-/// Si se modifica el texto, SUBIR el número de [version]: a todos los usuarios
-/// se les volverá a pedir que acepten la nueva versión al entrar.
+/// Cada usuario acepta UNA sola vez. [version] solo queda registrada junto a
+/// la aceptación (para saber qué texto aceptó); no se vuelve a pedir.
 class TerminosService {
   static const String version = '2026-10-v1';
 

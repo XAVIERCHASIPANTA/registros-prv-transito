@@ -610,6 +610,13 @@ class HomeScreen extends StatelessWidget {
                             style: TextStyle(color: Colors.white54, fontSize: 12),
                           ),
                         ),
+                        const SizedBox(height: 4),
+                        const Center(
+                          child: Text(
+                            creditoAutor,
+                            style: TextStyle(color: Colors.white54, fontSize: 12),
+                          ),
+                        ),
                         const SizedBox(height: 16),
                       ],
                     ),

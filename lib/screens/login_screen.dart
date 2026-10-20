@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/terminos_service.dart';
+import '../version.dart';
 import 'terminos_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -43,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: SafeArea(
         child: Center(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(32),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -98,6 +99,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       : const Icon(Icons.login),
                   label: Text(_cargando ? 'Ingresando...' : 'Iniciar sesión con Google'),
                   onPressed: (_cargando || !_aceptoTerminos) ? null : _iniciarSesion,
+                ),
+                const SizedBox(height: 28),
+                const Text(
+                  'Versión $appVersion',
+                  style: TextStyle(color: Colors.black45, fontSize: 12),
+                ),
+                const SizedBox(height: 2),
+                const Text(
+                  creditoAutor,
+                  style: TextStyle(color: Colors.black45, fontSize: 12),
                 ),
               ],
             ),
