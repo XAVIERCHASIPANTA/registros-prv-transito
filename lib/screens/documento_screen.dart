@@ -91,7 +91,11 @@ class SelloEstadoGrande extends StatelessWidget {
 /// "EXPORTAR MATRIZ COMPLETA" en la pantalla principal).
 class DocumentoScreen extends StatefulWidget {
   final TipoParte tipo;
-  const DocumentoScreen({super.key, required this.tipo});
+
+  /// Título opcional de la barra superior (por defecto "Ingresos guardados" /
+  /// "Libertades guardadas").
+  final String? titulo;
+  const DocumentoScreen({super.key, required this.tipo, this.titulo});
 
   @override
   State<DocumentoScreen> createState() => _DocumentoScreenState();
@@ -101,8 +105,34 @@ class _DocumentoScreenState extends State<DocumentoScreen> {
   List<CasoIngreso> _ingresos = [];
   List<CasoLibertad> _libertades = [];
   bool _cargando = true;
+  final _filtroCtrl = TextEditingController();
+  String _filtro = '';
 
   bool get _esIngreso => widget.tipo == TipoParte.ingreso;
+
+  @override
+  void dispose() {
+    _filtroCtrl.dispose();
+    super.dispose();
+  }
+
+  /// Ingresos filtrados por la placa escrita en el buscador (vacío = todos).
+  List<CasoIngreso> get _ingresosFiltrados {
+    final f = _filtro.trim().toUpperCase();
+    if (f.isEmpty) return _ingresos;
+    return _ingresos.where((c) => c.placa.toUpperCase().contains(f)).toList();
+  }
+
+  /// Libertad ya guardada de un ingreso (null si el vehículo sigue ingresado).
+  CasoLibertad? _libertadDe(CasoIngreso ingreso) {
+    for (final l in _libertades) {
+      if (l.placa == ingreso.placa &&
+          (ingreso.hojaIngresoNro.isEmpty || l.hojaIngresoNro == ingreso.hojaIngresoNro)) {
+        return l;
+      }
+    }
+    return null;
+  }
 
   @override
   void initState() {
@@ -182,7 +212,7 @@ class _DocumentoScreenState extends State<DocumentoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final titulo = _esIngreso ? 'Ingresos guardados' : 'Libertades guardadas';
+    final titulo = widget.titulo ?? (_esIngreso ? 'Ingresos guardados' : 'Libertades guardadas');
     final total = _esIngreso ? _ingresos.length : _libertades.length;
 
     return Scaffold(
@@ -206,6 +236,16 @@ class _DocumentoScreenState extends State<DocumentoScreen> {
                 await Share.shareXFiles([xFile], text: 'MATRIZ MÁSTER DE HOJAS DE INGRESO');
               },
             ),
+            if (_libertades.isNotEmpty)
+              IconButton(
+                icon: const Icon(Icons.assignment_turned_in_outlined),
+                tooltip: 'Descargar Matriz Máster de Libertades (Word)',
+                onPressed: () async {
+                  final bytes = await StorageService.generarWordMasterLibertades();
+                  final xFile = XFile.fromData(Uint8List.fromList(bytes), name: 'Master_Libertades.docx', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+                  await Share.shareXFiles([xFile], text: 'MATRIZ MÁSTER DE HOJAS DE LIBERTAD');
+                },
+              ),
           ] else if (!_esIngreso && _libertades.isNotEmpty) ...[
             IconButton(
               icon: const Icon(Icons.visibility),
@@ -230,12 +270,45 @@ class _DocumentoScreenState extends State<DocumentoScreen> {
           ? const Center(child: CircularProgressIndicator())
           : total == 0
               ? const Center(child: Text('Todavía no hay registros guardados'))
-              : ListView(
+              : Column(
+                  children: [
+                    if (_esIngreso)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                        child: TextField(
+                          controller: _filtroCtrl,
+                          textCapitalization: TextCapitalization.characters,
+                          decoration: InputDecoration(
+                            labelText: 'Buscar por placa',
+                            hintText: 'Ej. PAD1978',
+                            border: const OutlineInputBorder(),
+                            prefixIcon: const Icon(Icons.search),
+                            suffixIcon: _filtro.isEmpty
+                                ? null
+                                : IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () {
+                                      _filtroCtrl.clear();
+                                      setState(() => _filtro = '');
+                                    },
+                                  ),
+                          ),
+                          onChanged: (v) => setState(() => _filtro = v),
+                        ),
+                      ),
+                    if (_esIngreso && _filtro.trim().isNotEmpty && _ingresosFiltrados.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.all(24),
+                        child: Text('No se encontró ningún vehículo con esa placa.', textAlign: TextAlign.center),
+                      ),
+                    Expanded(
+                      child: ListView(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   children: _esIngreso
-                      ? _ingresos
+                      ? _ingresosFiltrados
                           .map((c) {
                             final tieneLibertad = _yaTieneLibertad(c);
+                            final libertad = _libertadDe(c);
                             return Card(
                               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                               child: Column(
@@ -285,6 +358,37 @@ class _DocumentoScreenState extends State<DocumentoScreen> {
                                               label: const Text('Liberar vehículo'),
                                               onPressed: () => _liberarVehiculo(c),
                                             ),
+                                          ),
+                                        ] else if (libertad != null) ...[
+                                          // Vehículo ya liberado: se puede compartir o
+                                          // editar su Libertad desde aquí mismo.
+                                          const SizedBox(height: 12),
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: OutlinedButton.icon(
+                                                  icon: const Icon(Icons.share_outlined),
+                                                  label: const Text('Compartir libertad'),
+                                                  onPressed: () => _compartirLibertad(libertad),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Expanded(
+                                                child: OutlinedButton.icon(
+                                                  icon: const Icon(Icons.edit),
+                                                  label: const Text('Editar libertad'),
+                                                  onPressed: () => Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (_) => FormularioLibertadScreen(
+                                                        ingreso: c,
+                                                        existente: libertad,
+                                                      ),
+                                                    ),
+                                                  ).then((_) => _cargar()),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ],
@@ -341,6 +445,9 @@ class _DocumentoScreenState extends State<DocumentoScreen> {
                               );
                           })
                           .toList(),
+                      ),
+                    ),
+                  ],
                 ),
     );
   }

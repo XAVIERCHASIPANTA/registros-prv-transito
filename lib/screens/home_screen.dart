@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,7 +8,6 @@ import 'admin_home_screen.dart';
 import 'captura_screen.dart';
 import 'documento_screen.dart';
 import 'ajustes_screen.dart';
-import 'buscar_placa_screen.dart';
 import 'informe_semanal_screen.dart';
 import 'historial_informes_screen.dart';
 import 'matriz_excel_screen.dart';
@@ -54,30 +54,30 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (ctx) {
-        return _SubmenuModal(
+        // Se reproduce el efecto (inflar + desaparecer) y luego se cierra el
+        // panel y se navega.
+        return _ApartadosRadialModal(
           titulo: 'Informe Semanal',
-          subtitulo: 'Gestión de informes semanales y firma electrónica',
+          subtitulo: 'Toca un círculo para continuar',
           icono: Icons.summarize_outlined,
           colorIcono: Colors.orangeAccent,
-          opciones: [
-            _OpcionSubmenu(
-              titulo: 'Generar informe semanal',
-              descripcion: 'Crear nuevo informe consolidado de novedades',
-              icono: Icons.post_add_rounded,
-              colorIcono: Colors.orangeAccent,
-              onTap: () {
-                Navigator.pop(ctx);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const InformeSemanalScreen()),
-                );
-              },
-            ),
-            _OpcionSubmenu(
+          centro: _EnlaceRadial(
+            titulo: 'Generar informe semanal',
+            icono: Icons.post_add_rounded,
+            color: Colors.orangeAccent,
+            onTap: () {
+              Navigator.pop(ctx);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const InformeSemanalScreen()),
+              );
+            },
+          ),
+          alrededor: [
+            _EnlaceRadial(
               titulo: 'Historial de informes',
-              descripcion: 'Consultar y reimprimir informes generados',
               icono: Icons.history_edu_outlined,
-              colorIcono: Colors.amber.shade300,
+              color: Colors.amber.shade300,
               onTap: () {
                 Navigator.pop(ctx);
                 Navigator.push(
@@ -86,11 +86,10 @@ class HomeScreen extends StatelessWidget {
                 );
               },
             ),
-            _OpcionSubmenu(
+            _EnlaceRadial(
               titulo: 'Firma digital (.p12)',
-              descripcion: 'Configurar certificado de firma y credenciales',
               icono: Icons.verified_outlined,
-              colorIcono: Colors.lightGreenAccent,
+              color: Colors.lightGreenAccent,
               onTap: () {
                 Navigator.pop(ctx);
                 FirmaDigitalDialog.mostrar(context);
@@ -116,6 +115,10 @@ class HomeScreen extends StatelessWidget {
         }
 
         return _ApartadosRadialModal(
+          titulo: 'Apartados Web',
+          subtitulo: 'Toca un círculo para abrir la plataforma',
+          icono: Icons.language_outlined,
+          colorIcono: Colors.cyanAccent,
           centro: _EnlaceRadial(
             titulo: 'Tonelaje de vehículo',
             icono: Icons.travel_explore,
@@ -492,7 +495,7 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(height: 12),
                         _BotonPrincipal(
                           icono: Icons.login,
-                          titulo: 'INGRESO',
+                          titulo: 'INGRESAR VEHÍCULO',
                           subtitulo: 'Registrar el ingreso de un vehículo al CRV',
                           color: Colors.red.shade700,
                           onTap: () => Navigator.push(
@@ -506,12 +509,15 @@ class HomeScreen extends StatelessWidget {
                         _BotonPrincipal(
                           icono: Icons.logout,
                           titulo: 'BUSCAR VEHÍCULOS EN EL PATIO',
-                          subtitulo: 'Registrar la devolución / libertad de un vehículo',
+                          subtitulo: 'Ver ingresados y liberados, y registrar la libertad',
                           color: Colors.green.shade700,
                           onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const BuscarPlacaScreen(),
+                              builder: (_) => const DocumentoScreen(
+                                tipo: TipoParte.ingreso,
+                                titulo: 'Vehículos en el patio',
+                              ),
                             ),
                           ),
                         ),
@@ -526,12 +532,6 @@ class HomeScreen extends StatelessWidget {
                             mainAxisExtent: 118,
                           ),
                           children: [
-                            _TarjetaVidrio(
-                              icono: Icons.travel_explore,
-                              colorIcono: Colors.tealAccent,
-                              titulo: 'Consultar tonelaje de vehículo',
-                              onTap: () => _abrirConsultaVehiculos(context),
-                            ),
                             _TarjetaVidrio(
                               icono: Icons.calculate,
                               colorIcono: Colors.amberAccent,
@@ -558,28 +558,6 @@ class HomeScreen extends StatelessWidget {
                               colorIcono: Colors.cyanAccent,
                               titulo: 'Apartados web',
                               onTap: () => _mostrarSubmenuApartadosWeb(context),
-                            ),
-                            _TarjetaVidrio(
-                              icono: Icons.description_outlined,
-                              colorIcono: Colors.grey.shade300,
-                              titulo: 'Ver ingresos',
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const DocumentoScreen(tipo: TipoParte.ingreso),
-                                ),
-                              ),
-                            ),
-                            _TarjetaVidrio(
-                              icono: Icons.copy_all_outlined,
-                              colorIcono: Colors.grey.shade300,
-                              titulo: 'Ver libertades',
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const DocumentoScreen(tipo: TipoParte.libertad),
-                                ),
-                              ),
                             ),
                             _TarjetaVidrio(
                               icono: Icons.picture_as_pdf_outlined,
@@ -735,179 +713,6 @@ class _BotonPrincipal extends StatelessWidget {
   }
 }
 
-class _OpcionSubmenu {
-  final String titulo;
-  final String descripcion;
-  final IconData icono;
-  final Color colorIcono;
-  final VoidCallback onTap;
-
-  const _OpcionSubmenu({
-    required this.titulo,
-    required this.descripcion,
-    required this.icono,
-    required this.colorIcono,
-    required this.onTap,
-  });
-}
-
-class _SubmenuModal extends StatelessWidget {
-  final String titulo;
-  final String subtitulo;
-  final IconData icono;
-  final Color colorIcono;
-  final List<_OpcionSubmenu> opciones;
-
-  const _SubmenuModal({
-    required this.titulo,
-    required this.subtitulo,
-    required this.icono,
-    required this.colorIcono,
-    required this.opciones,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 520),
-        child: Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFF132B59),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.5),
-                blurRadius: 20,
-                offset: const Offset(0, -4),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.fromLTRB(20, 14, 20, 26),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 44,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(9),
-                    decoration: BoxDecoration(
-                      color: colorIcono.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: colorIcono.withValues(alpha: 0.3)),
-                    ),
-                    child: Icon(icono, color: colorIcono, size: 24),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          titulo,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          subtitulo,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white70),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              ...opciones.map((opc) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: Material(
-                    color: Colors.white.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(14),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(14),
-                      onTap: opc.onTap,
-                      splashColor: opc.colorIcono.withValues(alpha: 0.2),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: opc.colorIcono.withValues(alpha: 0.18),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Icon(opc.icono, color: opc.colorIcono, size: 24),
-                            ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    opc.titulo,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    opc.descripcion,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 11.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const Icon(Icons.arrow_forward_ios, color: Colors.white38, size: 14),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-
 // ─────────────────────────────────────────────────────────────────────────────
 // APARTADOS WEB — menú radial: 1 enlace al centro + 4 alrededor.
 // Al tocar un círculo: se infla, se desvanece y recién entonces se abre el enlace.
@@ -928,10 +733,18 @@ class _EnlaceRadial {
 }
 
 class _ApartadosRadialModal extends StatelessWidget {
+  final String titulo;
+  final String subtitulo;
+  final IconData icono;
+  final Color colorIcono;
   final _EnlaceRadial centro;
-  final List<_EnlaceRadial> alrededor; // se espera 4
+  final List<_EnlaceRadial> alrededor; // 2, 3 o 4 (más de 4 se reparten en círculo)
 
   const _ApartadosRadialModal({
+    required this.titulo,
+    required this.subtitulo,
+    required this.icono,
+    required this.colorIcono,
     required this.centro,
     required this.alrededor,
   });
@@ -943,18 +756,40 @@ class _ApartadosRadialModal extends StatelessWidget {
   static const double _anchoNodo = 92;
   static const double _desplazamiento = 78; // en X e Y desde el centro (diagonales)
 
+  /// Posiciones (relativas al centro) según la cantidad de círculos de alrededor.
+  static List<Offset> _posicionesPara(int n) {
+    const d = _desplazamiento;
+    switch (n) {
+      case 1:
+        return const [Offset(0, -d)];
+      case 2: // izquierda y derecha
+        return const [Offset(-100, 0), Offset(100, 0)];
+      case 3: // arriba, abajo-izquierda, abajo-derecha
+        return const [Offset(0, -102), Offset(-d - 8, d), Offset(d + 8, d)];
+      case 4: // esquinas
+        return const [
+          Offset(-d, -d),
+          Offset(d, -d),
+          Offset(-d, d),
+          Offset(d, d),
+        ];
+      default:
+        return [
+          for (var i = 0; i < n; i++)
+            Offset(
+              104 * math.cos(-math.pi / 2 + 2 * math.pi * i / n),
+              104 * math.sin(-math.pi / 2 + 2 * math.pi * i / n),
+            ),
+        ];
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     const cx = _ancho / 2;
     const cy = _alto / 2;
 
-    // Esquinas: arriba-izq, arriba-der, abajo-izq, abajo-der
-    const posiciones = <Offset>[
-      Offset(-_desplazamiento, -_desplazamiento),
-      Offset(_desplazamiento, -_desplazamiento),
-      Offset(-_desplazamiento, _desplazamiento),
-      Offset(_desplazamiento, _desplazamiento),
-    ];
+    final posiciones = _posicionesPara(alrededor.length);
 
     final satelites = <Widget>[];
     for (var i = 0; i < alrededor.length && i < posiciones.length; i++) {
@@ -1012,29 +847,29 @@ class _ApartadosRadialModal extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(9),
                     decoration: BoxDecoration(
-                      color: Colors.cyanAccent.withValues(alpha: 0.15),
+                      color: colorIcono.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.3)),
+                      border: Border.all(color: colorIcono.withValues(alpha: 0.3)),
                     ),
-                    child: const Icon(Icons.language_outlined, color: Colors.cyanAccent, size: 24),
+                    child: Icon(icono, color: colorIcono, size: 24),
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Apartados Web',
-                          style: TextStyle(
+                          titulo,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 17,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
-                          'Toca un círculo para abrir la plataforma',
-                          style: TextStyle(color: Colors.white70, fontSize: 12),
+                          subtitulo,
+                          style: const TextStyle(color: Colors.white70, fontSize: 12),
                         ),
                       ],
                     ),
