@@ -43,3 +43,14 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Archivos que no deben subirse al repositorio (auditoría v1.1.35)
+push_err.txt
+push_out.txt
+scratch/
+.firebase/
+*.p12
+*.pfx
+*.jks
+key.properties
+gemini_api_key.txt

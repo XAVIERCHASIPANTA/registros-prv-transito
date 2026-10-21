@@ -76,8 +76,14 @@ service cloud.firestore {
           'ultimoAcceso', 'ultimaIp', 'appVersion', 'plataforma'
         ]);
 
-      // Admin nacional: gestión total.
-      allow update, delete: if esAdminNacional();
+      // Admin nacional: gestión total, con dos protecciones (auditoría v1.1.35):
+      //  - no puede BORRAR su propio perfil (evita quedarse sin administrador);
+      //  - al editar su propio perfil debe seguir siendo admin (no puede
+      //    quitarse el permiso a sí mismo por error).
+      allow update: if esAdminNacional()
+        && (request.auth.uid != uid
+            || request.resource.data.get('esAdmin', false) == true);
+      allow delete: if esAdminNacional() && request.auth.uid != uid;
 
       // Admin de zona: solo aprobar/bloquear/cambiar patio dentro de su zona.
       allow update: if esDeMiZonaAdmin(resource.data)
@@ -95,9 +101,12 @@ service cloud.firestore {
       // Un policía solo crea/edita casos de SU patio, y no puede reasignarlos.
       allow create: if esDeMiPatio(request.resource.data)
         && request.resource.data.get('tipo', '') in ['ingreso', 'libertad'];
+      // El "tipo" (ingreso/libertad) NO puede cambiar después de creado:
+      // evita convertir un ingreso en libertad sin dejar rastro.
       allow update: if esDeMiPatio(resource.data)
         && esDeMiPatio(request.resource.data)
-        && request.resource.data.get('tipo', '') in ['ingreso', 'libertad'];
+        && request.resource.data.get('tipo', '') in ['ingreso', 'libertad']
+        && request.resource.data.get('tipo', '') == resource.data.get('tipo', '');
 
       // Nadie borra casos desde la app; solo el admin nacional.
       allow delete: if esAdminNacional();
@@ -133,8 +142,12 @@ service cloud.firestore {
 
     // ------------------- Registro de accesos (inicios de sesión) ------------
     match /registro_accesos/{id} {
+      // Solo se acepta el evento que la app realmente envía y con la hora del
+      // SERVIDOR (no una fecha inventada por el cliente).
       allow create: if tienePerfil()
-        && request.resource.data.get('uid', '') == request.auth.uid;
+        && request.resource.data.get('uid', '') == request.auth.uid
+        && request.resource.data.get('evento', '') == 'inicio_sesion'
+        && request.resource.data.get('fecha', null) == request.time;
       allow read: if esAdminNacional() || esDeMiZonaAdmin(resource.data);
       allow update, delete: if false; // inmutable
     }

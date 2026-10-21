@@ -58,7 +58,7 @@ jobs:
 
       - name: Desplegar respaldo en rama gh-pages
         uses: peaceiris/actions-gh-pages@v4
-        if: always()
+        if: success()
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build/web

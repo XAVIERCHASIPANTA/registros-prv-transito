@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -25,7 +26,29 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   bool _cargando = false;
   String? _error;
 
+  // Freno básico contra fuerza bruta (auditoría v1.1.35): tras 5 intentos
+  // fallidos se bloquea el botón por 5 minutos. Es una protección de cliente
+  // (complementa, no reemplaza, la de Firebase Auth).
+  static const _maxIntentos = 5;
+  static const _minutosBloqueo = 5;
+  int _intentosFallidos = 0;
+  DateTime? _bloqueadoHasta;
+
+  void _registrarFallo() {
+    _intentosFallidos++;
+    if (_intentosFallidos >= _maxIntentos) {
+      _bloqueadoHasta = DateTime.now().add(const Duration(minutes: _minutosBloqueo));
+      _intentosFallidos = 0;
+    }
+  }
+
   Future<void> _iniciarSesion() async {
+    final hasta = _bloqueadoHasta;
+    if (hasta != null && DateTime.now().isBefore(hasta)) {
+      final min = hasta.difference(DateTime.now()).inMinutes + 1;
+      setState(() => _error = 'Demasiados intentos. Espera $min min e inténtalo de nuevo.');
+      return;
+    }
     setState(() {
       _cargando = true;
       _error = null;
@@ -43,7 +66,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
       if (!doc.exists) {
         await FirebaseAuth.instance.signOut();
         setState(() {
-          _error = 'No existe documento en "usuarios" para el UID $uid.';
+          _error = 'Esta cuenta no tiene permisos de administrador.';
         });
         return;
       }
@@ -57,22 +80,27 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
         return;
       }
 
+      _intentosFallidos = 0;
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const AdminHomeScreen()),
       );
     } on FirebaseAuthException catch (e) {
+      if (kDebugMode) debugPrint('Login admin: ${e.code} ${e.message}');
+      _registrarFallo();
       setState(() {
+        // Mensaje único para correo inexistente / clave errónea: no revela
+        // qué cuentas existen.
         _error = switch (e.code) {
-          'user-not-found' => 'No existe una cuenta con ese correo.',
-          'wrong-password' => 'Contraseña incorrecta.',
-          'invalid-credential' => 'Correo o contraseña incorrectos.',
-          _ => e.message ?? 'Error al iniciar sesión.',
+          'too-many-requests' => 'Demasiados intentos. Espera unos minutos.',
+          'network-request-failed' => 'Sin conexión. Revisa tu internet.',
+          _ => 'Correo o contraseña incorrectos.',
         };
       });
     } catch (e) {
+      if (kDebugMode) debugPrint('Login admin (error inesperado): $e');
       setState(() {
-        _error = 'Error inesperado: $e';
+        _error = 'Error de conexión. Intenta de nuevo.';
       });
     } finally {
       if (mounted) setState(() => _cargando = false);
