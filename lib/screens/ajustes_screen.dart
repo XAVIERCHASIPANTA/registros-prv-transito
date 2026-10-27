@@ -45,15 +45,24 @@ class _AjustesScreenState extends State<AjustesScreen> {
   Future<void> _guardar() async {
     if (_controller.text.trim().isEmpty) return;
     setState(() => _guardando = true);
-    await _service.guardarApiKey(_controller.text);
-    if (mounted) {
-      setState(() {
-        _guardando = false;
-        _yaConfigurada = true;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('API key guardada. Ya puedes escanear con IA.')),
-      );
+    try {
+      await _service.guardarApiKey(_controller.text);
+      if (mounted) {
+        setState(() {
+          _guardando = false;
+          _yaConfigurada = true;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('API key guardada. Ya puedes escanear con IA.')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _guardando = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al guardar la clave: $e')),
+        );
+      }
     }
   }
 
