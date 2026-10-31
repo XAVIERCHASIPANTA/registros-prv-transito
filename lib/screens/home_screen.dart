@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,6 +7,7 @@ import 'admin_home_screen.dart';
 import 'captura_screen.dart';
 import 'documento_screen.dart';
 import 'ajustes_screen.dart';
+import 'buscar_placa_screen.dart';
 import 'informe_semanal_screen.dart';
 import 'historial_informes_screen.dart';
 import 'matriz_excel_screen.dart';
@@ -54,30 +54,30 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (ctx) {
-        // Se reproduce el efecto (inflar + desaparecer) y luego se cierra el
-        // panel y se navega.
-        return _ApartadosRadialModal(
+        return _SubmenuModal(
           titulo: 'Informe Semanal',
-          subtitulo: 'Toca un círculo para continuar',
+          subtitulo: 'Gestión de informes semanales y firma electrónica',
           icono: Icons.summarize_outlined,
           colorIcono: Colors.orangeAccent,
-          centro: _EnlaceRadial(
-            titulo: 'Generar informe semanal',
-            icono: Icons.post_add_rounded,
-            color: Colors.orangeAccent,
-            onTap: () {
-              Navigator.pop(ctx);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const InformeSemanalScreen()),
-              );
-            },
-          ),
-          alrededor: [
-            _EnlaceRadial(
+          opciones: [
+            _OpcionSubmenu(
+              titulo: 'Generar informe semanal',
+              descripcion: 'Crear nuevo informe consolidado de novedades',
+              icono: Icons.post_add_rounded,
+              colorIcono: Colors.orangeAccent,
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const InformeSemanalScreen()),
+                );
+              },
+            ),
+            _OpcionSubmenu(
               titulo: 'Historial de informes',
+              descripcion: 'Consultar y reimprimir informes generados',
               icono: Icons.history_edu_outlined,
-              color: Colors.amber.shade300,
+              colorIcono: Colors.amber.shade300,
               onTap: () {
                 Navigator.pop(ctx);
                 Navigator.push(
@@ -86,10 +86,11 @@ class HomeScreen extends StatelessWidget {
                 );
               },
             ),
-            _EnlaceRadial(
+            _OpcionSubmenu(
               titulo: 'Firma digital (.p12)',
+              descripcion: 'Configurar certificado de firma y credenciales',
               icono: Icons.verified_outlined,
-              color: Colors.lightGreenAccent,
+              colorIcono: Colors.lightGreenAccent,
               onTap: () {
                 Navigator.pop(ctx);
                 FirmaDigitalDialog.mostrar(context);
@@ -107,60 +108,81 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (ctx) {
-        // Primero se reproduce el efecto (inflar + desaparecer) dentro del
-        // propio círculo; recién después se cierra el panel y se abre el enlace.
-        void abrir(String url, String nombre) {
-          Navigator.pop(ctx);
-          _abrirEnlaceWeb(context, url, nombre: nombre);
-        }
-
-        return _ApartadosRadialModal(
+        return _SubmenuModal(
           titulo: 'Apartados Web',
-          subtitulo: 'Toca un círculo para abrir la plataforma',
+          subtitulo: 'Accesos directos a plataformas policiales y de tránsito',
           icono: Icons.language_outlined,
           colorIcono: Colors.cyanAccent,
-          centro: _EnlaceRadial(
-            titulo: 'Tonelaje de vehículo',
-            icono: Icons.travel_explore,
-            color: Colors.tealAccent,
-            onTap: () => abrir(_urlConsultaVehiculos, 'Consulta de Vehículos'),
-          ),
-          alrededor: [
-            _EnlaceRadial(
+          opciones: [
+            _OpcionSubmenu(
               titulo: 'PARTE WEB',
+              descripcion: 'https://partepolicial.ministeriodelinterior.gob.ec/',
               icono: Icons.shield_outlined,
-              color: const Color(0xFF5BA3F5),
-              onTap: () => abrir(
-                'https://partepolicial.ministeriodelinterior.gob.ec/',
-                'PARTE WEB',
-              ),
+              colorIcono: const Color(0xFF5BA3F5),
+              onTap: () {
+                Navigator.pop(ctx);
+                _abrirEnlaceWeb(
+                  context,
+                  'https://partepolicial.ministeriodelinterior.gob.ec/',
+                  nombre: 'PARTE WEB',
+                );
+              },
             ),
-            _EnlaceRadial(
+            _OpcionSubmenu(
               titulo: 'SIIPNE 3W',
+              descripcion: 'https://siipne.policia.gob.ec/indexSiipne.php',
               icono: Icons.local_police_outlined,
-              color: Colors.tealAccent,
-              onTap: () => abrir(
-                'https://siipne.policia.gob.ec/indexSiipne.php',
-                'SIIPNE 3W',
-              ),
+              colorIcono: Colors.tealAccent,
+              onTap: () {
+                Navigator.pop(ctx);
+                _abrirEnlaceWeb(
+                  context,
+                  'https://siipne.policia.gob.ec/indexSiipne.php',
+                  nombre: 'SIIPNE 3W',
+                );
+              },
             ),
-            _EnlaceRadial(
+            _OpcionSubmenu(
               titulo: 'DOCPOL',
+              descripcion: 'https://docpol.policia.gob.ec/login.php',
               icono: Icons.folder_shared_outlined,
-              color: Colors.amberAccent,
-              onTap: () => abrir(
-                'https://docpol.policia.gob.ec/login.php',
-                'DOCPOL',
-              ),
+              colorIcono: Colors.amberAccent,
+              onTap: () {
+                Navigator.pop(ctx);
+                _abrirEnlaceWeb(
+                  context,
+                  'https://docpol.policia.gob.ec/login.php',
+                  nombre: 'DOCPOL',
+                );
+              },
             ),
-            _EnlaceRadial(
+            _OpcionSubmenu(
               titulo: 'MULTAS AMT',
+              descripcion: 'https://servicios.axiscloud.ec/AutoServicio/inicio.jsp?ps_empresa=03&ps_accion=P55',
               icono: Icons.receipt_long_outlined,
-              color: const Color(0xFFFF6B6B),
-              onTap: () => abrir(
-                'https://servicios.axiscloud.ec/AutoServicio/inicio.jsp?ps_empresa=03&ps_accion=P55',
-                'MULTAS AMT',
-              ),
+              colorIcono: const Color(0xFFFF6B6B),
+              onTap: () {
+                Navigator.pop(ctx);
+                _abrirEnlaceWeb(
+                  context,
+                  'https://servicios.axiscloud.ec/AutoServicio/inicio.jsp?ps_empresa=03&ps_accion=P55',
+                  nombre: 'MULTAS AMT',
+                );
+              },
+            ),
+            _OpcionSubmenu(
+              titulo: 'GENERAR ORDEN DE PAGO',
+              descripcion: 'https://web.amt.gob.ec/web/valoresPagar/',
+              icono: Icons.payments_outlined,
+              colorIcono: const Color(0xFF7EE787),
+              onTap: () {
+                Navigator.pop(ctx);
+                _abrirEnlaceWeb(
+                  context,
+                  'https://web.amt.gob.ec/web/valoresPagar/',
+                  nombre: 'GENERAR ORDEN DE PAGO',
+                );
+              },
             ),
           ],
         );
@@ -495,7 +517,7 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(height: 12),
                         _BotonPrincipal(
                           icono: Icons.login,
-                          titulo: 'INGRESAR VEHÍCULO',
+                          titulo: 'INGRESO',
                           subtitulo: 'Registrar el ingreso de un vehículo al CRV',
                           color: Colors.red.shade700,
                           onTap: () => Navigator.push(
@@ -509,15 +531,12 @@ class HomeScreen extends StatelessWidget {
                         _BotonPrincipal(
                           icono: Icons.logout,
                           titulo: 'BUSCAR VEHÍCULOS EN EL PATIO',
-                          subtitulo: 'Ver ingresados y liberados, y registrar la libertad',
+                          subtitulo: 'Registrar la devolución / libertad de un vehículo',
                           color: Colors.green.shade700,
                           onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const DocumentoScreen(
-                                tipo: TipoParte.ingreso,
-                                titulo: 'Vehículos en el patio',
-                              ),
+                              builder: (_) => const BuscarPlacaScreen(),
                             ),
                           ),
                         ),
@@ -532,6 +551,12 @@ class HomeScreen extends StatelessWidget {
                             mainAxisExtent: 118,
                           ),
                           children: [
+                            _TarjetaVidrio(
+                              icono: Icons.travel_explore,
+                              colorIcono: Colors.tealAccent,
+                              titulo: 'Consultar tonelaje de vehículo',
+                              onTap: () => _abrirConsultaVehiculos(context),
+                            ),
                             _TarjetaVidrio(
                               icono: Icons.calculate,
                               colorIcono: Colors.amberAccent,
@@ -558,6 +583,28 @@ class HomeScreen extends StatelessWidget {
                               colorIcono: Colors.cyanAccent,
                               titulo: 'Apartados web',
                               onTap: () => _mostrarSubmenuApartadosWeb(context),
+                            ),
+                            _TarjetaVidrio(
+                              icono: Icons.description_outlined,
+                              colorIcono: Colors.grey.shade300,
+                              titulo: 'Ver ingresos',
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const DocumentoScreen(tipo: TipoParte.ingreso),
+                                ),
+                              ),
+                            ),
+                            _TarjetaVidrio(
+                              icono: Icons.copy_all_outlined,
+                              colorIcono: Colors.grey.shade300,
+                              titulo: 'Ver libertades',
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const DocumentoScreen(tipo: TipoParte.libertad),
+                                ),
+                              ),
                             ),
                             _TarjetaVidrio(
                               icono: Icons.picture_as_pdf_outlined,
@@ -713,101 +760,39 @@ class _BotonPrincipal extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// APARTADOS WEB — menú radial: 1 enlace al centro + 4 alrededor.
-// Al tocar un círculo: se infla, se desvanece y recién entonces se abre el enlace.
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _EnlaceRadial {
+class _OpcionSubmenu {
   final String titulo;
+  final String descripcion;
   final IconData icono;
-  final Color color;
+  final Color colorIcono;
   final VoidCallback onTap;
 
-  const _EnlaceRadial({
+  const _OpcionSubmenu({
     required this.titulo,
+    required this.descripcion,
     required this.icono,
-    required this.color,
+    required this.colorIcono,
     required this.onTap,
   });
 }
 
-class _ApartadosRadialModal extends StatelessWidget {
+class _SubmenuModal extends StatelessWidget {
   final String titulo;
   final String subtitulo;
   final IconData icono;
   final Color colorIcono;
-  final _EnlaceRadial centro;
-  final List<_EnlaceRadial> alrededor; // 2, 3 o 4 (más de 4 se reparten en círculo)
+  final List<_OpcionSubmenu> opciones;
 
-  const _ApartadosRadialModal({
+  const _SubmenuModal({
     required this.titulo,
     required this.subtitulo,
     required this.icono,
     required this.colorIcono,
-    required this.centro,
-    required this.alrededor,
+    required this.opciones,
   });
-
-  static const double _ancho = 300;
-  static const double _alto = 300;
-  static const double _tamCentro = 108;
-  static const double _tamSatelite = 66;
-  static const double _anchoNodo = 92;
-  static const double _desplazamiento = 78; // en X e Y desde el centro (diagonales)
-
-  /// Posiciones (relativas al centro) según la cantidad de círculos de alrededor.
-  static List<Offset> _posicionesPara(int n) {
-    const d = _desplazamiento;
-    switch (n) {
-      case 1:
-        return const [Offset(0, -d)];
-      case 2: // izquierda y derecha
-        return const [Offset(-100, 0), Offset(100, 0)];
-      case 3: // arriba, abajo-izquierda, abajo-derecha
-        return const [Offset(0, -102), Offset(-d - 8, d), Offset(d + 8, d)];
-      case 4: // esquinas
-        return const [
-          Offset(-d, -d),
-          Offset(d, -d),
-          Offset(-d, d),
-          Offset(d, d),
-        ];
-      default:
-        return [
-          for (var i = 0; i < n; i++)
-            Offset(
-              104 * math.cos(-math.pi / 2 + 2 * math.pi * i / n),
-              104 * math.sin(-math.pi / 2 + 2 * math.pi * i / n),
-            ),
-        ];
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    const cx = _ancho / 2;
-    const cy = _alto / 2;
-
-    final posiciones = _posicionesPara(alrededor.length);
-
-    final satelites = <Widget>[];
-    for (var i = 0; i < alrededor.length && i < posiciones.length; i++) {
-      final p = posiciones[i];
-      satelites.add(
-        Positioned(
-          left: cx + p.dx - _anchoNodo / 2,
-          top: cy + p.dy - _tamSatelite / 2,
-          width: _anchoNodo,
-          child: _NodoInflable(
-            enlace: alrededor[i],
-            tam: _tamSatelite,
-            etiquetaDentro: false,
-          ),
-        ),
-      );
-    }
-
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 520),
@@ -824,12 +809,7 @@ class _ApartadosRadialModal extends StatelessWidget {
               ),
             ],
           ),
-          padding: EdgeInsets.fromLTRB(
-            20,
-            14,
-            20,
-            20 + MediaQuery.of(context).padding.bottom,
-          ),
+          padding: const EdgeInsets.fromLTRB(20, 14, 20, 26),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -869,7 +849,10 @@ class _ApartadosRadialModal extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           subtitulo,
-                          style: const TextStyle(color: Colors.white70, fontSize: 12),
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ),
@@ -880,209 +863,71 @@ class _ApartadosRadialModal extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: _ancho,
-                height: _alto,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Positioned.fill(
-                      child: IgnorePointer(
-                        child: CustomPaint(
-                          painter: _LineasRadialPainter(
-                            centro: const Offset(cx, cy),
-                            destinos: [
-                              for (final p in posiciones) Offset(cx + p.dx, cy + p.dy),
-                            ],
-                            colorCentro: centro.color,
-                          ),
+              const SizedBox(height: 16),
+              ...opciones.map((opc) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Material(
+                    color: Colors.white.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(14),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(14),
+                      onTap: opc.onTap,
+                      splashColor: opc.colorIcono.withValues(alpha: 0.2),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: opc.colorIcono.withValues(alpha: 0.18),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Icon(opc.icono, color: opc.colorIcono, size: 24),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    opc.titulo,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    opc.descripcion,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 11.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(Icons.arrow_forward_ios, color: Colors.white38, size: 14),
+                          ],
                         ),
                       ),
                     ),
-                    Positioned(
-                      left: cx - _tamCentro / 2,
-                      top: cy - _tamCentro / 2,
-                      width: _tamCentro,
-                      child: _NodoInflable(
-                        enlace: centro,
-                        tam: _tamCentro,
-                        etiquetaDentro: true,
-                      ),
-                    ),
-                    ...satelites,
-                  ],
-                ),
-              ),
+                  ),
+                );
+              }),
             ],
           ),
         ),
       ),
-    );
-  }
-}
-
-class _LineasRadialPainter extends CustomPainter {
-  final Offset centro;
-  final List<Offset> destinos;
-  final Color colorCentro;
-
-  _LineasRadialPainter({
-    required this.centro,
-    required this.destinos,
-    required this.colorCentro,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final linea = Paint()
-      ..color = Colors.white.withValues(alpha: 0.14)
-      ..strokeWidth = 1.5
-      ..style = PaintingStyle.stroke;
-    for (final d in destinos) {
-      canvas.drawLine(centro, d, linea);
-    }
-    final anillo = Paint()
-      ..color = colorCentro.withValues(alpha: 0.12)
-      ..strokeWidth = 1.2
-      ..style = PaintingStyle.stroke;
-    canvas.drawCircle(centro, 68, anillo);
-  }
-
-  @override
-  bool shouldRepaint(covariant _LineasRadialPainter old) =>
-      old.centro != centro || old.colorCentro != colorCentro || old.destinos != destinos;
-}
-
-class _NodoInflable extends StatefulWidget {
-  final _EnlaceRadial enlace;
-  final double tam;
-  final bool etiquetaDentro;
-
-  const _NodoInflable({
-    required this.enlace,
-    required this.tam,
-    required this.etiquetaDentro,
-  });
-
-  @override
-  State<_NodoInflable> createState() => _NodoInflableState();
-}
-
-class _NodoInflableState extends State<_NodoInflable> with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 380),
-  );
-  bool _activo = false;
-
-  @override
-  void dispose() {
-    _c.dispose();
-    super.dispose();
-  }
-
-  Future<void> _tocar() async {
-    if (_activo) return;
-    _activo = true;
-    await _c.forward();
-    if (!mounted) return;
-    widget.enlace.onTap();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final e = widget.enlace;
-    final dentro = widget.etiquetaDentro;
-
-    return AnimatedBuilder(
-      animation: _c,
-      builder: (context, _) {
-        final escala = 1 + 0.9 * Curves.easeOut.transform(_c.value);
-        final opacidad = 1 - Curves.easeIn.transform(_c.value);
-
-        final circulo = Transform.scale(
-          scale: escala,
-          child: Opacity(
-            opacity: opacidad,
-            child: Material(
-              color: Colors.transparent,
-              shape: const CircleBorder(),
-              child: InkWell(
-                customBorder: const CircleBorder(),
-                splashColor: e.color.withValues(alpha: 0.3),
-                onTap: _tocar,
-                child: Container(
-                  width: widget.tam,
-                  height: widget.tam,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: e.color.withValues(alpha: dentro ? 0.22 : 0.16),
-                    border: Border.all(
-                      color: e.color.withValues(alpha: dentro ? 0.9 : 0.6),
-                      width: dentro ? 2 : 1.5,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: e.color.withValues(alpha: dentro ? 0.35 : 0.18),
-                        blurRadius: dentro ? 18 : 10,
-                      ),
-                    ],
-                  ),
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.all(6),
-                  child: dentro
-                      ? Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(e.icono, color: e.color, size: 34),
-                            const SizedBox(height: 4),
-                            Text(
-                              e.titulo,
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 10.5,
-                                height: 1.1,
-                              ),
-                            ),
-                          ],
-                        )
-                      : Icon(e.icono, color: e.color, size: 30),
-                ),
-              ),
-            ),
-          ),
-        );
-
-        if (dentro) return Center(child: circulo);
-
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            circulo,
-            const SizedBox(height: 4),
-            Opacity(
-              opacity: opacidad,
-              child: Text(
-                e.titulo,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 11,
-                  height: 1.1,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 }

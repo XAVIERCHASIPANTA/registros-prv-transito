@@ -47,6 +47,32 @@ class _BuscarPlacaScreenState extends State<BuscarPlacaScreen> {
   bool _buscando = false;
   bool _yaSeBusco = false;
 
+  // Sugerencias de placas mientras se escribe (todos los ingresos conocidos).
+  List<CasoIngreso> _todosIngresos = [];
+  final _foco = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarSugerencias();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _foco.dispose();
+    super.dispose();
+  }
+
+  Future<void> _cargarSugerencias() async {
+    try {
+      final lista = await StorageService.obtenerIngresos();
+      if (mounted) setState(() => _todosIngresos = lista);
+    } catch (_) {
+      // Sin sugerencias la búsqueda manual sigue funcionando.
+    }
+  }
+
   Future<void> _buscar() async {
     final placa = _controller.text.trim();
     if (placa.isEmpty) return;
@@ -98,15 +124,67 @@ class _BuscarPlacaScreenState extends State<BuscarPlacaScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    textCapitalization: TextCapitalization.characters,
-                    decoration: const InputDecoration(
-                      labelText: 'Placa',
-                      hintText: 'Ej. PAD1978',
-                      border: OutlineInputBorder(),
-                    ),
-                    onSubmitted: (_) => _buscar(),
+                  child: RawAutocomplete<CasoIngreso>(
+                    textEditingController: _controller,
+                    focusNode: _foco,
+                    displayStringForOption: (c) => c.placa.toUpperCase(),
+                    optionsBuilder: (valor) {
+                      final t = valor.text.trim().toUpperCase();
+                      if (t.isEmpty) return const Iterable<CasoIngreso>.empty();
+                      final vistas = <String>{};
+                      return _todosIngresos.where((c) {
+                        final p = c.placa.trim().toUpperCase();
+                        return p.contains(t) && vistas.add(p);
+                      }).take(8);
+                    },
+                    onSelected: (c) {
+                      _controller.text = c.placa.toUpperCase();
+                      _buscar();
+                    },
+                    fieldViewBuilder: (context, ctrl, foco, onSubmit) {
+                      return TextField(
+                        controller: ctrl,
+                        focusNode: foco,
+                        textCapitalization: TextCapitalization.characters,
+                        decoration: const InputDecoration(
+                          labelText: 'Placa',
+                          hintText: 'Escribe una letra y elige la placa',
+                          border: OutlineInputBorder(),
+                        ),
+                        onSubmitted: (_) => _buscar(),
+                      );
+                    },
+                    optionsViewBuilder: (context, onSelected, opciones) {
+                      return Align(
+                        alignment: Alignment.topLeft,
+                        child: Material(
+                          elevation: 4,
+                          borderRadius: BorderRadius.circular(10),
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxHeight: 260, maxWidth: 440),
+                            child: ListView(
+                              padding: EdgeInsets.zero,
+                              shrinkWrap: true,
+                              children: [
+                                for (final c in opciones)
+                                  ListTile(
+                                    dense: true,
+                                    leading: const Icon(Icons.directions_car, size: 18),
+                                    title: Text(c.placa.toUpperCase(),
+                                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                                    subtitle: Text(
+                                      '${c.marca} ${c.color}  •  ${c.fechaIngreso}',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    onTap: () => onSelected(c),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(width: 10),
