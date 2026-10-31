@@ -43,27 +43,35 @@ class _AjustesScreenState extends State<AjustesScreen> {
   }
 
   Future<void> _guardar() async {
-    if (_controller.text.trim().isEmpty) return;
+    final clave = _controller.text.trim();
+    if (clave.isEmpty) return;
     setState(() => _guardando = true);
+    String mensaje;
+    var ok = false;
     try {
-      await _service.guardarApiKey(_controller.text);
-      if (mounted) {
-        setState(() {
-          _guardando = false;
-          _yaConfigurada = true;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('API key guardada. Ya puedes escanear con IA.')),
-        );
+      await _service.guardarApiKey(clave);
+      final problema = await _service.verificarApiKey(clave);
+      if (problema == null) {
+        ok = true;
+        mensaje = 'API key guardada y verificada. Ya puedes escanear con IA.';
+      } else {
+        mensaje = problema;
       }
     } catch (e) {
-      if (mounted) {
-        setState(() => _guardando = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al guardar la clave: $e')),
-        );
-      }
+      mensaje = 'No se pudo guardar la clave: $e';
     }
+    if (!mounted) return;
+    setState(() {
+      _guardando = false;
+      _yaConfigurada = ok || _yaConfigurada;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensaje),
+        backgroundColor: ok ? Colors.green.shade700 : Colors.red.shade700,
+        duration: const Duration(seconds: 6),
+      ),
+    );
   }
 
   @override

@@ -303,12 +303,14 @@ Responde ÚNICAMENTE el objeto JSON descrito arriba.''';
   }
 
   Future<http.Response> _llamarGemini(String body, String apiKey, Duration timeout) async {
+    // Modelos con nivel GRATUITO (oct/2026). "gemini-flash-latest" es un alias
+    // que Google mantiene apuntando al Flash vigente; los demás son respaldo.
+    // (gemini-2.5-flash y 2.0 están en retiro y ya no se usan.)
     final modelosATestar = [
-      'gemini-3.8-flash',
-      'gemini-4.0-flash',
-      'gemini-3.6-flash',
-      'gemini-3.5-flash',
-      'gemini-2.5-flash',
+      'gemini-flash-latest',
+      'gemini-3.1-flash-lite',
+      'gemini-3-flash-preview',
+      'gemini-flash-lite-latest',
     ];
 
     final errores = <String>[];
