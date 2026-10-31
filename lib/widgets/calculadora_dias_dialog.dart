@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../models/caso_ingreso.dart';
+import '../services/storage_service.dart';
 
 class CalculadoraDiasDialog extends StatefulWidget {
   final DateTime? fechaIngresoInicial;
@@ -50,6 +52,13 @@ class _CalculadoraDiasDialogState extends State<CalculadoraDiasDialog> {
   final TextEditingController _precioPersonalizadoCtrl = TextEditingController();
   bool _usarPrecioPersonalizado = false;
 
+  // Ayuda opcional: elegir una placa ya ingresada para llenar fecha y tarifa.
+  // La placa puede ser cualquiera (no es obligatorio que esté ingresada) y
+  // todo sigue siendo editable.
+  List<CasoIngreso> _ingresos = [];
+  final TextEditingController _placaCtrl = TextEditingController();
+  String _infoPlaca = '';
+
   @override
   void initState() {
     super.initState();
@@ -72,12 +81,154 @@ class _CalculadoraDiasDialogState extends State<CalculadoraDiasDialog> {
 
     final cat = _categorias.firstWhere((c) => c.key == _categoriaSeleccionada);
     _precioPersonalizadoCtrl.text = cat.precio.toStringAsFixed(2);
+    _cargarIngresos();
   }
 
   @override
   void dispose() {
     _precioPersonalizadoCtrl.dispose();
+    _placaCtrl.dispose();
+    _placaFoco.dispose();
     super.dispose();
+  }
+
+  Future<void> _cargarIngresos() async {
+    try {
+      final lista = await StorageService.obtenerIngresos();
+      if (!mounted) return;
+      setState(() => _ingresos = lista);
+    } catch (_) {
+      // Sin datos la calculadora funciona igual, solo sin la ayuda de placas.
+    }
+  }
+
+  static DateTime? _parseFechaIngreso(String t) {
+    final m = RegExp(r'^\s*(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{4})').firstMatch(t);
+    if (m != null) {
+      return DateTime(int.parse(m.group(3)!), int.parse(m.group(2)!), int.parse(m.group(1)!));
+    }
+    final iso = DateTime.tryParse(t.trim());
+    return iso == null ? null : DateTime(iso.year, iso.month, iso.day);
+  }
+
+  /// Categoría de tarifa según el tipo y el tonelaje ya registrados en el ingreso.
+  String _categoriaDe(CasoIngreso c) {
+    final tipo = c.tipoVehiculo.toLowerCase();
+    final cobro = c.tipoCobroParqueo.toLowerCase();
+    if (tipo.contains('moto') || cobro.contains('moto')) return 'moto';
+    final tn = double.tryParse(c.tonelaje.replaceAll(',', '.').trim());
+    if (tn != null && tn > 0) {
+      if (tn <= 3.5) return 'liviano';
+      if (tn <= 12) return 'pesado';
+      return 'extrapesado';
+    }
+    if (cobro.contains('extra')) return 'extrapesado';
+    if (cobro.contains('pesado')) return 'pesado';
+    return 'liviano';
+  }
+
+  /// Al elegir una placa se llenan fecha de inicio y tarifa; todo sigue editable.
+  void _aplicarIngreso(CasoIngreso c) {
+    final fecha = _parseFechaIngreso(c.fechaIngreso);
+    final cat = _categorias.firstWhere((x) => x.key == _categoriaDe(c));
+    setState(() {
+      _placaCtrl.text = c.placa.toUpperCase();
+      if (fecha != null) _fechaIngreso = fecha;
+      _categoriaSeleccionada = cat.key;
+      _usarPrecioPersonalizado = false;
+      _precioPersonalizadoCtrl.text = cat.precio.toStringAsFixed(2);
+      final tn = c.tonelaje.trim();
+      _infoPlaca = 'Ingreso: ${c.fechaIngreso.isEmpty ? 'sin fecha' : c.fechaIngreso}'
+          '${tn.isEmpty ? '' : '  •  $tn TN'}  •  ${cat.label}';
+    });
+  }
+
+  final FocusNode _placaFoco = FocusNode();
+
+  Widget _campoPlaca() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RawAutocomplete<CasoIngreso>(
+          textEditingController: _placaCtrl,
+          focusNode: _placaFoco,
+          displayStringForOption: (c) => c.placa.toUpperCase(),
+          optionsBuilder: (valor) {
+            final t = valor.text.trim().toUpperCase();
+            if (t.isEmpty) return const Iterable<CasoIngreso>.empty();
+            final vistas = <String>{};
+            return _ingresos.where((c) {
+              final p = c.placa.trim().toUpperCase();
+              return p.contains(t) && vistas.add(p);
+            }).take(8);
+          },
+          onSelected: _aplicarIngreso,
+          fieldViewBuilder: (context, ctrl, foco, onSubmit) {
+            return TextField(
+              controller: ctrl,
+              focusNode: foco,
+              textCapitalization: TextCapitalization.characters,
+              decoration: InputDecoration(
+                isDense: true,
+                labelText: 'Placa (opcional)',
+                hintText: 'Busca una placa ingresada o escribe cualquiera',
+                prefixIcon: const Icon(Icons.search, size: 20),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                suffixIcon: ctrl.text.isEmpty
+                    ? null
+                    : IconButton(
+                        icon: const Icon(Icons.clear, size: 18),
+                        onPressed: () {
+                          ctrl.clear();
+                          setState(() => _infoPlaca = '');
+                        },
+                      ),
+              ),
+              onChanged: (_) => setState(() => _infoPlaca = ''),
+            );
+          },
+          optionsViewBuilder: (context, onSelected, opciones) {
+            return Align(
+              alignment: Alignment.topLeft,
+              child: Material(
+                elevation: 4,
+                borderRadius: BorderRadius.circular(10),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 220, maxWidth: 440),
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    children: [
+                      for (final c in opciones)
+                        ListTile(
+                          dense: true,
+                          leading: const Icon(Icons.directions_car, size: 18),
+                          title: Text(c.placa.toUpperCase(),
+                              style: const TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Text(
+                              '${c.marca} ${c.color}  •  ${c.fechaIngreso}'
+                              '${c.tonelaje.isEmpty ? '' : '  •  ${c.tonelaje} TN'}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis),
+                          onTap: () => onSelected(c),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+        if (_infoPlaca.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 4, left: 4),
+            child: Text(
+              _infoPlaca,
+              style: TextStyle(fontSize: 11.5, color: Colors.green.shade800, fontWeight: FontWeight.w600),
+            ),
+          ),
+      ],
+    );
   }
 
   String _formatoFecha(DateTime dt) {
@@ -152,7 +303,9 @@ class _CalculadoraDiasDialogState extends State<CalculadoraDiasDialog> {
   }
 
   void _copiarResultado() {
+    final placa = _placaCtrl.text.trim();
     final texto = 'Calculador de días de permanencia v1.1.5:\n'
+        '${placa.isEmpty ? '' : '• Placa: ${placa.toUpperCase()}\n'}'
         '• Fecha Inicio: ${_formatoFecha(_fechaIngreso)}\n'
         '• Fecha Final: ${_formatoFecha(_fechaSalida)}\n'
         '• Días de permanencia: $_diasCalculados día(s) (conteo inclusivo)\n'
@@ -253,6 +406,8 @@ class _CalculadoraDiasDialogState extends State<CalculadoraDiasDialog> {
                   ],
                 ),
               ),
+              const SizedBox(height: 12),
+              _campoPlaca(),
               const SizedBox(height: 14),
 
               // Selección de fechas (Botones interactivos que abren el calendario al presionar)
