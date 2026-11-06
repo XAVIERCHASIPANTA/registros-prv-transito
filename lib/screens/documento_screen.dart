@@ -106,6 +106,7 @@ class _DocumentoScreenState extends State<DocumentoScreen> {
   List<CasoLibertad> _libertades = [];
   bool _cargando = true;
   final _filtroCtrl = TextEditingController();
+  final _filtroFoco = FocusNode();
   String _filtro = '';
 
   bool get _esIngreso => widget.tipo == TipoParte.ingreso;
@@ -113,6 +114,7 @@ class _DocumentoScreenState extends State<DocumentoScreen> {
   @override
   void dispose() {
     _filtroCtrl.dispose();
+    _filtroFoco.dispose();
     super.dispose();
   }
 
@@ -275,25 +277,77 @@ class _DocumentoScreenState extends State<DocumentoScreen> {
                     if (_esIngreso)
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-                        child: TextField(
-                          controller: _filtroCtrl,
-                          textCapitalization: TextCapitalization.characters,
-                          decoration: InputDecoration(
-                            labelText: 'Buscar por placa',
-                            hintText: 'Ej. PAD1978',
-                            border: const OutlineInputBorder(),
-                            prefixIcon: const Icon(Icons.search),
-                            suffixIcon: _filtro.isEmpty
-                                ? null
-                                : IconButton(
-                                    icon: const Icon(Icons.clear),
-                                    onPressed: () {
-                                      _filtroCtrl.clear();
-                                      setState(() => _filtro = '');
-                                    },
+                        child: RawAutocomplete<CasoIngreso>(
+                          textEditingController: _filtroCtrl,
+                          focusNode: _filtroFoco,
+                          displayStringForOption: (c) => c.placa.toUpperCase(),
+                          optionsBuilder: (valor) {
+                            final t = valor.text.trim().toUpperCase();
+                            if (t.isEmpty) return const Iterable<CasoIngreso>.empty();
+                            final vistas = <String>{};
+                            return _ingresos.where((c) {
+                              final p = c.placa.trim().toUpperCase();
+                              return p.contains(t) && vistas.add(p);
+                            }).take(8);
+                          },
+                          onSelected: (c) => setState(() => _filtro = c.placa.toUpperCase()),
+                          fieldViewBuilder: (context, ctrl, foco, onSubmit) {
+                            return TextField(
+                              controller: ctrl,
+                              focusNode: foco,
+                              textCapitalization: TextCapitalization.characters,
+                              decoration: InputDecoration(
+                                labelText: 'Buscar por placa',
+                                hintText: 'Escribe una letra y elige la placa',
+                                border: const OutlineInputBorder(),
+                                prefixIcon: const Icon(Icons.search),
+                                suffixIcon: _filtro.isEmpty
+                                    ? null
+                                    : IconButton(
+                                        icon: const Icon(Icons.clear),
+                                        onPressed: () {
+                                          ctrl.clear();
+                                          setState(() => _filtro = '');
+                                        },
+                                      ),
+                              ),
+                              onChanged: (v) => setState(() => _filtro = v),
+                            );
+                          },
+                          optionsViewBuilder: (context, onSelected, opciones) {
+                            return Align(
+                              alignment: Alignment.topLeft,
+                              child: Material(
+                                elevation: 4,
+                                borderRadius: BorderRadius.circular(10),
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(maxHeight: 260, maxWidth: 440),
+                                  child: ListView(
+                                    padding: EdgeInsets.zero,
+                                    shrinkWrap: true,
+                                    children: [
+                                      for (final c in opciones)
+                                        ListTile(
+                                          dense: true,
+                                          leading: EstadoVehiculoIcon(
+                                            liberado: _yaTieneLibertad(c),
+                                            size: 28,
+                                          ),
+                                          title: Text(c.placa.toUpperCase(),
+                                              style: const TextStyle(fontWeight: FontWeight.bold)),
+                                          subtitle: Text(
+                                            '${c.marca} ${c.color}  •  ${c.fechaIngreso}',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          onTap: () => onSelected(c),
+                                        ),
+                                    ],
                                   ),
-                          ),
-                          onChanged: (v) => setState(() => _filtro = v),
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     if (_esIngreso && _filtro.trim().isNotEmpty && _ingresosFiltrados.isEmpty)
